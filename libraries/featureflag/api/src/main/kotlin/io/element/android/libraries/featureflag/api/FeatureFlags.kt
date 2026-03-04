@@ -140,13 +140,6 @@ enum class FeatureFlags(
         defaultValue = { false },
         isFinished = false,
     ),
-    SignInWithClassic(
-        key = "feature.signin_with_classic",
-        title = "Sign in with Element Classic",
-        description = "Allow the application to sign in to the current Element Classic account.",
-        defaultValue = { false },
-        isFinished = false,
-    ),
     ValidateNetworkWhenSchedulingNotificationFetching(
         key = "feature.validate_network_when_scheduling_notification_fetching",
         title = "validate internet connectivity when scheduling notification fetching",
