@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="application_name">чатор</string>
+    <string name="screen_welcome_title">Добро пожаловать в чатор</string>
+    <string name="screen_welcome_description">Мессенджер для русских подростков</string>
+</resources>
