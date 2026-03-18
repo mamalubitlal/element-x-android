@@ -75,6 +75,19 @@ val SemanticColors.pinnedMessageBannerIndicator
 val SemanticColors.pinnedMessageBannerBorder
     get() = if (isLight) LightColorTokens.colorAlphaGray400 else DarkColorTokens.colorAlphaGray400
 
+// чатор Blue Accent Colors - Override default accent colors with blue
+@OptIn(CoreColorToken::class)
+val SemanticColors.iconAccentPrimary
+    get() = if (isLight) Color(0xFF389CFF) else Color(0xFF6BB3FF)
+
+@OptIn(CoreColorToken::class)
+val SemanticColors.iconAccentSecondary
+    get() = if (isLight) Color(0xFF1E6FD9) else Color(0xFF389CFF)
+
+@OptIn(CoreColorToken::class)
+val SemanticColors.textLink
+    get() = if (isLight) Color(0xFF1E6FD9) else Color(0xFF6BB3FF)
+
 @PreviewsDayNight
 @Composable
 internal fun ColorAliasesPreview() = ElementPreview {
