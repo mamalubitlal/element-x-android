@@ -2,5 +2,13 @@
 <resources>
     <string name="application_name">чатор</string>
     <string name="screen_welcome_title">Добро пожаловать в чатор</string>
-    <string name="screen_welcome_description">Мессенджер для русских подростков</string>
+    <string name="screen_welcome_description">Просто мессенджер</string>
+    
+    <!-- Hidden Developer Settings -->
+    <string name="developer_settings_title">Настройки разработчика</string>
+    <string name="developer_settings_server">Адрес сервера</string>
+    <string name="developer_settings_server_hint">https://matrix.example.org</string>
+    <string name="developer_settings_server_save">Сохранить</string>
+    <string name="developer_settings_server_reset">Сбросить</string>
+    <string name="developer_settings_info">Нажмите 5 раз на название приложения для доступа</string>
 </resources>
