@@ -25,7 +25,7 @@ import java.util.Locale
 class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkConfiguration.Provider {
     override val graph: AppGraph = createGraphFactory<AppGraph.Factory>().create(this)
 
-    override val workManagerConfiguration: Configuration = Configuration.Builder()
+    override val workManagerConfiguration: WorkConfiguration = WorkConfiguration.Builder()
         .setWorkerFactory(MetroWorkerFactory(graph.workerProviders))
         .build()
 
