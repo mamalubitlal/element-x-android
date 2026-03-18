@@ -28,9 +28,18 @@ class DefaultUserAgentProvider(
     /**
      * Create an user agent with the application version.
      * Ex: Element X/1.5.0 (Xiaomi Mi 9T; Android 11; RKQ1.200826.002; Sdk c344b155c)
+     * 
+     * Note: We use ASCII-only app name for HTTP headers (OkHttp requirement).
+     * For чатор, we use "Chator" in User-Agent but "чатор" in UI.
      */
     private fun buildUserAgent(): String {
-        val appName = buildMeta.applicationName
+        // Use ASCII-safe app name for HTTP headers
+        // Cyrillic characters like 'ч' are not allowed in HTTP headers by OkHttp
+        val appNameForHttp = buildMeta.applicationName
+            .replace("чатор", "Chator")
+            .replace("ч", "ch")
+            .take(50) // Limit length
+        
         val appVersion = buildMeta.versionName
         val deviceManufacturer = Build.MANUFACTURER
         val deviceModel = Build.MODEL
@@ -39,7 +48,7 @@ class DefaultUserAgentProvider(
         val matrixSdkVersion = sdkMeta.sdkGitSha
 
         return buildString {
-            append(appName)
+            append(appNameForHttp)
             append("/")
             append(appVersion)
             append(" (")
