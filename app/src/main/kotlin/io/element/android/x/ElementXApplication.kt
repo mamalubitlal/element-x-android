@@ -9,9 +9,9 @@
 package io.element.android.x
 
 import android.app.Application
-import android.content.res.Configuration
+import android.content.res.Configuration as ResConfiguration
 import androidx.startup.AppInitializer
-import androidx.work.Configuration
+import androidx.work.Configuration as WorkConfiguration
 import dev.zacsweers.metro.createGraphFactory
 import io.element.android.libraries.di.DependencyInjectionGraphOwner
 import io.element.android.libraries.workmanager.api.di.MetroWorkerFactory
@@ -22,7 +22,7 @@ import io.element.android.x.initializer.CrashInitializer
 import io.element.android.x.initializer.PlatformInitializer
 import java.util.Locale
 
-class ElementXApplication : Application(), DependencyInjectionGraphOwner, Configuration.Provider {
+class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkConfiguration.Provider {
     override val graph: AppGraph = createGraphFactory<AppGraph.Factory>().create(this)
 
     override val workManagerConfiguration: Configuration = Configuration.Builder()
@@ -64,7 +64,7 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, Config
         val locale = Locale("ru", "RU")
         Locale.setDefault(locale)
         
-        val config = Configuration(context.resources.configuration)
+        val config = ResConfiguration(context.resources.configuration)
         config.setLocale(locale)
         
         return context.createConfigurationContext(config)
