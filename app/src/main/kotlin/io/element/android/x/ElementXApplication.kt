@@ -9,6 +9,7 @@
 package io.element.android.x
 
 import android.app.Application
+import android.content.res.Configuration
 import androidx.startup.AppInitializer
 import androidx.work.Configuration
 import dev.zacsweers.metro.createGraphFactory
@@ -19,6 +20,7 @@ import io.element.android.x.info.logApplicationInfo
 import io.element.android.x.initializer.CacheCleanerInitializer
 import io.element.android.x.initializer.CrashInitializer
 import io.element.android.x.initializer.PlatformInitializer
+import java.util.Locale
 
 class ElementXApplication : Application(), DependencyInjectionGraphOwner, Configuration.Provider {
     override val graph: AppGraph = createGraphFactory<AppGraph.Factory>().create(this)
@@ -29,6 +31,10 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, Config
 
     override fun onCreate() {
         super.onCreate()
+        
+        // Force Russian locale for чатор
+        setRussianLocale()
+        
         AppInitializer.getInstance(this).apply {
             initializeComponent(CrashInitializer::class.java)
             initializeComponent(PlatformInitializer::class.java)
@@ -36,5 +42,31 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, Config
         }
 
         logApplicationInfo(this)
+    }
+    
+    override fun attachBaseContext(base: android.content.Context) {
+        super.attachBaseContext(updateLocale(base))
+    }
+    
+    /**
+     * Force Russian locale for чатор app.
+     * Element X has 100% Russian translation via Localazy.
+     */
+    private fun setRussianLocale() {
+        val locale = Locale("ru", "RU")
+        Locale.setDefault(locale)
+    }
+    
+    /**
+     * Update context with Russian locale.
+     */
+    private fun updateLocale(context: android.content.Context): android.content.Context {
+        val locale = Locale("ru", "RU")
+        Locale.setDefault(locale)
+        
+        val config = Configuration(context.resources.configuration)
+        config.setLocale(locale)
+        
+        return context.createConfigurationContext(config)
     }
 }
