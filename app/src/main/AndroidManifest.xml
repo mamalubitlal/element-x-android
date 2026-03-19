@@ -185,7 +185,8 @@
         <!-- KeepInternalDistributor - makes чатор visible as a UP distributor -->
         <receiver
             android:name="io.element.android.libraries.pushproviders.unifiedpush.KeepInternalDistributor"
-            android:exported="true">
+            android:exported="true"
+            tools:replace="android:exported">
             <intent-filter>
                 <action android:name="org.unifiedpush.android.distributor.REGISTER_DISTRIBUTOR" />
                 <action android:name="org.unifiedpush.android.distributor.UNREGISTER_DISTRIBUTOR" />
