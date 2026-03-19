@@ -46,24 +46,24 @@ jobs:
         with:
           cache-read-only: false
       
-      - name: Build Fdroid Debug APK (no Google services)
-        run: ./gradlew :app:assembleFDroidDebug $CI_GRADLE_ARG_PROPERTIES
+      - name: Build GPlay Debug APK (with Firebase!)
+        run: ./gradlew :app:assembleGplayDebug $CI_GRADLE_ARG_PROPERTIES
       
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: chator-elementx-debug
-          path: app/build/outputs/apk/fdroid/debug/*-universal-debug.apk
+          path: app/build/outputs/apk/gplay/debug/*-universal-debug.apk
           retention-days: 30
       
-      - name: Build Fdroid Release APK (unsigned)
-        run: ./gradlew :app:assembleFDroidRelease $CI_GRADLE_ARG_PROPERTIES
+      - name: Build GPlay Release APK (unsigned)
+        run: ./gradlew :app:assembleGplayRelease $CI_GRADLE_ARG_PROPERTIES
       
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: chator-elementx-release
-          path: app/build/outputs/apk/fdroid/release/*-universal-release.apk
+          path: app/build/outputs/apk/gplay/release/*-universal-release.apk
           retention-days: 30
       
       - name: Build Summary
