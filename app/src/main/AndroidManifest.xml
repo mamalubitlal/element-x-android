@@ -169,6 +169,28 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_providers" />
         </provider>
+
+        <!-- Unified Push Receiver - чатор acts as its own distributor! -->
+        <receiver
+            android:name="io.element.android.libraries.pushproviders.unifiedpush.VectorUnifiedPushMessagingReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="org.unifiedpush.android.connector.MESSAGE_EVENT" />
+                <action android:name="org.unifiedpush.android.connector.REGISTRATION_EVENT" />
+                <action android:name="org.unifiedpush.android.connector.UNREGISTERED_EVENT" />
+                <action android:name="org.unifiedpush.android.connector.FAILED_EVENT" />
+            </intent-filter>
+        </receiver>
+
+        <!-- KeepInternalDistributor - makes чатор visible as a UP distributor -->
+        <receiver
+            android:name="io.element.android.libraries.pushproviders.unifiedpush.KeepInternalDistributor"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="org.unifiedpush.android.distributor.REGISTER_DISTRIBUTOR" />
+                <action android:name="org.unifiedpush.android.distributor.UNREGISTER_DISTRIBUTOR" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
