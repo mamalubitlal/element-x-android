@@ -63,7 +63,8 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkCo
         val locale = Locale("ru", "RU")
         Locale.setDefault(locale)
         
-        val config = android.content.res.Configuration(context.resources.configuration)
+        val config = android.content.res.Configuration()
+        config.setTo(context.resources.configuration)
         config.setLocale(locale)
         
         return context.createConfigurationContext(config)
