@@ -9,6 +9,7 @@
 package io.element.android.x
 
 import android.app.Application
+import android.content.res.Configuration as ResConfiguration
 import androidx.startup.AppInitializer
 import androidx.work.Configuration as WorkConfiguration
 import dev.zacsweers.metro.createGraphFactory
@@ -63,7 +64,7 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkCo
         val locale = Locale("ru", "RU")
         Locale.setDefault(locale)
         
-        val config = android.content.res.Configuration(context.resources.configuration)
+        val config = ResConfiguration(context.resources.configuration)
         config.setLocale(locale)
         
         return context.createConfigurationContext(config)
