@@ -33,11 +33,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.element.android.libraries.designsystem.theme.components.IconSource
 import io.element.android.libraries.ui.strings.CommonStrings
 
 data class ConnectionSolution(
@@ -45,7 +45,7 @@ data class ConnectionSolution(
     val description: String,
     val type: SolutionType,
     val url: String,
-    val icon: IconSource
+    val icon: ImageVector
 )
 
 enum class SolutionType {
@@ -149,9 +149,9 @@ private fun SolutionCard(
                 
                 Text(
                     text = when (solution.type) {
-                        SolutionType.DPI_BYPASS → "Free • Best for Russia"
-                        SolutionType.VPN_PAID → "Paid • More reliable"
-                        SolutionType.VPN_FREE → "Free • Limited"
+                        SolutionType.DPI_BYPASS -> "Free - Best for Russia"
+                        SolutionType.VPN_PAID -> "Paid - More reliable"
+                        SolutionType.VPN_FREE -> "Free - Limited"
                     },
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary
