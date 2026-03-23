@@ -170,7 +170,7 @@ class RustMatrixAuthenticationService(
         withContext(coroutineDispatchers.io) {
             runCatchingExceptions {
                 val client = currentClient ?: error("You need to call `setHomeserver()` first")
-                val homeserverUrl = client.homeserverLoginDetails().url.toString()
+                val homeserverUrl = client.homeserverLoginDetails().url()
                 val currentSessionPaths = sessionPaths ?: error("You need to call `setHomeserver()` first")
 
                 val registerUrl = "$homeserverUrl/_matrix/client/v3/register"
