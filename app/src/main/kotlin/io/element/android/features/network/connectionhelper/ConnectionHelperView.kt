@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.IconSource
 import io.element.android.libraries.ui.strings.CommonStrings
 
@@ -120,8 +120,7 @@ private fun SolutionCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = solution.icon,
-                contentDescription = null,
+                iconSource = solution.icon,
                 modifier = Modifier.size(40.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -149,9 +148,9 @@ private fun SolutionCard(
                 
                 Text(
                     text = when (solution.type) {
-                        SolutionType.DPI_BYPASS → "Free • Best for Russia"
-                        SolutionType.VPN_PAID → "Paid • More reliable"
-                        SolutionType.VPN_FREE → "Free • Limited"
+                        SolutionType.DPI_BYPASS -> "Free - Best for Russia"
+                        SolutionType.VPN_PAID -> "Paid - More reliable"
+                        SolutionType.VPN_FREE -> "Free - Limited"
                     },
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary
@@ -159,8 +158,7 @@ private fun SolutionCard(
             }
             
             Icon(
-                imageVector = Icons.Default.VpnKey,
-                contentDescription = "Open",
+                iconSource = IconSource.Vector(Icons.Default.VpnKey),
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -175,35 +173,35 @@ private fun getRecommendedSolutions(context: Context): List<ConnectionSolution> 
             description = "Bypass DPI inspection without VPN. Lightweight and free.",
             type = SolutionType.DPI_BYPASS,
             url = "https://github.com/romanvht/ByeByeDPI",
-            icon = Icons.Default.Speed
+            icon = IconSource.Vector(Icons.Default.Speed)
         ),
         ConnectionSolution(
             name = "ZoogVPN",
             description = "Reliable VPN with servers in multiple countries.",
             type = SolutionType.VPN_PAID,
             url = "https://zoogvpn.com/",
-            icon = Icons.Default.Security
+            icon = IconSource.Vector(Icons.Default.Security)
         ),
         ConnectionSolution(
             name = "Огонь VPN",
             description = "Russian VPN service, good for bypassing blocks.",
             type = SolutionType.VPN_PAID,
             url = "https://firevpn.ru/",
-            icon = Icons.Default.Security
+            icon = IconSource.Vector(Icons.Default.Security)
         ),
         ConnectionSolution(
             name = "ProtonVPN Free",
             description = "Free tier available, unlimited data.",
             type = SolutionType.VPN_FREE,
             url = "https://protonvpn.com/",
-            icon = Icons.Default.Security
+            icon = IconSource.Vector(Icons.Default.Security)
         ),
         ConnectionSolution(
             name = "Windscribe Free",
             description = "10GB/month free, good speeds.",
             type = SolutionType.VPN_FREE,
             url = "https://windscribe.com/",
-            icon = Icons.Default.Security
+            icon = IconSource.Vector(Icons.Default.Security)
         )
     )
 }
