@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -120,7 +121,8 @@ private fun SolutionCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                iconSource = solution.icon,
+                painter = solution.icon.getPainter(),
+                contentDescription = null,
                 modifier = Modifier.size(40.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -158,7 +160,8 @@ private fun SolutionCard(
             }
             
             Icon(
-                iconSource = IconSource.Vector(Icons.Default.VpnKey),
+                painter = IconSource.Vector(Icons.Default.VpnKey).getPainter(),
+                contentDescription = "Open",
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
