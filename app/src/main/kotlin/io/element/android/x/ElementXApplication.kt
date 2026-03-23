@@ -52,7 +52,7 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkCo
      * Element X has 100% Russian translation via Localazy.
      */
     private fun setRussianLocale() {
-        val locale = Locale("ru", "RU")
+        val locale = Locale.Builder().setLanguage("ru").setRegion("RU").build()
         Locale.setDefault(locale)
     }
     
@@ -60,7 +60,7 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkCo
      * Update context with Russian locale.
      */
     private fun updateLocale(context: android.content.Context): android.content.Context {
-        val locale = Locale("ru", "RU")
+        val locale = Locale.Builder().setLanguage("ru").setRegion("RU").build()
         Locale.setDefault(locale)
         
         val config = android.content.res.Configuration()
