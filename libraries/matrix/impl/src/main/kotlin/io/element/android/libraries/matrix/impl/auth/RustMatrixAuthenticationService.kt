@@ -170,7 +170,7 @@ class RustMatrixAuthenticationService(
         withContext(coroutineDispatchers.io) {
             runCatchingExceptions {
                 val client = currentClient ?: error("You need to call `setHomeserver()` first")
-                val homeserverUrl = client.homeserverLoginDetails().url
+                val homeserverUrl = client.homeserverLoginDetails().url.toString()
                 val currentSessionPaths = sessionPaths ?: error("You need to call `setHomeserver()` first")
 
                 val registerUrl = "$homeserverUrl/_matrix/client/v3/register"
@@ -200,9 +200,7 @@ class RustMatrixAuthenticationService(
                 val responseBody = response.body?.string() ?: throw Exception("Empty response from server")
 
                 if (!response.isSuccessful) {
-                    val errorJson = Json.decodeFromString<Map<String, String>>(
-                        MapSerializer(String.serializer(), String.serializer())
-                    )(responseBody)
+                    val errorJson = Json.decodeFromString<Map<String, String>>(responseBody)
 
                     val errcode = errorJson["errcode"]
                     val errorMsg = errorJson["error"] ?: responseBody
