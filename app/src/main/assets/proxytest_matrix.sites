@@ -1,0 +1,7 @@
+# Matrix domains to test for DPI bypass
+# Only 5 core Matrix services
+matrix.org
+matrix-client.matrix.org
+vector.im
+accounts.matrix.org
+turn.matrix.org
