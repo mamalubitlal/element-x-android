@@ -35,6 +35,9 @@ jobs:
         with:
           fetch-depth: 0
       
+      - name: Fix gradlew permissions
+        run: chmod +x gradlew
+      
       - name: Use JDK 21
         uses: actions/setup-java@v4
         with:
