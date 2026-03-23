@@ -43,6 +43,13 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.matrix.rustcomponents.sdk.Client
 import org.matrix.rustcomponents.sdk.ClientBuilder
 import org.matrix.rustcomponents.sdk.HumanQrLoginException
@@ -63,13 +70,10 @@ class RustMatrixAuthenticationService(
     private val rustMatrixClientFactory: RustMatrixClientFactory,
     private val passphraseGenerator: PassphraseGenerator,
     private val oidcConfigurationProvider: OidcConfigurationProvider,
+    private val okHttpClient: OkHttpClient,
 ) : MatrixAuthenticationService {
-    // Passphrase which will be used for new sessions. Existing sessions will use the passphrase
-    // stored in the SessionData.
     private val pendingPassphrase = getDatabasePassphrase()
 
-    // Need to keep a copy of the current session path to eventually delete it.
-    // Ideally it would be possible to get the sessionPath from the Client to avoid doing this.
     private var sessionPaths: SessionPaths? = null
     private var currentClient: Client? = null
 
@@ -166,26 +170,78 @@ class RustMatrixAuthenticationService(
         withContext(coroutineDispatchers.io) {
             runCatchingExceptions {
                 val client = currentClient ?: error("You need to call `setHomeserver()` first")
+                val homeserverUrl = client.homeserverLoginDetails().url
                 val currentSessionPaths = sessionPaths ?: error("You need to call `setHomeserver()` first")
-                client.register(
-                    username = username,
-                    password = password,
-                    initialDeviceName = initialDeviceName,
-                )
-                // Ensure that the user is not already logged in with the same account
-                ensureNotAlreadyLoggedIn(client)
-                val sessionData = client.session()
-                    .toSessionData(
-                        isTokenValid = true,
-                        loginType = LoginType.PASSWORD,
-                        passphrase = pendingPassphrase,
-                        sessionPaths = currentSessionPaths,
+
+                val registerUrl = "$homeserverUrl/_matrix/client/v3/register"
+                val jsonBody = """
+                    {
+                        "auth": {
+                            "type": "m.login.password",
+                            "identifier": {
+                                "type": "m.id.user",
+                                "user": "$username"
+                            },
+                            "password": "$password"
+                        },
+                        "device_id": null,
+                        "initial_device_display_name": "$initialDeviceName",
+                        "username": "$username"
+                    }
+                """.trimIndent()
+
+                val requestBody = jsonBody.toRequestBody("application/json".toMediaType())
+                val request = Request.Builder()
+                    .url(registerUrl)
+                    .post(requestBody)
+                    .build()
+
+                val response = okHttpClient.newCall(request).execute()
+                val responseBody = response.body?.string() ?: throw Exception("Empty response from server")
+
+                if (!response.isSuccessful) {
+                    val errorJson = Json.decodeFromString<Map<String, String>>(
+                        MapSerializer(String.serializer(), String.serializer())
+                    )(responseBody)
+
+                    val errcode = errorJson["errcode"]
+                    val errorMsg = errorJson["error"] ?: responseBody
+                    throw AuthenticationException.Generic(
+                        when (errcode) {
+                            "M_USER_IN_USE" -> "Username is already taken"
+                            "M_DIVERSE_RESERVED" -> "Username is not available"
+                            else -> "Registration failed: $errorMsg"
+                        }
                     )
+                }
+
+                val responseMap: Map<String, String?> = Json.decodeFromString(responseBody)
+                val userId = responseMap["user_id"] ?: throw Exception("No user_id in response")
+                val accessToken = responseMap["access_token"] ?: throw Exception("No access_token in response")
+                val deviceId = responseMap["device_id"] ?: ""
+
+                val externalSession = ExternalSession(
+                    userId = userId,
+                    deviceId = deviceId,
+                    accessToken = accessToken,
+                    refreshToken = responseMap["refresh_token"],
+                    homeserverUrl = homeserverUrl,
+                )
+
+                val sessionData = externalSession.toSessionData(
+                    isTokenValid = true,
+                    loginType = LoginType.PASSWORD,
+                    passphrase = pendingPassphrase,
+                    sessionPaths = currentSessionPaths,
+                )
+
+                client.restoreSession(sessionData.toSession())
                 val matrixClient = rustMatrixClientFactory.create(client)
+
+                matrixClient.waitForKnownVerificationState()
                 newMatrixClientObservers.forEach { it.invoke(matrixClient) }
                 sessionStore.addSession(sessionData)
 
-                // Clean up the strong reference held here since it's no longer necessary
                 currentClient = null
 
                 SessionId(sessionData.userId)

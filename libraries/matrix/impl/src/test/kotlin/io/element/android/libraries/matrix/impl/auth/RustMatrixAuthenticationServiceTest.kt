@@ -23,6 +23,7 @@ import io.element.android.libraries.sessionstorage.test.InMemorySessionStore
 import io.element.android.tests.testutils.testCoroutineDispatchers
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
+import okhttp3.OkHttpClient
 import org.junit.Test
 import java.io.File
 
@@ -50,6 +51,7 @@ class RustMatrixAuthenticationServiceTest {
     private fun TestScope.createRustMatrixAuthenticationService(
         sessionStore: SessionStore = InMemorySessionStore(),
         clientBuilderProvider: ClientBuilderProvider = FakeClientBuilderProvider(),
+        okHttpClient: OkHttpClient = OkHttpClient(),
     ): RustMatrixAuthenticationService {
         val baseDirectory = File("/base")
         val cacheDirectory = File("/cache")
@@ -68,6 +70,7 @@ class RustMatrixAuthenticationServiceTest {
                 buildMeta = aBuildMeta(),
                 oidcRedirectUrlProvider = FakeOidcRedirectUrlProvider(),
             ),
+            okHttpClient = okHttpClient,
         )
     }
 }
