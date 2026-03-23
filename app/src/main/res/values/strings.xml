@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- DPI Bypass Testing -->
+    <string name="dpi_test_title">DPI Testing</string>
+    <string name="dpi_test_status_start">Starting test...</string>
+    <string name="dpi_test_progress">Testing %1$d of %2$d strategies...</string>
+    <string name="dpi_test_complete">Testing complete! Best: %1$s (%2$d%%)</string>
+    <string name="dpi_test_no_results">Could not determine working strategy</string>
+</resources>
