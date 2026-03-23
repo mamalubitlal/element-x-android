@@ -1,0 +1,16 @@
+            - name: Snake Evolution
+  # You may pin to the exact commit or the version.
+  # uses: miccy/snake-evolution@42e6db66e50979a0fffbb857ed833c731f77abae
+  uses: miccy/snake-evolution@v1.3.0
+  with:
+    # GitHub username to generate snake for
+    github_user_name: 
+    # GitHub token for API access (optional, uses public scraping if not provided)
+    github_token: # optional, default is 
+    # Output file path(s) - SVG only while GIF support is in progress
+    outputs: # optional, default is dist/snake.svg
+    # Color theme (github-light, github-dark, ocean, sunset, neon-gamer, cypherpunk; glass planned with future GIF support)
+    theme: # optional, default is github-dark
+    # Year to generate contributions for
+    year: # optional, default is 
+          
