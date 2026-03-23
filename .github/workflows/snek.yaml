@@ -4,7 +4,7 @@
   uses: miccy/snake-evolution@v1.3.0
   with:
     # GitHub username to generate snake for
-    github_user_name: 
+    github_user_name: mamalubitlal
     # GitHub token for API access (optional, uses public scraping if not provided)
     github_token: # optional, default is 
     # Output file path(s) - SVG only while GIF support is in progress
