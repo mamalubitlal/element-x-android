@@ -3,3 +3,8 @@ Iteration 0 completed at 2026-03-26T09:35:00+00:00 — Ralph Loop structure crea
 Iteration 1 completed at 2026-03-27T21:15:00+00:00 — Analyzed fix_plan.md item #1: MatrixAuthService already exists in codebase (RustMatrixAuthenticationService). No implementation needed - marked as complete. Next: Items #2-4.
 
 Iteration 2 completed at 2026-03-27T21:30:00+00:00 — Analyzed items #2-3: LoginScreen (LoginPasswordView.kt) and RegistrationScreen (CreateAccountView.kt) already exist. No new code needed. Main work: Item #4 - remove OIDC complexity.
+
+Iteration 3 completed at 2026-03-27T22:00:00+00:00 — Analyzed item #4: OIDC complexity removal. Found AuthenticationConfig already has DEFAULT_MATRIX_URL. Implementation steps identified:
+- Change DEFAULT_MATRIX_URL to chator.k.vu
+- Update DefaultEnterpriseService to return chator.k.vu
+- Hide QR code and Element Classic login in OnBoardingPresenter

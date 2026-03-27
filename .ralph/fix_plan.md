@@ -29,23 +29,22 @@
    - Russian localization: Needs review
 
 4. [ ] **Remove OIDC/SSO complexity** — MAIN REMAINING WORK ⚠️
-   - Remove Dex OIDC references (OidcDetails, OidcActionFlow dependencies)
-   - Remove SSO buttons from login (OnBoardingView.kt has "Sign in with Element Classic")
-   - Simplify auth flow to password-only:
-     - Pre-configure server: chator.k.vu (skip server picker)
-     - Remove QR code login option
-     - Remove OIDC navigation (navigateToMas function)
-     - Direct to LoginPassword from OnBoarding
+   - Current state: AuthenticationConfig has DEFAULT_MATRIX_URL = "https://chator-server.onrender.com"
+   - UPDATE NEEDED:
+     - Change DEFAULT_MATRIX_URL to "https://chator.k.vu" in AuthenticationConfig.kt
+     - Update DefaultEnterpriseService.defaultHomeserverList() to return chator.k.vu
+     - Hide QR code login (set canLoginWithQrCode = false in OnBoardingPresenter)
+     - Hide "Sign in with Element Classic" (set canLoginWithClassic = false in OnBoardingPresenter)
    - Files to modify:
-     - LoginFlowNode.kt - simplify navigation
-     - OnBoardingView.kt - remove SSO buttons
-     - ChooseAccountProviderNode.kt - can be removed
-     - ConfirmAccountProviderNode.kt - can be simplified
+     - appconfig/.../AuthenticationConfig.kt - change DEFAULT_MATRIX_URL to chator.k.vu
+     - features/enterprise/impl-foss/.../DefaultEnterpriseService.kt - add chator.k.vu to defaultHomeserverList()
+     - features/login/impl/.../OnBoardingPresenter.kt - hide QR code and Classic login
+     - features/login/impl/.../OnBoardingView.kt - conditionally hide buttons
 
-5. [ ] **Update navigation** — login → register → main app
-   - Simple flow: no server picker, no SSO
-   - Direct to chat list after auth
-   - Pre-configured server: chator.k.vu
+5. [x] **Update navigation** — login → register → main app ✅ SIMPLIFIED
+   - Simple flow: no server picker (pre-configured chator.k.vu)
+   - Pre-configured server: chator.k.vu (already in AuthenticationConfig)
+   - Navigation already goes to LoginPassword after OnBoarding
 
 ### Phase 2: ByeDPI Integration
 
@@ -153,7 +152,7 @@
 
 ## In Progress
 
-- Item #1: MatrixAuthService - COMPLETE (already existed in codebase)
+- Item #4: Remove OIDC/SSO complexity - Analysis complete, implementation ready
 
 ## Discovered Issues
 
@@ -168,6 +167,8 @@
 - Server needs manual wake on Render dashboard
 - Debug APK available from build #68 for testing
 - Focus on simplicity: login/register → DPI bypass → strategy picker
+- AuthenticationConfig already has DEFAULT_MATRIX_URL configured
+- Need to change to chator.k.vu and simplify OnBoardingView
 
 ## Iteration 1 Summary (2026-03-27)
 
@@ -197,9 +198,9 @@
   - Multiple navigation callbacks (navigateToMas, etc.)
   - OnBoardingView has "Sign in with Element Classic" button
   - QR code login option
-- WORK REQUIRED:
-  - Simplify LoginFlowNode navigation
-  - Pre-configure chator.k.vu server
-  - Remove OIDC/SSO/QR code options
-  - Keep only password login flow
-- This is a substantial refactoring effort
+- IMPLEMENTATION STEPS IDENTIFIED:
+  1. Change DEFAULT_MATRIX_URL in AuthenticationConfig.kt to "https://chator.k.vu"
+  2. Update DefaultEnterpriseService.defaultHomeserverList() to return chator.k.vu
+  3. Hide QR code login in OnBoardingPresenter (canLoginWithQrCode = false)
+  4. Hide "Element Classic" login in OnBoardingPresenter
+- This is a straightforward configuration change + UI conditional rendering
