@@ -4,7 +4,11 @@ Iteration 1 completed at 2026-03-27T21:15:00+00:00 — Analyzed fix_plan.md item
 
 Iteration 2 completed at 2026-03-27T21:30:00+00:00 — Analyzed items #2-3: LoginScreen (LoginPasswordView.kt) and RegistrationScreen (CreateAccountView.kt) already exist. No new code needed. Main work: Item #4 - remove OIDC complexity.
 
-Iteration 3 completed at 2026-03-27T22:00:00+00:00 — Analyzed item #4: OIDC complexity removal. Found AuthenticationConfig already has DEFAULT_MATRIX_URL. Implementation steps identified:
-- Change DEFAULT_MATRIX_URL to chator.k.vu
-- Update DefaultEnterpriseService to return chator.k.vu
-- Hide QR code and Element Classic login in OnBoardingPresenter
+Iteration 3 completed at 2026-03-27T22:00:00+00:00 — Analyzed item #4: OIDC complexity removal. Found AuthenticationConfig already has DEFAULT_MATRIX_URL. Implementation steps identified.
+
+Iteration 4 completed at 2026-03-27T22:30:00+00:00 — IMPLEMENTED item #4:
+- Changed DEFAULT_MATRIX_URL to chator.k.vu in AuthenticationConfig.kt
+- Updated DefaultEnterpriseService.defaultHomeserverList() to return chator.k.vu
+- Set canLoginWithQrCode = false in OnBoardingPresenter.kt
+- Element Classic already disabled via FeatureFlags (default=false)
+- Phase 1 COMPLETE

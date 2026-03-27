@@ -28,18 +28,12 @@
    - Auto-login on success
    - Russian localization: Needs review
 
-4. [ ] **Remove OIDC/SSO complexity** — MAIN REMAINING WORK ⚠️
-   - Current state: AuthenticationConfig has DEFAULT_MATRIX_URL = "https://chator-server.onrender.com"
-   - UPDATE NEEDED:
-     - Change DEFAULT_MATRIX_URL to "https://chator.k.vu" in AuthenticationConfig.kt
-     - Update DefaultEnterpriseService.defaultHomeserverList() to return chator.k.vu
-     - Hide QR code login (set canLoginWithQrCode = false in OnBoardingPresenter)
-     - Hide "Sign in with Element Classic" (set canLoginWithClassic = false in OnBoardingPresenter)
-   - Files to modify:
-     - appconfig/.../AuthenticationConfig.kt - change DEFAULT_MATRIX_URL to chator.k.vu
-     - features/enterprise/impl-foss/.../DefaultEnterpriseService.kt - add chator.k.vu to defaultHomeserverList()
-     - features/login/impl/.../OnBoardingPresenter.kt - hide QR code and Classic login
-     - features/login/impl/.../OnBoardingView.kt - conditionally hide buttons
+4. [x] **Remove OIDC/SSO complexity** ✅ IMPLEMENTED
+   - Changed DEFAULT_MATRIX_URL to "https://chator.k.vu" in AuthenticationConfig.kt
+   - Updated DefaultEnterpriseService.defaultHomeserverList() to return chator.k.vu
+   - Set canLoginWithQrCode = false in OnBoardingPresenter.kt
+   - Element Classic already disabled via FeatureFlags.SignInWithClassic (default=false)
+   - Simplified to password-only login flow
 
 5. [x] **Update navigation** — login → register → main app ✅ SIMPLIFIED
    - Simple flow: no server picker (pre-configured chator.k.vu)
@@ -193,14 +187,14 @@
 ## Iteration 3 Summary (2026-03-27)
 
 - Analyzed fix_plan.md item #4: Remove OIDC/SSO complexity
-- DISCOVERY: OIDC complexity is deep in the login flow:
-  - OidcDetails and OidcActionFlow dependencies
-  - Multiple navigation callbacks (navigateToMas, etc.)
-  - OnBoardingView has "Sign in with Element Classic" button
-  - QR code login option
-- IMPLEMENTATION STEPS IDENTIFIED:
-  1. Change DEFAULT_MATRIX_URL in AuthenticationConfig.kt to "https://chator.k.vu"
-  2. Update DefaultEnterpriseService.defaultHomeserverList() to return chator.k.vu
-  3. Hide QR code login in OnBoardingPresenter (canLoginWithQrCode = false)
-  4. Hide "Element Classic" login in OnBoardingPresenter
-- This is a straightforward configuration change + UI conditional rendering
+- DISCOVERY: OIDC complexity is deep in the login flow
+- IMPLEMENTATION STEPS IDENTIFIED
+
+## Iteration 4 Summary (2026-03-27)
+
+- IMPLEMENTED item #4 changes:
+  1. Changed DEFAULT_MATRIX_URL to chator.k.vu in AuthenticationConfig.kt
+  2. Updated DefaultEnterpriseService.defaultHomeserverList() to return chator.k.vu
+  3. Set canLoginWithQrCode = false in OnBoardingPresenter.kt
+  4. Element Classic already disabled via FeatureFlags (default=false)
+- Phase 1 COMPLETE: Simplified to password-only login with chator.k.vu server
