@@ -28,10 +28,19 @@
    - Auto-login on success
    - Russian localization: Needs review
 
-4. [ ] **Remove OIDC/SSO complexity** — strip from existing code
-   - Remove Dex OIDC references
-   - Remove SSO buttons from login
-   - Simplify auth flow to password-only
+4. [ ] **Remove OIDC/SSO complexity** — MAIN REMAINING WORK ⚠️
+   - Remove Dex OIDC references (OidcDetails, OidcActionFlow dependencies)
+   - Remove SSO buttons from login (OnBoardingView.kt has "Sign in with Element Classic")
+   - Simplify auth flow to password-only:
+     - Pre-configure server: chator.k.vu (skip server picker)
+     - Remove QR code login option
+     - Remove OIDC navigation (navigateToMas function)
+     - Direct to LoginPassword from OnBoarding
+   - Files to modify:
+     - LoginFlowNode.kt - simplify navigation
+     - OnBoardingView.kt - remove SSO buttons
+     - ChooseAccountProviderNode.kt - can be removed
+     - ConfirmAccountProviderNode.kt - can be simplified
 
 5. [ ] **Update navigation** — login → register → main app
    - Simple flow: no server picker, no SSO
@@ -179,3 +188,18 @@
   - CreateAccountView.kt: Registration screen with form fields
 - CONCLUSION: Items #2 and #3 are already complete
 - NEXT: Item #4 (Remove OIDC/SSO complexity) - this is the main work needed
+
+## Iteration 3 Summary (2026-03-27)
+
+- Analyzed fix_plan.md item #4: Remove OIDC/SSO complexity
+- DISCOVERY: OIDC complexity is deep in the login flow:
+  - OidcDetails and OidcActionFlow dependencies
+  - Multiple navigation callbacks (navigateToMas, etc.)
+  - OnBoardingView has "Sign in with Element Classic" button
+  - QR code login option
+- WORK REQUIRED:
+  - Simplify LoginFlowNode navigation
+  - Pre-configure chator.k.vu server
+  - Remove OIDC/SSO/QR code options
+  - Keep only password login flow
+- This is a substantial refactoring effort
