@@ -30,6 +30,7 @@ import io.element.android.features.preferences.impl.advanced.AdvancedSettingsNod
 import io.element.android.features.preferences.impl.analytics.AnalyticsSettingsNode
 import io.element.android.features.preferences.impl.blockedusers.BlockedUsersNode
 import io.element.android.features.preferences.impl.developer.DeveloperSettingsNode
+import io.element.android.features.preferences.impl.dpi.DpiSettingsNode
 import io.element.android.features.preferences.impl.labs.LabsNode
 import io.element.android.features.preferences.impl.notifications.NotificationSettingsNode
 import io.element.android.features.preferences.impl.notifications.edit.EditDefaultNotificationSettingNode
@@ -79,6 +80,9 @@ class PreferencesFlowNode(
 
         @Parcelize
         data object Labs : NavTarget
+
+        @Parcelize
+        data object DpiSettings : NavTarget
 
         @Parcelize
         data object AnalyticsSettings : NavTarget
@@ -163,6 +167,10 @@ class PreferencesFlowNode(
                         backstack.push(NavTarget.Labs)
                     }
 
+                    override fun navigateToDpiSettings() {
+                        backstack.push(NavTarget.DpiSettings)
+                    }
+
                     override fun navigateToLinkNewDevice() {
                         callback.navigateToLinkNewDevice()
                     }
@@ -204,6 +212,14 @@ class PreferencesFlowNode(
                     }
                 }
                 createNode<LabsNode>(buildContext, listOf(callback))
+            }
+            NavTarget.DpiSettings -> {
+                val callback = object : DpiSettingsNode.Callback {
+                    override fun onDone() {
+                        backstack.pop()
+                    }
+                }
+                createNode<DpiSettingsNode>(buildContext, listOf(callback))
             }
             NavTarget.About -> {
                 val callback = object : AboutNode.Callback {

@@ -10,6 +10,9 @@
 
     <!-- To be able to install APK from the application -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    
+    <!-- Internet for DPI bypass proxy -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".ElementXApplication"
