@@ -62,6 +62,7 @@ fun PreferencesRootView(
     onOpenDeveloperSettings: () -> Unit,
     onOpenAdvancedSettings: () -> Unit,
     onOpenLabs: () -> Unit,
+    onOpenDpiSettings: () -> Unit,
     onOpenNotificationSettings: () -> Unit,
     onOpenUserProfile: (MatrixUser) -> Unit,
     onOpenBlockedUsers: () -> Unit,
@@ -115,6 +116,7 @@ fun PreferencesRootView(
             onOpenAdvancedSettings = onOpenAdvancedSettings,
             onOpenDeveloperSettings = onOpenDeveloperSettings,
             onOpenLabs = onOpenLabs,
+            onOpenDpiSettings = onOpenDpiSettings,
             onSignOutClick = onSignOutClick,
             onDeactivateClick = onDeactivateClick,
         )
@@ -244,6 +246,7 @@ private fun ColumnScope.GeneralSection(
     onOpenRageShake: () -> Unit,
     onOpenAdvancedSettings: () -> Unit,
     onOpenLabs: () -> Unit,
+    onOpenDpiSettings: () -> Unit,
     onOpenDeveloperSettings: () -> Unit,
     onSignOutClick: () -> Unit,
     onDeactivateClick: () -> Unit,
@@ -280,6 +283,12 @@ private fun ColumnScope.GeneralSection(
             onClick = onOpenLabs,
         )
     }
+
+    ListItem(
+        headlineContent = { Text(stringResource(id = R.string.screen_dpi_title)) },
+        leadingContent = ListItemContent.Icon(IconSource.Vector(CompoundIcons.Shield())),
+        onClick = onOpenDpiSettings,
+    )
 
     ListItem(
         headlineContent = { Text(stringResource(id = CommonStrings.action_signout)) },
@@ -360,6 +369,7 @@ private fun ContentToPreview(matrixUser: MatrixUser) {
         onOpenDeveloperSettings = {},
         onOpenAdvancedSettings = {},
         onOpenLabs = {},
+        onOpenDpiSettings = {},
         onOpenAbout = {},
         onSecureBackupClick = {},
         onManageAccountClick = {},

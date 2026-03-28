@@ -79,4 +79,21 @@ If you proceed, some of your settings may change."</string>
   <string name="troubleshoot_notifications_entry_point_push_history_title">"Push history"</string>
   <string name="troubleshoot_notifications_entry_point_section">"Troubleshoot"</string>
   <string name="troubleshoot_notifications_entry_point_title">"Troubleshoot notifications"</string>
+  <string name="screen_dpi_title">"DPI Bypass"</string>
+  <string name="screen_dpi_enable_title">"Enable DPI bypass"</string>
+  <string name="screen_dpi_enable_description">"Bypass Deep Packet Inspection to improve connectivity on restrictive networks"</string>
+  <string name="screen_dpi_enable_running">"Running with: %1$s"</string>
+  <string name="screen_dpi_best_strategy">"Best strategy"</string>
+  <string name="screen_dpi_success_rate">"%1$d/%2$d successful tests</string>
+  <string name="screen_dpi_test_strategies">"Test Strategies"</string>
+  <string name="screen_dpi_clear_results">"Clear"</string>
+  <string name="screen_dpi_strategies_header">"Available strategies"</string>
+  <string name="screen_dpi_strategy_success">"%1$d%% success (%2$d/%3$d tests)"</string>
+  <string name="screen_dpi_best_label">"BEST"</string>
+  <string name="screen_dpi_test_dialog_title">"Testing strategies…"</string>
+  <string name="screen_dpi_test_status_loading_strategies">"Loading strategies…"</string>
+  <string name="screen_dpi_test_status_testing">"Testing %1$d of %2$d…"</string>
+  <string name="screen_dpi_test_complete">"Testing complete!"</string>
+  <string name="screen_dpi_test_error_no_strategies">"No strategies found"</string>
+  <string name="screen_dpi_footer_info">"DPI bypass routes your traffic through a local proxy to avoid detection. Test different strategies to find the best one for your network."</string>
 </resources>

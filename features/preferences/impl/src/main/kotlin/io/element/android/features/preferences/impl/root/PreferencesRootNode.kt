@@ -45,6 +45,7 @@ class PreferencesRootNode(
         fun navigateToLockScreenSettings()
         fun navigateToAdvancedSettings()
         fun navigateToLabs()
+        fun navigateToDpiSettings()
         fun navigateToLinkNewDevice()
         fun navigateToUserProfile(matrixUser: MatrixUser)
         fun navigateToBlockedUsers()
@@ -85,6 +86,7 @@ class PreferencesRootNode(
             onOpenDeveloperSettings = callback::navigateToDeveloperSettings,
             onOpenAdvancedSettings = callback::navigateToAdvancedSettings,
             onOpenLabs = callback::navigateToLabs,
+            onOpenDpiSettings = callback::navigateToDpiSettings,
             onLinkNewDeviceClick = callback::navigateToLinkNewDevice,
             onManageAccountClick = { onManageAccountClick(activity, it, isDark) },
             onOpenNotificationSettings = callback::navigateToNotificationSettings,
