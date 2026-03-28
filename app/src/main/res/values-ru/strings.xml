@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="application_name">чатор</string>
+    <string name="screen_welcome_title">Добро пожаловать в чатор</string>
+    <string name="screen_welcome_description">Просто мессенджер</string>
+    
+    <!-- Hidden Developer Settings -->
+    <string name="developer_settings_title">Настройки разработчика</string>
+    <string name="developer_settings_server">Адрес сервера</string>
+    <string name="developer_settings_server_hint">https://matrix.example.org</string>
+    <string name="developer_settings_server_save">Сохранить</string>
+    <string name="developer_settings_server_reset">Сбросить</string>
+    <string name="developer_settings_info">Нажмите 5 раз на название приложения для доступа</string>
+    
+    <!-- DPI Bypass Testing -->
+    <string name="dpi_test_title">Тестирование DPI</string>
+    <string name="dpi_test_status_start">Запуск тестирования...</string>
+    <string name="dpi_test_progress">Тестирование %1$d из %2$d стратегий...</string>
+    <string name="dpi_test_complete">Тестирование завершено! Лучшая: %1$s (%2$d%%)</string>
+    <string name="dpi_test_no_results">Не удалось определить рабочую стратегию</string>
+</resources>

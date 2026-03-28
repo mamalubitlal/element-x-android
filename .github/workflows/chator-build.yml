@@ -1,0 +1,82 @@
+name: чатор Android Build
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch: # Allow manual trigger
+
+permissions: {}
+
+# Use same Gradle settings as Element X
+env:
+  GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx8g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC -Dkotlin.daemon.jvm.options=-Xmx4g
+  CI_GRADLE_ARG_PROPERTIES: --stacktrace -Dsonar.gradle.skipCompile=true --no-configuration-cache
+
+jobs:
+  build:
+    name: Build чатор Android
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+      
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Use JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      
+      - name: Configure gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+      
+      - name: Build GPlay Debug APK (with Firebase!)
+        run: ./gradlew :app:assembleGplayDebug $CI_GRADLE_ARG_PROPERTIES
+      
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: chator-elementx-debug
+          path: app/build/outputs/apk/gplay/debug/*-universal-debug.apk
+          retention-days: 30
+      
+      - name: Build GPlay Release APK (unsigned)
+        run: ./gradlew :app:assembleGplayRelease $CI_GRADLE_ARG_PROPERTIES
+      
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: chator-elementx-release
+          path: app/build/outputs/apk/gplay/release/*-universal-release.apk
+          retention-days: 30
+      
+      - name: Build Summary
+        run: |
+          echo "## 🥞 чатор Element X Build Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Artifacts:" >> $GITHUB_STEP_SUMMARY
+          echo "- Debug APK: app/build/outputs/apk/fdroid/debug/" >> $GITHUB_STEP_SUMMARY
+          echo "- Release APK: app/build/outputs/apk/fdroid/release/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Download:" >> $GITHUB_STEP_SUMMARY
+          echo "Go to the **Actions** tab → Select this run → Download artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Server:** https://chator.k.vu" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** im.chator.android" >> $GITHUB_STEP_SUMMARY
+          echo "**UI:** Element X (modern, beautiful!)" >> $GITHUB_STEP_SUMMARY

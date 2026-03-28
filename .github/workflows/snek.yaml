@@ -1,0 +1,15 @@
+name: Snake Evolution
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Snake Evolution
+        uses: miccy/snake-evolution@v1.3.0
+        with:
+          github_user_name: mamalubitlal
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          outputs: dist/snake.svg
+          theme: github-dark

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Connection Helper strings for чатор (Russian) -->
+<resources>
+    <string name="connection_helper_title">Помощь с подключением</string>
+    <string name="connection_helper_description">Проблемы с подключением? Попробуйте эти решения:</string>
+    <string name="connection_helper_tip">💡 Совет: Начните с ByeByeDPI для обхода DPI. Если не поможет, попробуйте VPN.</string>
+    
+    <!-- Solutions -->
+    <string name="solution_byebyedpi_name">ByeByeDPI</string>
+    <string name="solution_byebyedpi_desc">Обход DPI без VPN. Легкий и бесплатный.</string>
+    <string name="solution_byebyedpi_tag">Бесплатно • Лучше для РФ</string>
+    
+    <string name="solution_zoogvpn_name">ZoogVPN</string>
+    <string name="solution_zoogvpn_desc">Надёжный VPN с серверами в разных странах.</string>
+    <string name="solution_zoogvpn_tag">Платно • Надёжнее</string>
+    
+    <string name="solution_ogon_vpn_name">Огонь VPN</string>
+    <string name="solution_ogon_vpn_desc">Российский VPN, хорош для обхода блокировок.</string>
+    <string name="solution_ogon_vpn_tag">Платно • Хорошо для РФ</string>
+    
+    <string name="solution_protonvpn_name">ProtonVPN Free</string>
+    <string name="solution_protonvpn_desc">Бесплатный тариф, безлимитный трафик.</string>
+    <string name="solution_protonvpn_tag">Бесплатно • Безлимит</string>
+    
+    <string name="solution_windscribe_name">Windscribe Free</string>
+    <string name="solution_windscribe_desc">10GB/месяц бесплатно, хорошая скорость.</string>
+    <string name="solution_windscribe_tag">Бесплатно • 10GB/мес</string>
+    
+    <!-- Settings -->
+    <string name="connection_helper_settings_title">Помощь с подключением</string>
+    <string name="connection_helper_settings_summary">Помощь при проблемах с подключением</string>
+</resources>
