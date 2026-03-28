@@ -33,6 +33,8 @@
   <string name="screen_onboarding_sign_in_to">"Inloggen bij %1$s"</string>
   <string name="screen_onboarding_sign_in_with_qr_code">"Inloggen met QR-code"</string>
   <string name="screen_onboarding_sign_up">"Account aanmaken"</string>
+  <string name="screen_onboarding_sign_in">"Inloggen"</string>
+  <string name="screen_onboarding_register">"Registreren"</string>
   <string name="screen_onboarding_welcome_message">"Welkom bij de snelste %1$s ooit. Supercharged, voor snelheid en eenvoud."</string>
   <string name="screen_onboarding_welcome_subtitle">"Welkom bij %1$s. Supercharged, voor snelheid en eenvoud."</string>
   <string name="screen_onboarding_welcome_title">"Wees in je element"</string>

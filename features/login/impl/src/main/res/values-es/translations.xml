@@ -39,6 +39,8 @@
   <string name="screen_onboarding_sign_in_to">"Iniciar sesión en %1$s"</string>
   <string name="screen_onboarding_sign_in_with_qr_code">"Iniciar sesión con un código QR"</string>
   <string name="screen_onboarding_sign_up">"Crear cuenta"</string>
+  <string name="screen_onboarding_sign_in">"Iniciar sesión"</string>
+  <string name="screen_onboarding_register">"Registrarse"</string>
   <string name="screen_onboarding_welcome_message">"Bienvenido al %1$s más rápido de todos los tiempos. Diseñado para la velocidad y la simplicidad."</string>
   <string name="screen_onboarding_welcome_subtitle">"Bienvenido a %1$s. Vitaminado, para mayor rapidez y sencillez."</string>
   <string name="screen_onboarding_welcome_title">"Siéntete en tu Elemento"</string>

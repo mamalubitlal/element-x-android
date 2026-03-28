@@ -42,6 +42,8 @@
   <string name="screen_onboarding_sign_in_to">"Увійти в %1$s"</string>
   <string name="screen_onboarding_sign_in_with_qr_code">"Увійти за допомогою QR-коду"</string>
   <string name="screen_onboarding_sign_up">"Створити обліковий запис"</string>
+  <string name="screen_onboarding_sign_in">"Увійти"</string>
+  <string name="screen_onboarding_register">"Зареєструватися"</string>
   <string name="screen_onboarding_welcome_message">"Ласкаво просимо до найшвидшого %1$s. Заряджений для швидкості та простоти."</string>
   <string name="screen_onboarding_welcome_subtitle">"Ласкаво просимо до %1$s. Заряджений, для швидкості та простоти."</string>
   <string name="screen_onboarding_welcome_title">"Будьте у своєму element"</string>

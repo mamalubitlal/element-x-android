@@ -316,7 +316,7 @@ private fun OnBoardingButtons(
             )
         } else {
             Button(
-                text = stringResource(id = R.string.screen_onboarding_sign_in_to, defaultAccountProvider),
+                text = stringResource(id = R.string.screen_onboarding_sign_in),
                 showProgress = isLoading,
                 onClick = {
                     state.eventSink(OnBoardingEvents.OnSignIn(defaultAccountProvider))
@@ -326,14 +326,13 @@ private fun OnBoardingButtons(
                     .fillMaxWidth()
             )
         }
-        if (state.canCreateAccount) {
-            TextButton(
-                text = stringResource(id = R.string.screen_onboarding_sign_up),
-                onClick = onCreateAccount,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-        }
+        // Always show Register button
+        TextButton(
+            text = stringResource(id = R.string.screen_onboarding_register),
+            onClick = onCreateAccount,
+            modifier = Modifier
+                .fillMaxWidth()
+        )
         if (state.isAddingAccount.not()) {
             if (state.canReportBug) {
                 // Add a report problem text button. Use a Text since we need a special theme here.

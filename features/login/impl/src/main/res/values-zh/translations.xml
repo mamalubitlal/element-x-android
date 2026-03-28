@@ -42,6 +42,8 @@
   <string name="screen_onboarding_sign_in_to">"登录到 %1$s"</string>
   <string name="screen_onboarding_sign_in_with_qr_code">"使用二维码登录"</string>
   <string name="screen_onboarding_sign_up">"创建账户"</string>
+  <string name="screen_onboarding_sign_in">"登录"</string>
+  <string name="screen_onboarding_register">"注册"</string>
   <string name="screen_onboarding_welcome_message">"欢迎使用 %1$s，快而简约的消息应用。"</string>
   <string name="screen_onboarding_welcome_subtitle">"欢迎使用 %1$s，速度与简洁的极致。"</string>
   <string name="screen_onboarding_welcome_title">"融入您的 Element"</string>
