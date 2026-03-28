@@ -17,7 +17,6 @@ jobs:
   build:
     name: Build чатор Android
     runs-on: ubuntu-latest
-    environment: release
     concurrency:
       group: ${{ github.ref == 'refs/heads/develop' && format('chator-build-develop-{0}', github.sha) || format('chator-build-{0}', github.ref) }}
       cancel-in-progress: true
