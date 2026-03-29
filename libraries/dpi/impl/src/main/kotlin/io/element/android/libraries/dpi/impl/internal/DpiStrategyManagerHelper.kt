@@ -43,6 +43,7 @@ class DpiStrategyManagerHelper(
         val lastTested: Long
     )
     
+    @Suppress("DEPRECATION")
     fun getNetworkId(): String {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return "unknown"
@@ -52,6 +53,7 @@ class DpiStrategyManagerHelper(
         return when {
             capabilities.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI) -> {
                 val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                @Suppress("DEPRECATION")
                 val wifiInfo = wifiManager.connectionInfo
                 "wifi_${wifiInfo.ssid ?: "unknown"}"
             }
