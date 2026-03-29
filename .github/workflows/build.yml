@@ -58,7 +58,8 @@ jobs:
       - name: Configure gradle
         uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
         with:
-          cache-read-only: ${{ github.ref != 'refs/heads/develop' }}
+          # Disable cache to avoid stale compilation artifacts
+          cache-read-only: true
       - name: Assemble debug APKs
         if: ${{ matrix.variant == 'debug' }}
         env:
