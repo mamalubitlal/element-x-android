@@ -41,6 +41,11 @@ plugins {
 android {
     namespace = "io.element.android.x"
 
+    lint {
+        // Disable ExtraTranslation check for fork-specific translations
+        disable += "ExtraTranslation"
+    }
+
     defaultConfig {
         applicationId = BuildTimeConfig.APPLICATION_ID
         targetSdk = Versions.TARGET_SDK
