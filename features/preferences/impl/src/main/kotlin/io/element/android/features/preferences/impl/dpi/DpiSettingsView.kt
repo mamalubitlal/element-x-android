@@ -204,7 +204,7 @@ private fun BestStrategyCard(
                 text = "${strategy.successPercentage.toInt()}%",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = SuccessGreen
+                color = Color.Green
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
