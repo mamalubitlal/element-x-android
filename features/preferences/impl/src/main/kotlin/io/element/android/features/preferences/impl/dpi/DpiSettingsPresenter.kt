@@ -21,12 +21,11 @@ import androidx.core.content.edit
 import dev.zacsweers.metro.Inject
 import io.element.android.features.preferences.impl.R
 import io.element.android.libraries.architecture.Presenter
-import io.element.android.services.toolbox.api.strings.StringProvider
 import io.element.android.libraries.dpi.api.DpiBypassManager
 import io.element.android.libraries.dpi.api.DpiStrategyManager
 import io.element.android.libraries.dpi.api.StrategyTestResult
-import io.element.android.libraries.dpi.impl.DpiBypassManagerImpl
-import io.element.android.libraries.dpi.impl.DpiStrategyManagerImpl
+import io.element.android.libraries.di.annotations.ApplicationContext
+import io.element.android.services.toolbox.api.strings.StringProvider
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -34,12 +33,11 @@ import kotlinx.coroutines.launch
 
 @Inject
 class DpiSettingsPresenter(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val stringProvider: StringProvider,
+    private val dpiBypassManager: DpiBypassManager,
+    private val strategyManager: DpiStrategyManager,
 ) : Presenter<DpiSettingsState> {
-    
-    private val dpiBypassManager: DpiBypassManager = DpiBypassManagerImpl(context)
-    private val strategyManager: DpiStrategyManager = DpiStrategyManagerImpl(context)
     
     private val prefs: SharedPreferences by lazy {
         context.getSharedPreferences("dpi_settings", Context.MODE_PRIVATE)
