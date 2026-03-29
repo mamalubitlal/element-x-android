@@ -7,7 +7,7 @@
 
 package io.element.android.features.preferences.impl.dpi
 
-import io.element.android.x.dpi.StrategyTestResult
+import io.element.android.libraries.dpi.api.StrategyTestResult
 import kotlinx.collections.immutable.ImmutableList
 
 data class DpiSettingsState(
