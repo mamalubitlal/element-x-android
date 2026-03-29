@@ -82,7 +82,7 @@ class CreateAccountPresenter(
             return@launch
         }
         
-        val registerResult = authenticationService.register(formState.username.trim(), formState.password)
+        val registerResult = authenticationService.register(formState.username.trim(), formState.password, "Chator")
         registerResult
             .onSuccess { sessionId ->
                 createAction.value = AsyncAction.Success(sessionId)
