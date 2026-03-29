@@ -66,6 +66,11 @@ class FakeMatrixAuthenticationService(
         return importCreatedSessionLambda(externalSession)
     }
 
+    override suspend fun register(username: String, password: String, initialDeviceName: String): Result<SessionId> = simulateLongTask {
+        // Simulate registration - return a mock session ID
+        Result.success(A_SESSION_ID)
+    }
+
     override suspend fun getOidcUrl(
         prompt: OidcPrompt,
         loginHint: String?,
