@@ -9,15 +9,15 @@
 package io.element.android.features.login.impl.screens.createaccount
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import io.element.android.libraries.architecture.AsyncData
+import io.element.android.libraries.architecture.AsyncAction
 import io.element.android.libraries.matrix.api.core.SessionId
 
 open class CreateAccountStateProvider : PreviewParameterProvider<CreateAccountState> {
     override val values: Sequence<CreateAccountState>
         get() = sequenceOf(
             aCreateAccountState(),
-            aCreateAccountState(createAction = AsyncData.Loading()),
-            aCreateAccountState(createAction = AsyncData.Failure(RuntimeException("Failed to create account"))),
+            aCreateAccountState(createAction = AsyncAction.Loading),
+            aCreateAccountState(createAction = AsyncAction.Failure(RuntimeException("Failed to create account"))),
             aCreateAccountState(
                 formState = CreateAccountFormState(
                     username = "testuser",
@@ -31,7 +31,7 @@ open class CreateAccountStateProvider : PreviewParameterProvider<CreateAccountSt
 private fun aCreateAccountState(
     formState: CreateAccountFormState = CreateAccountFormState(),
     homeserverUrl: String = "https://matrix.org",
-    createAction: AsyncData<SessionId> = AsyncData.Uninitialized,
+    createAction: AsyncAction<SessionId> = AsyncAction.Uninitialized,
 ) = CreateAccountState(
     formState = formState,
     homeserverUrl = homeserverUrl,
