@@ -7,7 +7,7 @@
 
 plugins {
     id("io.element.android-library")
-    alias(libs.plugins.kotlin_serialization)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
