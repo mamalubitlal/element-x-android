@@ -9,8 +9,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /**
- * Main manager for DPI bypass functionality
- * Controls the ByeDPI local proxy
+ * Main manager for DPI bypass functionality.
+ * Controls the ByeDPI local proxy.
  */
 class DpiBypassManager(private val context: Context) {
     
@@ -40,9 +40,9 @@ class DpiBypassManager(private val context: Context) {
     )
     
     /**
-     * Start DPI bypass proxy
-     * @param strategy ByeDPI command-line arguments
-     * @param socksPort Port for the SOCKS proxy (default 1080)
+     * Start DPI bypass proxy.
+     * @param strategy ByeDPI command-line arguments.
+     * @param socksPort Port for the SOCKS proxy (default 1080).
      */
     suspend fun start(
         strategy: String = DEFAULT_STRATEGY,
@@ -89,7 +89,7 @@ class DpiBypassManager(private val context: Context) {
     }
     
     /**
-     * Stop DPI bypass proxy
+     * Stop DPI bypass proxy.
      */
     suspend fun stop() = withContext(Dispatchers.IO) {
         Log.i(TAG, "Stopping DPI bypass...")
@@ -104,7 +104,7 @@ class DpiBypassManager(private val context: Context) {
     }
     
     /**
-     * Get current bypass status
+     * Get current bypass status.
      */
     fun getStatus(): BypassStatus {
         return BypassStatus(
@@ -117,28 +117,28 @@ class DpiBypassManager(private val context: Context) {
     }
     
     /**
-     * Check if proxy is currently running
+     * Check if proxy is currently running.
      */
     fun isRunning(): Boolean {
         return isProxyRunning && byeDpiProxy.isRunning()
     }
     
     /**
-     * Get SOCKS proxy address for network configuration
+     * Get SOCKS proxy address for network configuration.
      */
     fun getProxyAddress(): String {
         return "socks5://127.0.0.1:$currentSocksPort"
     }
     
     /**
-     * Test if a strategy works for the current network
+     * Test if a strategy works for the current network.
      */
     suspend fun testStrategy(strategy: String, domains: List<String>): StrategyTestResult {
         return strategyManager.testStrategy(strategy, domains)
     }
     
     /**
-     * Find the best strategy for current network
+     * Find the best strategy for current network.
      */
     suspend fun autoSelectStrategy(): String? {
         val strategies = strategyManager.loadStrategies()
