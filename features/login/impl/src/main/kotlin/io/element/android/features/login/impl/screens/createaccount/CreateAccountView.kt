@@ -62,6 +62,7 @@ import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.Scaffold
 import io.element.android.libraries.designsystem.theme.components.Text
 import io.element.android.libraries.designsystem.theme.components.TextField
+import io.element.android.libraries.designsystem.theme.components.TextFieldValidity
 import io.element.android.libraries.designsystem.theme.components.TopAppBar
 import io.element.android.libraries.testtags.TestTags
 import io.element.android.libraries.testtags.testTag
@@ -280,18 +281,16 @@ private fun RegistrationForm(
                 .semantics {
                     contentType = ContentType.Password
                 },
-            onValueChange = {
-                val sanitized = it.sanitize()
+            onValueChange = { newValue ->
+                val sanitized = newValue.sanitize()
                 confirmPasswordFieldState = sanitized
                 eventSink(CreateAccountEvents.SetConfirmPassword(sanitized))
             },
             placeholder = stringResource(R.string.screen_create_account_confirm_password_placeholder),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            isError = state.formState.isPasswordMismatch,
-            isError = state.formState.isPasswordMismatch,
-            supportingText = if (state.formState.isPasswordMismatch) {
-                stringResource(R.string.screen_create_account_password_mismatch)
-            } else null,
+            validity = if (state.formState.isPasswordMismatch) {
+                TextFieldValidity.Invalid(stringResource(R.string.screen_create_account_password_mismatch))
+            } else TextFieldValidity.None,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done
