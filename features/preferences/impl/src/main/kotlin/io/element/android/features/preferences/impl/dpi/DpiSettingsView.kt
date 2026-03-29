@@ -44,6 +44,7 @@ import io.element.android.libraries.designsystem.components.list.RadioButtonList
 import io.element.android.libraries.designsystem.components.list.SwitchListItem
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
+import io.element.android.libraries.designsystem.theme.SuccessGreen
 import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.TopAppBar
 import io.element.android.libraries.dpi.api.StrategyTestResult
@@ -57,8 +58,7 @@ fun DpiSettingsView(
 ) {
     if (state.isTesting) {
         ProgressDialog(
-            text = state.testingStatus,
-            type = io.element.android.libraries.designsystem.components.ProgressDialogType.Determinate(state.testingProgress),
+            message = state.testingStatus,
         )
     }
     
@@ -121,7 +121,7 @@ fun DpiSettingsView(
                     Text(
                         text = stringResource(R.string.screen_dpi_strategies_header),
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colors.textSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                     )
                 }
@@ -145,7 +145,7 @@ fun DpiSettingsView(
                 Text(
                     text = stringResource(R.string.screen_dpi_footer_info),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colors.textSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -186,7 +186,7 @@ private fun BestStrategyCard(
         Text(
             text = stringResource(R.string.screen_dpi_best_strategy),
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colors.textSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(4.dp))
         Row(
@@ -195,7 +195,7 @@ private fun BestStrategyCard(
             Icon(
                 imageVector = CompoundIcons.CheckCircle(),
                 contentDescription = null,
-                tint = MaterialTheme.colors.success,
+                tint = SuccessGreen,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -203,7 +203,7 @@ private fun BestStrategyCard(
                 text = "${strategy.successPercentage.toInt()}%",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colors.success
+                color = SuccessGreen
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -213,7 +213,7 @@ private fun BestStrategyCard(
                     strategy.totalTests
                 ),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colors.textSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -240,7 +240,7 @@ private fun AutoTestSection(
                 CircularProgressIndicator(
                     modifier = Modifier.size(16.dp),
                     strokeWidth = 2.dp,
-                    color = MaterialTheme.colors.onPrimary
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }
@@ -268,35 +268,15 @@ private fun StrategyListItem(
 ) {
     RadioButtonListItem(
         modifier = modifier,
-        headline = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = strategy.strategy,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (isBest) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.screen_dpi_best_label),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colors.success
-                    )
-                }
-            }
-        },
-        supportingText = {
-            Text(
-                text = stringResource(
-                    R.string.screen_dpi_strategy_success,
-                    strategy.successPercentage.toInt(),
-                    strategy.successfulTests,
-                    strategy.totalTests
-                )
-            )
-        },
+        headline = strategy.strategy,
+        supportingText = stringResource(
+            R.string.screen_dpi_strategy_success,
+            strategy.successPercentage.toInt(),
+            strategy.successfulTests,
+            strategy.totalTests
+        ),
         selected = isSelected,
-        onClick = onSelect
+        onSelect = onSelect
     )
 }
 
