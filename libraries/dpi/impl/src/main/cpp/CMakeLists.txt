@@ -9,9 +9,7 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(dpi_bypass_native C CXX)
 
-# Set C and C++ standards explicitly
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED ON)
+# Set C++ standard globally
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -21,6 +19,7 @@ list(REMOVE_ITEM BYE_DPI_SRC "${CMAKE_CURRENT_SOURCE_DIR}/byedpi/win_service.c")
 
 add_library(byedpi SHARED ${BYE_DPI_SRC} native-lib.c)
 target_include_directories(byedpi PRIVATE byedpi)
+set_source_files_properties(${BYE_DPI_SRC} native-lib.c PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON)
 
 # Non-standard compile options
 target_compile_options(byedpi PRIVATE -O2 -Wall -Wno-unused -Wextra -Wno-unused-parameter -pedantic)
