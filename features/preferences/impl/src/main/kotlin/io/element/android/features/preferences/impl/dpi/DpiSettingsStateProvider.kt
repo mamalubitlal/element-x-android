@@ -8,8 +8,8 @@
 package io.element.android.features.preferences.impl.dpi
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import io.element.android.x.dpi.DomainResult
-import io.element.android.x.dpi.StrategyTestResult
+import io.element.android.libraries.dpi.api.DomainResult
+import io.element.android.libraries.dpi.api.StrategyTestResult
 import kotlinx.collections.immutable.toImmutableList
 
 internal class DpiSettingsStateProvider : PreviewParameterProvider<DpiSettingsState> {
