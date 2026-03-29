@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,7 +45,7 @@ import io.element.android.libraries.designsystem.components.list.RadioButtonList
 import io.element.android.libraries.designsystem.components.list.SwitchListItem
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
-import io.element.android.libraries.designsystem.theme.SuccessGreen
+
 import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.TopAppBar
 import io.element.android.libraries.dpi.api.StrategyTestResult
@@ -58,7 +59,7 @@ fun DpiSettingsView(
 ) {
     if (state.isTesting) {
         ProgressDialog(
-            message = state.testingStatus,
+            text = state.testingStatus,
         )
     }
     
@@ -195,7 +196,7 @@ private fun BestStrategyCard(
             Icon(
                 imageVector = CompoundIcons.CheckCircle(),
                 contentDescription = null,
-                tint = SuccessGreen,
+                tint = Color.Green,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
