@@ -8,8 +8,6 @@
 
 package io.element.android.features.login.impl.screens.createaccount
 
-import android.app.Activity
-import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.bumble.appyx.core.modality.BuildContext
@@ -19,8 +17,6 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
 import io.element.android.annotations.ContributesNode
-import io.element.android.compound.theme.ElementTheme
-import io.element.android.libraries.androidutils.browser.openUrlInChromeCustomTab
 import io.element.android.libraries.architecture.NodeInputs
 import io.element.android.libraries.architecture.inputs
 
@@ -32,27 +28,18 @@ class CreateAccountNode(
     presenterFactory: CreateAccountPresenter.Factory,
 ) : Node(buildContext, plugins = plugins) {
     data class Inputs(
-        val url: String,
+        val homeserverUrl: String,
     ) : NodeInputs
 
-    private val presenter = presenterFactory.create(inputs<Inputs>().url)
-
-    private fun onOpenExternalUrl(activity: Activity, darkTheme: Boolean, url: String) {
-        activity.openUrlInChromeCustomTab(null, darkTheme, url)
-    }
+    private val presenter = presenterFactory.create(inputs<Inputs>().homeserverUrl)
 
     @Composable
     override fun View(modifier: Modifier) {
-        val activity = requireNotNull(LocalActivity.current)
-        val isDark = ElementTheme.isLightTheme.not()
         val state = presenter.present()
         CreateAccountView(
             state = state,
             modifier = modifier,
             onBackClick = ::navigateUp,
-            onOpenExternalUrl = {
-                onOpenExternalUrl(activity, isDark, it)
-            },
         )
     }
 }

@@ -263,7 +263,7 @@ class LoginFlowNode(
             }
             is NavTarget.CreateAccount -> {
                 val inputs = CreateAccountNode.Inputs(
-                    url = navTarget.url,
+                    homeserverUrl = navTarget.url,
                 )
                 createNode<CreateAccountNode>(buildContext, listOf(inputs))
             }

@@ -12,9 +12,20 @@ import io.element.android.libraries.architecture.AsyncAction
 import io.element.android.libraries.matrix.api.core.SessionId
 
 data class CreateAccountState(
-    val url: String,
-    val pageProgress: Int,
+    val formState: CreateAccountFormState,
+    val homeserverUrl: String,
     val createAction: AsyncAction<SessionId>,
-    val isDebugBuild: Boolean,
     val eventSink: (CreateAccountEvents) -> Unit
 )
+
+data class CreateAccountFormState(
+    val username: String = "",
+    val password: String = "",
+    val confirmPassword: String = "",
+) {
+    val submitEnabled: Boolean
+        get() = username.isNotBlank() && password.isNotBlank() && password == confirmPassword
+
+    val isPasswordMismatch: Boolean
+        get() = confirmPassword.isNotBlank() && password != confirmPassword
+}

@@ -57,6 +57,14 @@ android {
             abiFilters += listOf("armeabi-v7a", "x86", "arm64-v8a", "x86_64")
         }
 
+        // Configure native build for DPI bypass
+        externalNativeBuild {
+            cmake {
+                cppFlags += "-std=c++17"
+                arguments += "-DANDROID_STL=c++_shared"
+            }
+        }
+
         // Ref: https://developer.android.com/studio/build/configure-apk-splits.html#configure-abi-split
         splits {
             // Configures multiple APKs based on ABI.
