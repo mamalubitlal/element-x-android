@@ -134,9 +134,10 @@ class LoginFlowNode(
             NavTarget.OnBoarding -> {
                 val callback = object : OnBoardingNode.Callback {
                     override fun navigateToSignUpFlow() {
-                        backstack.push(
-                            NavTarget.ConfirmAccountProvider(isAccountCreation = true)
-                        )
+                        // Skip confirmation page, go directly to account creation
+                        // For Matrix.org, use the default registration URL
+                        val defaultUrl = "https://matrix.org/_matrix/client/r0/register"
+                        backstack.push(NavTarget.CreateAccount(defaultUrl))
                     }
 
                     override fun navigateToSignInFlow(mustChooseAccountProvider: Boolean) {
@@ -144,7 +145,7 @@ class LoginFlowNode(
                             if (mustChooseAccountProvider) {
                                 NavTarget.ChooseAccountProvider
                             } else {
-                                NavTarget.ConfirmAccountProvider(isAccountCreation = false)
+                                NavTarget.LoginPassword
                             }
                         )
                     }
