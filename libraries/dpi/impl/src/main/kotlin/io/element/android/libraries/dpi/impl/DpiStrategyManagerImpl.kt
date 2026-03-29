@@ -8,17 +8,17 @@
 package io.element.android.libraries.dpi.impl
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
 import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.element.android.libraries.dpi.api.DpiStrategyManager
 import io.element.android.libraries.dpi.api.DomainResult
 import io.element.android.libraries.dpi.api.StrategyTestResult
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.Socket
@@ -32,15 +32,10 @@ class DpiStrategyManagerImpl(
     
     companion object {
         private const val TAG = "DpiStrategyManager"
-        private const val KEY_NETWORK_STRATEGIES = "network_strategies"
         private const val SOCKS_PORT = 1080
     }
     
-    private val prefs: SharedPreferences by lazy {
-        context.getSharedPreferences("dpi_strategies", Context.MODE_PRIVATE)
-    }
-    
-    private val gson = Gson()
+    private val json = Json { ignoreUnknownKeys = true }
     
     override suspend fun getNetworkId(): String = withContext(Dispatchers.IO) {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -121,8 +116,7 @@ class DpiStrategyManagerImpl(
         try {
             val file = File(context.filesDir, "dpi_test_results_$networkId.json")
             if (file.exists()) {
-                val type = object : TypeToken<List<StrategyTestResult>>() {}.type
-                gson.fromJson(file.readText(), type)
+                json.decodeFromString<List<StrategyTestResult>>(file.readText())
             } else null
         } catch (e: Exception) {
             Log.w(TAG, "Failed to load test results: ${e.message}")
@@ -133,7 +127,7 @@ class DpiStrategyManagerImpl(
     override suspend fun saveTestResults(results: List<StrategyTestResult>, networkId: String): Unit = withContext(Dispatchers.IO) {
         try {
             val file = File(context.filesDir, "dpi_test_results_$networkId.json")
-            file.writeText(gson.toJson(results))
+            file.writeText(json.encodeToString(results))
         } catch (e: Exception) {
             Log.e(TAG, "Failed to save test results: ${e.message}")
         }
