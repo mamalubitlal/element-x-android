@@ -52,12 +52,18 @@ class DpiSettingsPresenter(
     override fun present(): DpiSettingsState {
         val coroutineScope = rememberCoroutineScope()
         
+        // Check if native libraries are available
+        val isNativeAvailable = dpiBypassManager.isNativeAvailable()
+        
         // Create StateFlows to track preference changes
         val dpiEnabledFlow = remember { MutableStateFlow(prefs.getBoolean(KEY_DPI_ENABLED, false)) }
         val strategyIndexFlow = remember { MutableStateFlow(prefs.getInt(KEY_STRATEGY_INDEX, -1)) }
         
         val isDpiBypassEnabled by dpiEnabledFlow.collectAsState()
         val selectedStrategyIndex by strategyIndexFlow.collectAsState()
+        
+        // Error message state
+        var errorMessage by remember { mutableStateOf<String?>(null) }
         
         // Strategy testing state
         var isTesting by remember { mutableStateOf(false) }
@@ -84,6 +90,11 @@ class DpiSettingsPresenter(
         fun handleEvent(event: DpiSettingsEvents) {
             when (event) {
                 is DpiSettingsEvents.SetEnabled -> {
+                    if (!isNativeAvailable) {
+                        errorMessage = stringProvider.getString(R.string.screen_dpi_error_native_not_available)
+                        return
+                    }
+                    
                     coroutineScope.launch {
                         if (event.enabled) {
                             // Find best or selected strategy
@@ -100,6 +111,9 @@ class DpiSettingsPresenter(
                                 currentStrategy = strategyToUse
                                 prefs.edit { putBoolean(KEY_DPI_ENABLED, true) }
                                 dpiEnabledFlow.value = true
+                                errorMessage = null
+                            } else {
+                                errorMessage = result.exceptionOrNull()?.message ?: stringProvider.getString(R.string.screen_dpi_error_start_failed)
                             }
                         } else {
                             dpiBypassManager.stop()
@@ -215,6 +229,8 @@ class DpiSettingsPresenter(
             testingStatus = testingStatus,
             selectedStrategyIndex = selectedStrategyIndex,
             bestStrategy = bestStrategy,
+            errorMessage = errorMessage,
+            isNativeAvailable = isNativeAvailable,
             eventSink = ::handleEvent,
         )
     }

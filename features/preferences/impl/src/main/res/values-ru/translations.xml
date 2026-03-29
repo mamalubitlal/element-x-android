@@ -96,4 +96,6 @@
   <string name="screen_dpi_test_complete">"Тестирование завершено!"</string>
   <string name="screen_dpi_test_error_no_strategies">"Стратегии не найдены"</string>
   <string name="screen_dpi_footer_info">"Обход DPI направляет ваш трафик через локальный прокси для избежания обнаружения. Протестируйте разные стратегии, чтобы найти лучшую для вашей сети."</string>
+  <string name="screen_dpi_error_native_not_available">"Обход DPI недоступен на этом устройстве"</string>
+  <string name="screen_dpi_error_start_failed">"Не удалось запустить обход DPI"</string>
 </resources>

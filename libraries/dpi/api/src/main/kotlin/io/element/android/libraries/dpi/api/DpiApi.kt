@@ -52,6 +52,11 @@ interface DpiBypassManager {
      */
     fun isRunning(): Boolean
     
+    /**
+     * Check if native libraries are available
+     */
+    fun isNativeAvailable(): Boolean
+    
     companion object {
         const val DEFAULT_STRATEGY = "-p -r -s -f 2"
     }
