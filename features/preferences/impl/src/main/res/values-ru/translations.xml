@@ -79,4 +79,21 @@
   <string name="troubleshoot_notifications_entry_point_push_history_title">"История уведомлений"</string>
   <string name="troubleshoot_notifications_entry_point_section">"Устранение неполадок"</string>
   <string name="troubleshoot_notifications_entry_point_title">"Уведомления об устранении неполадок"</string>
+  <string name="screen_dpi_title">"Обход DPI"</string>
+  <string name="screen_dpi_enable_title">"Включить обход DPI"</string>
+  <string name="screen_dpi_enable_description">"Обход глубокой инспекции пакетов для улучшения подключения в сетях с ограничениями"</string>
+  <string name="screen_dpi_enable_running">"Работает с: %1$s"</string>
+  <string name="screen_dpi_best_strategy">"Лучшая стратегия"</string>
+  <string name="screen_dpi_success_rate">"%1$d/%2$d успешных тестов"</string>
+  <string name="screen_dpi_test_strategies">"Тестировать стратегии"</string>
+  <string name="screen_dpi_clear_results">"Очистить"</string>
+  <string name="screen_dpi_strategies_header">"Доступные стратегии"</string>
+  <string name="screen_dpi_strategy_success">"%1$d%% успех (%2$d/%3$d тестов)"</string>
+  <string name="screen_dpi_best_label">"ЛУЧШАЯ"</string>
+  <string name="screen_dpi_test_dialog_title">"Тестирование стратегий…"</string>
+  <string name="screen_dpi_test_status_loading_strategies">"Загрузка стратегий…"</string>
+  <string name="screen_dpi_test_status_testing">"Тестирование %1$d из %2$d…"</string>
+  <string name="screen_dpi_test_complete">"Тестирование завершено!"</string>
+  <string name="screen_dpi_test_error_no_strategies">"Стратегии не найдены"</string>
+  <string name="screen_dpi_footer_info">"Обход DPI направляет ваш трафик через локальный прокси для избежания обнаружения. Протестируйте разные стратегии, чтобы найти лучшую для вашей сети."</string>
 </resources>
