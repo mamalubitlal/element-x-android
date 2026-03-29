@@ -130,7 +130,7 @@ class DpiStrategyManagerImpl(
         }
     }
     
-    override suspend fun saveTestResults(results: List<StrategyTestResult>, networkId: String) = withContext(Dispatchers.IO) {
+    override suspend fun saveTestResults(results: List<StrategyTestResult>, networkId: String): Unit = withContext(Dispatchers.IO) {
         try {
             val file = File(context.filesDir, "dpi_test_results_$networkId.json")
             file.writeText(gson.toJson(results))

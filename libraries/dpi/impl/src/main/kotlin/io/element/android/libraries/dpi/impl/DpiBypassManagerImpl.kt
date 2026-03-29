@@ -76,7 +76,7 @@ class DpiBypassManagerImpl(
         }
     }
     
-    override suspend fun stop() = withContext(Dispatchers.IO) {
+    override fun stop() {
         Log.i(TAG, "Stopping DPI bypass...")
         
         try {
