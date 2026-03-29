@@ -289,7 +289,7 @@ private fun RegistrationForm(
             placeholder = stringResource(R.string.screen_create_account_confirm_password_placeholder),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             validity = if (state.formState.isPasswordMismatch) {
-                TextFieldValidity.Invalid(stringResource(R.string.screen_create_account_password_mismatch))
+                TextFieldValidity.Invalid
             } else TextFieldValidity.None,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
