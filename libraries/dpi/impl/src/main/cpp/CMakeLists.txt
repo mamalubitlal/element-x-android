@@ -1,3 +1,10 @@
+# /*
+#  * Copyright (c) 2025 Element Creations Ltd.
+#  *
+#  * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial.
+#  * Please see LICENSE files in the repository root for full details.
+#  */
+
 cmake_minimum_required(VERSION 3.22.1)
 
 project(dpi_bypass_native)
