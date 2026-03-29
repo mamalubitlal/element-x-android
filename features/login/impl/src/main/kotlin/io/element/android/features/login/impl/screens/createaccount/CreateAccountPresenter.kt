@@ -76,15 +76,16 @@ class CreateAccountPresenter(
     private fun CoroutineScope.submit(formState: CreateAccountFormState, createAction: MutableState<AsyncAction<SessionId>>) = launch {
         createAction.value = AsyncAction.Loading
         // Set the homeserver first, then register
-        authenticationService.setHomeserver(homeserverUrl)
-            .onSuccess {
-                runCatchingExceptions {
-                    authenticationService.register(formState.username.trim(), formState.password)
-                }.onSuccess { sessionId ->
-                    createAction.value = AsyncAction.Success(sessionId)
-                }.onFailure { failure ->
-                    createAction.value = AsyncAction.Failure(failure)
-                }
+        val homeserverResult = authenticationService.setHomeserver(homeserverUrl)
+        if (homeserverResult.isFailure) {
+            createAction.value = AsyncAction.Failure(homeserverResult.exceptionOrNull() ?: Exception("Failed to set homeserver"))
+            return@launch
+        }
+        
+        val registerResult = authenticationService.register(formState.username.trim(), formState.password)
+        registerResult
+            .onSuccess { sessionId ->
+                createAction.value = AsyncAction.Success(sessionId)
             }
             .onFailure { failure ->
                 createAction.value = AsyncAction.Failure(failure)
