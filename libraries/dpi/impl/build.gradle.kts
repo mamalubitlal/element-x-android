@@ -22,11 +22,13 @@ setupDependencyInjection()
 dependencies {
     api(projects.libraries.dpi.api)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.core)
     implementation(projects.appconfig)
     implementation(projects.libraries.di)
     implementation(projects.libraries.androidutils)
     implementation(projects.libraries.core)
     implementation(libs.coroutines.core)
+    implementation(libs.google.gson)
 
     testCommonDependencies(libs)
 }
