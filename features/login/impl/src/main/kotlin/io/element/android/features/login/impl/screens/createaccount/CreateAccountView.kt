@@ -288,17 +288,9 @@ private fun RegistrationForm(
             placeholder = stringResource(R.string.screen_create_account_confirm_password_placeholder),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             isError = state.formState.isPasswordMismatch,
+            isError = state.formState.isPasswordMismatch,
             supportingText = if (state.formState.isPasswordMismatch) {
                 stringResource(R.string.screen_create_account_password_mismatch)
-            } else null,
-            trailingIcon = if (confirmPasswordFieldState.isNotEmpty() && !state.formState.isPasswordMismatch) {
-                {
-                    Icon(
-                        imageVector = CompoundIcons.Check(),
-                        contentDescription = null,
-                        tint = ElementTheme.colors.textSuccess
-                    )
-                }
             } else null,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
