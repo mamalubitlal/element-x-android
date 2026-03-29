@@ -28,6 +28,12 @@
   <string name="screen_change_server_subtitle">"Какой адрес у вашего сервера?"</string>
   <string name="screen_change_server_title">"Выберите свой сервер"</string>
   <string name="screen_create_account_title">"Создать аккаунт"</string>
+  <string name="screen_create_account_subtitle">"Вы собираетесь создать аккаунт на %1$s"</string>
+  <string name="screen_create_account_username_label">"Имя пользователя"</string>
+  <string name="screen_create_account_username_placeholder">"Введите имя пользователя"</string>
+  <string name="screen_create_account_confirm_password_placeholder">"Подтвердите пароль"</string>
+  <string name="screen_create_account_password_mismatch">"Пароли не совпадают"</string>
+  <string name="screen_create_account_submit">"Создать аккаунт"</string>
   <string name="screen_login_error_deactivated_account">"Данная учётная запись была отключена."</string>
   <string name="screen_login_error_invalid_credentials">"Неверное имя пользователя и/или пароль"</string>
   <string name="screen_login_error_invalid_user_id">"Это некорректный идентификатор пользователя. Правильный формат: @user:homeserver.org"</string>

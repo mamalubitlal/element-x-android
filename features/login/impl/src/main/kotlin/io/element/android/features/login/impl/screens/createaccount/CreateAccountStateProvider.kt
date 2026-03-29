@@ -9,26 +9,32 @@
 package io.element.android.features.login.impl.screens.createaccount
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import io.element.android.libraries.architecture.AsyncAction
+import io.element.android.libraries.architecture.AsyncData
 import io.element.android.libraries.matrix.api.core.SessionId
 
 open class CreateAccountStateProvider : PreviewParameterProvider<CreateAccountState> {
     override val values: Sequence<CreateAccountState>
         get() = sequenceOf(
             aCreateAccountState(),
-            aCreateAccountState(pageProgress = 33),
-            aCreateAccountState(createAction = AsyncAction.Loading),
-            aCreateAccountState(createAction = AsyncAction.Failure(RuntimeException("Failed to create account"))),
+            aCreateAccountState(createAction = AsyncData.Loading()),
+            aCreateAccountState(createAction = AsyncData.Failure(RuntimeException("Failed to create account"))),
+            aCreateAccountState(
+                formState = CreateAccountFormState(
+                    username = "testuser",
+                    password = "testpassword",
+                    confirmPassword = "testpassword"
+                )
+            ),
         )
 }
 
 private fun aCreateAccountState(
-    pageProgress: Int = 100,
-    createAction: AsyncAction<SessionId> = AsyncAction.Uninitialized,
+    formState: CreateAccountFormState = CreateAccountFormState(),
+    homeserverUrl: String = "https://matrix.org",
+    createAction: AsyncData<SessionId> = AsyncData.Uninitialized,
 ) = CreateAccountState(
-    url = "https://example.com",
-    isDebugBuild = true,
-    pageProgress = pageProgress,
+    formState = formState,
+    homeserverUrl = homeserverUrl,
     createAction = createAction,
     eventSink = {}
 )

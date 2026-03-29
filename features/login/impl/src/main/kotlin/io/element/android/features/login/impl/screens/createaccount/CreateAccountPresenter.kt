@@ -10,18 +10,17 @@ package io.element.android.features.login.impl.screens.createaccount
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import io.element.android.libraries.architecture.AsyncAction
+import io.element.android.libraries.architecture.AsyncData
 import io.element.android.libraries.architecture.Presenter
-import io.element.android.libraries.core.extensions.flatMap
 import io.element.android.libraries.core.extensions.runCatchingExceptions
-import io.element.android.libraries.core.meta.BuildMeta
 import io.element.android.libraries.matrix.api.auth.MatrixAuthenticationService
 import io.element.android.libraries.matrix.api.core.SessionId
 import kotlinx.coroutines.CoroutineScope
@@ -29,54 +28,70 @@ import kotlinx.coroutines.launch
 
 @AssistedInject
 class CreateAccountPresenter(
-    @Assisted private val url: String,
+    @Assisted private val homeserverUrl: String,
     private val authenticationService: MatrixAuthenticationService,
-    private val messageParser: MessageParser,
-    private val buildMeta: BuildMeta,
 ) : Presenter<CreateAccountState> {
     @AssistedFactory
     interface Factory {
-        fun create(url: String): CreateAccountPresenter
+        fun create(homeserverUrl: String): CreateAccountPresenter
     }
 
     @Composable
     override fun present(): CreateAccountState {
         val coroutineScope = rememberCoroutineScope()
-        val pageProgress: MutableState<Int> = remember { mutableIntStateOf(0) }
-        val createAction: MutableState<AsyncAction<SessionId>> = remember { mutableStateOf(AsyncAction.Uninitialized) }
+        val createAction: MutableState<AsyncData<SessionId>> = remember {
+            mutableStateOf(AsyncData.Uninitialized)
+        }
+
+        val formState = rememberSaveable {
+            mutableStateOf(CreateAccountFormState())
+        }
 
         fun handleEvent(event: CreateAccountEvents) {
             when (event) {
-                is CreateAccountEvents.SetPageProgress -> {
-                    pageProgress.value = event.progress
+                is CreateAccountEvents.SetUsername -> updateFormState(formState) {
+                    copy(username = event.username)
                 }
-                is CreateAccountEvents.OnMessageReceived -> {
-                    // Ignore unexpected message
-                    if (event.message.contains("isTrusted")) return
-                    coroutineScope.importSession(event.message, createAction)
+                is CreateAccountEvents.SetPassword -> updateFormState(formState) {
+                    copy(password = event.password)
                 }
+                is CreateAccountEvents.SetConfirmPassword -> updateFormState(formState) {
+                    copy(confirmPassword = event.confirmPassword)
+                }
+                CreateAccountEvents.Submit -> {
+                    coroutineScope.submit(formState.value, createAction)
+                }
+                CreateAccountEvents.ClearError -> createAction.value = AsyncData.Uninitialized
             }
         }
 
         return CreateAccountState(
-            url = url,
-            pageProgress = pageProgress.value,
-            isDebugBuild = buildMeta.isDebuggable,
+            formState = formState.value,
+            homeserverUrl = homeserverUrl,
             createAction = createAction.value,
             eventSink = ::handleEvent,
         )
     }
 
-    private fun CoroutineScope.importSession(message: String, loggedInState: MutableState<AsyncAction<SessionId>>) = launch {
-        loggedInState.value = AsyncAction.Loading
-        runCatchingExceptions {
-            messageParser.parse(message)
-        }.flatMap { externalSession ->
-            authenticationService.importCreatedSession(externalSession)
-        }.onSuccess { sessionId ->
-            loggedInState.value = AsyncAction.Success(sessionId)
-        }.onFailure { failure ->
-            loggedInState.value = AsyncAction.Failure(failure)
-        }
+    private fun CoroutineScope.submit(formState: CreateAccountFormState, createAction: MutableState<AsyncData<SessionId>>) = launch {
+        createAction.value = AsyncData.Loading()
+        // Set the homeserver first, then register
+        authenticationService.setHomeserver(homeserverUrl)
+            .onSuccess {
+                runCatchingExceptions {
+                    authenticationService.register(formState.username.trim(), formState.password)
+                }.onSuccess { sessionId ->
+                    createAction.value = AsyncData.Success(sessionId)
+                }.onFailure { failure ->
+                    createAction.value = AsyncData.Failure(failure)
+                }
+            }
+            .onFailure { failure ->
+                createAction.value = AsyncData.Failure(failure)
+            }
+    }
+
+    private fun updateFormState(formState: MutableState<CreateAccountFormState>, updateLambda: CreateAccountFormState.() -> CreateAccountFormState) {
+        formState.value = updateLambda(formState.value)
     }
 }

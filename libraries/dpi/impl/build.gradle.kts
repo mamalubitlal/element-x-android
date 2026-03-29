@@ -16,6 +16,26 @@ plugins {
 
 android {
     namespace = "io.element.android.libraries.dpi.impl"
+
+    defaultConfig {
+        ndk {
+            abiFilters += listOf("armeabi-v7a", "x86", "arm64-v8a", "x86_64")
+        }
+        
+        externalNativeBuild {
+            cmake {
+                cppFlags += "-std=c99"
+                arguments += "-DANDROID_STL=c++_shared"
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
+    }
 }
 
 setupDependencyInjection()

@@ -9,6 +9,9 @@
 package io.element.android.features.login.impl.screens.createaccount
 
 sealed interface CreateAccountEvents {
-    data class SetPageProgress(val progress: Int) : CreateAccountEvents
-    data class OnMessageReceived(val message: String) : CreateAccountEvents
+    data class SetUsername(val username: String) : CreateAccountEvents
+    data class SetPassword(val password: String) : CreateAccountEvents
+    data class SetConfirmPassword(val confirmPassword: String) : CreateAccountEvents
+    data object Submit : CreateAccountEvents
+    data object ClearError : CreateAccountEvents
 }

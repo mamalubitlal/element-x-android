@@ -28,6 +28,12 @@
   <string name="screen_change_server_subtitle">"What is the address of your server?"</string>
   <string name="screen_change_server_title">"Select your server"</string>
   <string name="screen_create_account_title">"Create account"</string>
+  <string name="screen_create_account_subtitle">"You\'re about to create an account on %1$s"</string>
+  <string name="screen_create_account_username_label">"Username"</string>
+  <string name="screen_create_account_username_placeholder">"Enter username"</string>
+  <string name="screen_create_account_confirm_password_placeholder">"Confirm password"</string>
+  <string name="screen_create_account_password_mismatch">"Passwords do not match"</string>
+  <string name="screen_create_account_submit">"Create account"</string>
   <string name="screen_login_error_deactivated_account">"This account has been deactivated."</string>
   <string name="screen_login_error_invalid_credentials">"Incorrect username and/or password"</string>
   <string name="screen_login_error_invalid_user_id">"This is not a valid user identifier. Expected format: ‘@user:homeserver.org’"</string>
