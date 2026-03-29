@@ -37,6 +37,7 @@ class DpiStrategyManagerImpl(
     
     private val json = Json { ignoreUnknownKeys = true }
     
+    @Suppress("DEPRECATION")
     override suspend fun getNetworkId(): String = withContext(Dispatchers.IO) {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return@withContext "unknown"
@@ -46,6 +47,7 @@ class DpiStrategyManagerImpl(
         when {
             capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
                 val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                @Suppress("DEPRECATION")
                 val wifiInfo = wifiManager.connectionInfo
                 "wifi_${wifiInfo.ssid ?: "unknown"}"
             }
@@ -76,7 +78,8 @@ class DpiStrategyManagerImpl(
         }
     }
     
-    override suspend fun testStrategy(command: String, domains: List<String>): StrategyTestResult = withContext(Dispatchers.IO) {
+    @Suppress("DEPRECATION")
+    override suspend fun testStrategy(strategy: String, domains: List<String>): StrategyTestResult = withContext(Dispatchers.IO) {
         val domainResults = mutableMapOf<String, DomainResult>()
         var totalSuccess = 0
         var totalTests = 0
@@ -103,8 +106,8 @@ class DpiStrategyManagerImpl(
         }
         
         StrategyTestResult(
-            strategy = extractStrategyName(command),
-            command = command,
+            strategy = extractStrategyName(strategy),
+            command = strategy,
             totalTests = totalTests,
             successfulTests = totalSuccess,
             successPercentage = if (totalTests > 0) (totalSuccess.toFloat() / totalTests) * 100 else 0f,
