@@ -197,7 +197,7 @@ class RustMatrixAuthenticationService(
                     .build()
 
                 val response = okHttpClient.newCall(request).execute()
-                val responseBody = response.body?.string() ?: throw Exception("Empty response from server")
+                val responseBody = response.body.string() ?: throw Exception("Empty response from server")
 
                 if (!response.isSuccessful) {
                     val errorJson = Json.decodeFromString<Map<String, String>>(responseBody)
