@@ -10,15 +10,12 @@ package io.element.android.libraries.dpi.impl
 import android.content.Context
 import android.util.Log
 import io.element.android.libraries.dpi.api.DpiBypassManager
-import io.element.android.libraries.dpi.impl.internal.ByeDpiProxy
-import io.element.android.libraries.dpi.impl.internal.DpiStrategyManagerHelper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /**
  * Implementation of DpiBypassManager
- * Controls the ByeDPI local proxy
+ * Uses native ByeDPI and hev-socks5-tunnel libraries
  */
 class DpiBypassManagerImpl(
     private val context: Context
@@ -27,12 +24,21 @@ class DpiBypassManagerImpl(
     companion object {
         private const val TAG = "DpiBypassManager"
         const val DEFAULT_SOCKS_PORT = 1080
-        const val DEFAULT_STRATEGY = "-p -r -s -f 2 -e 2"
+        const val DEFAULT_STRATEGY = "-p -r -s"
+        
+        init {
+            // Load native libraries
+            System.loadLibrary("byedpi")
+            System.loadLibrary("hev-socks5-tunnel")
+        }
     }
     
-    private val byeDpiProxy = ByeDpiProxy(context)
-    private val strategyManager = DpiStrategyManagerHelper(context)
+    // Native method declarations - calling the ByeByeDPI native functions
+    private external fun nativeStartProxy(args: Array<String>): Int
+    private external fun nativeStopProxy(): Int
+    private external fun nativeForceClose(): Int
     
+    @Volatile
     private var isProxyRunning = false
     private var currentStrategy = DEFAULT_STRATEGY
     private var currentSocksPort = DEFAULT_SOCKS_PORT
@@ -42,31 +48,20 @@ class DpiBypassManagerImpl(
             currentStrategy = strategyCommand
             Log.i(TAG, "Starting DPI bypass with strategy: $strategyCommand, port: $currentSocksPort")
             
-            // Build ByeDPI command
-            val command = buildByeDpiCommand(strategyCommand, currentSocksPort)
-            Log.d(TAG, "ByeDPI command: $command")
+            // Build arguments for the native proxy
+            val args = buildArgs(strategyCommand, currentSocksPort)
+            Log.d(TAG, "Native proxy args: ${args.joinToString(" ")}")
             
-            // Start ByeDPI proxy
-            val proxyStarted = byeDpiProxy.start(command)
-            if (!proxyStarted) {
-                Log.e(TAG, "Failed to start ByeDPI proxy")
-                return@withContext Result.failure(Exception("Failed to start ByeDPI proxy"))
+            // Start the native proxy
+            val result = nativeStartProxy(args)
+            
+            if (result != 0) {
+                Log.e(TAG, "Failed to start native proxy, result: $result")
+                return@withContext Result.failure(Exception("Failed to start proxy (error $result)"))
             }
             
             isProxyRunning = true
-            
-            // Verify proxy is running
-            delay(500)
-            if (!byeDpiProxy.isRunning()) {
-                Log.e(TAG, "Proxy started but not running")
-                return@withContext Result.failure(Exception("Proxy started but not running"))
-            }
-            
-            Log.i(TAG, "ByeDPI proxy started successfully on port $currentSocksPort")
-            
-            // Save successful strategy for network
-            val networkId = strategyManager.getNetworkId()
-            strategyManager.saveStrategyForNetwork(networkId, extractStrategyName(strategyCommand), strategyCommand)
+            Log.i(TAG, "Native DPI proxy started successfully on port $currentSocksPort")
             
             Result.success(Unit)
             
@@ -80,34 +75,30 @@ class DpiBypassManagerImpl(
         Log.i(TAG, "Stopping DPI bypass...")
         
         try {
-            byeDpiProxy.stop()
+            nativeStopProxy()
             isProxyRunning = false
-            Log.i(TAG, "ByeDPI proxy stopped")
+            Log.i(TAG, "DPI proxy stopped")
         } catch (e: Exception) {
             Log.e(TAG, "Error stopping proxy: ${e.message}")
+            try {
+                nativeForceClose()
+            } catch (ignored: Exception) {}
         }
     }
     
     override fun isRunning(): Boolean {
-        return isProxyRunning && byeDpiProxy.isRunning()
+        return isProxyRunning
     }
     
-    private fun buildByeDpiCommand(strategy: String, socksPort: Int): String {
-        return buildString {
-            // Basic proxy settings - listen on localhost
-            append("-i 127.0.0.1 -p $socksPort ")
-            
-            // Protocol filters - only TCP (http/https)
-            append("-K h ")
-            
-            // Add the bypass strategy
-            append(strategy)
-        }
-    }
-    
-    private fun extractStrategyName(strategy: String): String {
-        // Extract a human-readable name from the strategy
-        val parts = strategy.split(" ").take(4).joinToString(" ")
-        return if (parts.length > 30) parts.take(27) + "..." else parts
+    private fun buildArgs(strategy: String, socksPort: Int): Array<String> {
+        // Build arguments similar to how ByeByeDPI does it
+        return buildList {
+            add("-i")
+            add("127.0.0.1")
+            add("-p")
+            add(socksPort.toString())
+            // Add the bypass strategy options
+            strategy.split(" ").filter { it.isNotBlank() }.forEach { add(it) }
+        }.toTypedArray()
     }
 }
