@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.compound.tokens.generated.CompoundIcons
 import io.element.android.features.login.impl.R
-import io.element.android.libraries.architecture.AsyncData
+import io.element.android.libraries.architecture.AsyncAction
 import io.element.android.libraries.designsystem.atomic.molecules.ButtonColumnMolecule
 import io.element.android.libraries.designsystem.atomic.molecules.IconTitleSubtitleMolecule
 import io.element.android.libraries.designsystem.components.BigIcon
@@ -83,7 +83,7 @@ fun CreateAccountView(
 
     val isLoading by remember(state.createAction) {
         derivedStateOf {
-            state.createAction is AsyncData.Loading
+            state.createAction is AsyncAction.Loading
         }
     }
     val focusManager = LocalFocusManager.current
@@ -122,7 +122,7 @@ fun CreateAccountView(
             // Title
             IconTitleSubtitleMolecule(
                 modifier = Modifier.padding(top = 20.dp, start = 16.dp, end = 16.dp),
-                iconStyle = BigIcon.Style.Default(CompoundIcons.UserProfileAdd()),
+                iconStyle = BigIcon.Style.Default(CompoundIcons.UserProfile()),
                 title = stringResource(R.string.screen_create_account_title),
                 subTitle = stringResource(R.string.screen_create_account_subtitle, state.homeserverUrl)
             )
@@ -155,10 +155,10 @@ fun CreateAccountView(
                 }
             }
 
-            if (state.createAction is AsyncData.Failure) {
+            if (state.createAction is AsyncAction.Failure) {
                 ErrorDialog(
                     title = stringResource(CommonStrings.dialog_title_error),
-                    content = (state.createAction as AsyncData.Failure).error.message ?: "Registration failed",
+                    content = (state.createAction as AsyncAction.Failure).error.message ?: "Registration failed",
                     onSubmit = { state.eventSink(CreateAccountEvents.ClearError) }
                 )
             }
@@ -227,7 +227,7 @@ private fun RegistrationForm(
 
         // Password field
         var passwordVisible by remember { mutableStateOf(false) }
-        if (state.createAction is AsyncData.Loading) {
+        if (state.createAction is AsyncAction.Loading) {
             passwordVisible = false
         }
         TextField(
@@ -289,17 +289,17 @@ private fun RegistrationForm(
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             isError = state.formState.isPasswordMismatch,
             supportingText = if (state.formState.isPasswordMismatch) {
-                { Text(stringResource(R.string.screen_create_account_password_mismatch)) }
+                stringResource(R.string.screen_create_account_password_mismatch)
             } else null,
-            trailingIcon = {
-                if (confirmPasswordFieldState.isNotEmpty() && !state.formState.isPasswordMismatch) {
+            trailingIcon = if (confirmPasswordFieldState.isNotEmpty() && !state.formState.isPasswordMismatch) {
+                {
                     Icon(
-                        imageVector = CompoundIcons.Checkmark(),
+                        imageVector = CompoundIcons.Check(),
                         contentDescription = null,
-                        tint = ElementTheme.colors.iconSuccess
+                        tint = ElementTheme.colors.textSuccess
                     )
                 }
-            },
+            } else null,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done

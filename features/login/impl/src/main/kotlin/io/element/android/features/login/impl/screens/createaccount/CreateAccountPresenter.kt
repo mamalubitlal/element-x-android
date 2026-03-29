@@ -18,7 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import io.element.android.libraries.architecture.AsyncData
+import io.element.android.libraries.architecture.AsyncAction
 import io.element.android.libraries.architecture.Presenter
 import io.element.android.libraries.core.extensions.runCatchingExceptions
 import io.element.android.libraries.matrix.api.auth.MatrixAuthenticationService
@@ -39,8 +39,8 @@ class CreateAccountPresenter(
     @Composable
     override fun present(): CreateAccountState {
         val coroutineScope = rememberCoroutineScope()
-        val createAction: MutableState<AsyncData<SessionId>> = remember {
-            mutableStateOf(AsyncData.Uninitialized)
+        val createAction: MutableState<AsyncAction<SessionId>> = remember {
+            mutableStateOf(AsyncAction.Uninitialized)
         }
 
         val formState = rememberSaveable {
@@ -61,7 +61,7 @@ class CreateAccountPresenter(
                 CreateAccountEvents.Submit -> {
                     coroutineScope.submit(formState.value, createAction)
                 }
-                CreateAccountEvents.ClearError -> createAction.value = AsyncData.Uninitialized
+                CreateAccountEvents.ClearError -> createAction.value = AsyncAction.Uninitialized
             }
         }
 
@@ -73,21 +73,21 @@ class CreateAccountPresenter(
         )
     }
 
-    private fun CoroutineScope.submit(formState: CreateAccountFormState, createAction: MutableState<AsyncData<SessionId>>) = launch {
-        createAction.value = AsyncData.Loading()
+    private fun CoroutineScope.submit(formState: CreateAccountFormState, createAction: MutableState<AsyncAction<SessionId>>) = launch {
+        createAction.value = AsyncAction.Loading
         // Set the homeserver first, then register
         authenticationService.setHomeserver(homeserverUrl)
             .onSuccess {
                 runCatchingExceptions {
                     authenticationService.register(formState.username.trim(), formState.password)
                 }.onSuccess { sessionId ->
-                    createAction.value = AsyncData.Success(sessionId)
+                    createAction.value = AsyncAction.Success(sessionId)
                 }.onFailure { failure ->
-                    createAction.value = AsyncData.Failure(failure)
+                    createAction.value = AsyncAction.Failure(failure)
                 }
             }
             .onFailure { failure ->
-                createAction.value = AsyncData.Failure(failure)
+                createAction.value = AsyncAction.Failure(failure)
             }
     }
 
