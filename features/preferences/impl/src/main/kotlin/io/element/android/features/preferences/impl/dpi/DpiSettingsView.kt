@@ -46,7 +46,7 @@ import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.TopAppBar
-import io.element.android.x.dpi.StrategyTestResult
+import io.element.android.libraries.dpi.api.StrategyTestResult
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,9 +57,8 @@ fun DpiSettingsView(
 ) {
     if (state.isTesting) {
         ProgressDialog(
-            title = stringResource(R.string.screen_dpi_test_dialog_title),
-            message = state.testingStatus,
-            progress = state.testingProgress,
+            text = state.testingStatus,
+            type = io.element.android.libraries.designsystem.components.ProgressDialogType.Determinate(state.testingProgress),
         )
     }
     
