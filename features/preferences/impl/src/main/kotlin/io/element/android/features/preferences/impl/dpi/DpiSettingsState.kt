@@ -9,12 +9,13 @@ package io.element.android.features.preferences.impl.dpi
 
 import io.element.android.libraries.dpi.api.StrategyTestResult
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 data class DpiSettingsState(
     val isDpiBypassEnabled: Boolean = false,
     val isProxyRunning: Boolean = false,
     val currentStrategy: String = "",
-    val strategies: ImmutableList<StrategyTestResult> = emptyList(),
+    val strategies: ImmutableList<StrategyTestResult> = persistentListOf(),
     val isTesting: Boolean = false,
     val testingProgress: Float = 0f,
     val testingStatus: String = "",
