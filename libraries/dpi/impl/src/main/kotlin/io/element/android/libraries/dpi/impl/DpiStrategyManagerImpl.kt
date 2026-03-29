@@ -144,14 +144,28 @@ class DpiStrategyManagerImpl(
     }
     
     override suspend fun loadTestDomains(): List<String> = withContext(Dispatchers.IO) {
+        // Try to load from assets first
         try {
             val inputStream = context.assets.open("proxytest_matrix.sites")
-            inputStream.bufferedReader().readLines()
+            val domains = inputStream.bufferedReader().readLines()
                 .filter { it.isNotBlank() && !it.trim().startsWith("#") }
+            if (domains.isNotEmpty()) {
+                return@withContext domains
+            }
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to load test domains: ${e.message}")
-            listOf("matrix.org", "matrix-client.matrix.org", "vector.im", "accounts.matrix.org", "turn.matrix.org")
+            // File doesn't exist, use fallback
         }
+        
+        // Fallback to common Matrix domains (tested by ByeByeDPI)
+        Log.d(TAG, "Using fallback Matrix test domains")
+        listOf(
+            "matrix.org",
+            "matrix-client.matrix.org",
+            "vector.im",
+            "accounts.matrix.org",
+            "turn.matrix.org",
+            "synapse.matano.dev"
+        )
     }
     
     @Suppress("DEPRECATION")
