@@ -11,7 +11,7 @@ import extension.testCommonDependencies
 plugins {
     id("io.element.android-library")
     id("kotlin-parcelize")
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin_serialization)
 }
 
 android {
