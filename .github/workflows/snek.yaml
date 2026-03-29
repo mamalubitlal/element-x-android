@@ -6,6 +6,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Snake Evolution
         uses: miccy/snake-evolution@v1.3.0
         with:
@@ -13,3 +16,13 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           outputs: dist/snake.svg
           theme: github-dark
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/snake.svg
+          git commit -m "Update snake animation"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
