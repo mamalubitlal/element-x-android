@@ -21,5 +21,7 @@ data class DpiSettingsState(
     val testingStatus: String = "",
     val selectedStrategyIndex: Int = -1,
     val bestStrategy: StrategyTestResult? = null,
+    val errorMessage: String? = null,
+    val isNativeAvailable: Boolean = true,
     val eventSink: (DpiSettingsEvents) -> Unit,
 )

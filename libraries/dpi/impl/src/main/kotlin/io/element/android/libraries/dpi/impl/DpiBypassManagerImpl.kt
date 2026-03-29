@@ -26,10 +26,29 @@ class DpiBypassManagerImpl(
         const val DEFAULT_SOCKS_PORT = 1080
         const val DEFAULT_STRATEGY = "-p -r -s"
         
+        private var isLibraryLoaded = false
+        private var libraryLoadError: String? = null
+        
         init {
-            // Load native libraries
-            System.loadLibrary("byedpi")
-            System.loadLibrary("hev-socks5-tunnel")
+            loadNativeLibraries()
+        }
+        
+        private fun loadNativeLibraries() {
+            try {
+                Log.d(TAG, "Loading native libraries...")
+                System.loadLibrary("byedpi")
+                Log.d(TAG, "byedpi loaded")
+                System.loadLibrary("hev-socks5-tunnel")
+                Log.d(TAG, "hev-socks5-tunnel loaded")
+                isLibraryLoaded = true
+                Log.i(TAG, "Native libraries loaded successfully")
+            } catch (e: UnsatisfiedLinkError) {
+                libraryLoadError = e.message ?: "Failed to load native libraries"
+                Log.e(TAG, "Failed to load native libraries: $libraryLoadError")
+            } catch (e: Exception) {
+                libraryLoadError = e.message ?: "Unknown error loading libraries"
+                Log.e(TAG, "Error loading native libraries: $libraryLoadError")
+            }
         }
     }
     
@@ -44,6 +63,14 @@ class DpiBypassManagerImpl(
     private var currentSocksPort = DEFAULT_SOCKS_PORT
     
     override suspend fun start(strategyCommand: String): Result<Unit> = withContext(Dispatchers.IO) {
+        // Check if libraries are loaded
+        if (!isLibraryLoaded) {
+            Log.e(TAG, "Native libraries not loaded: ${libraryLoadError}")
+            return@withContext Result.failure(
+                Exception("Native libraries not available: ${libraryLoadError ?: "Unknown error"}")
+            )
+        }
+        
         try {
             currentStrategy = strategyCommand
             Log.i(TAG, "Starting DPI bypass with strategy: $strategyCommand, port: $currentSocksPort")
@@ -65,6 +92,9 @@ class DpiBypassManagerImpl(
             
             Result.success(Unit)
             
+        } catch (e: UnsatisfiedLinkError) {
+            Log.e(TAG, "Native method error: ${e.message}")
+            Result.failure(Exception("Native method error: ${e.message}"))
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start DPI bypass: ${e.message}")
             Result.failure(e)
@@ -73,6 +103,11 @@ class DpiBypassManagerImpl(
     
     override fun stop() {
         Log.i(TAG, "Stopping DPI bypass...")
+        
+        if (!isLibraryLoaded) {
+            Log.w(TAG, "Libraries not loaded, nothing to stop")
+            return
+        }
         
         try {
             nativeStopProxy()
@@ -88,6 +123,10 @@ class DpiBypassManagerImpl(
     
     override fun isRunning(): Boolean {
         return isProxyRunning
+    }
+    
+    override fun isNativeAvailable(): Boolean {
+        return isLibraryLoaded
     }
     
     private fun buildArgs(strategy: String, socksPort: Int): Array<String> {

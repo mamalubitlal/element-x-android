@@ -96,4 +96,6 @@ If you proceed, some of your settings may change."</string>
   <string name="screen_dpi_test_complete">"Testing complete!"</string>
   <string name="screen_dpi_test_error_no_strategies">"No strategies found"</string>
   <string name="screen_dpi_footer_info">"DPI bypass routes your traffic through a local proxy to avoid detection. Test different strategies to find the best one for your network."</string>
+  <string name="screen_dpi_error_native_not_available">"DPI bypass is not available on this device"</string>
+  <string name="screen_dpi_error_start_failed">"Failed to start DPI bypass"</string>
 </resources>
