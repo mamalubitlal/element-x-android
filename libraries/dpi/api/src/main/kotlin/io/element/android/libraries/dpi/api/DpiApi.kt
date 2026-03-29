@@ -7,9 +7,12 @@
 
 package io.element.android.libraries.dpi.api
 
+import kotlinx.serialization.Serializable
+
 /**
  * Data class representing the result of testing a DPI bypass strategy
  */
+@Serializable
 data class StrategyTestResult(
     val strategy: String,
     val command: String,
@@ -22,6 +25,7 @@ data class StrategyTestResult(
 /**
  * Data class representing the result of testing a single domain
  */
+@Serializable
 data class DomainResult(
     val domain: String,
     val totalTests: Int,

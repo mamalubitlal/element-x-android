@@ -13,13 +13,10 @@ import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.util.Log
 import androidx.core.content.edit
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import io.element.android.libraries.dpi.api.DomainResult
-import io.element.android.libraries.dpi.api.StrategyTestResult
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
-import java.net.InetSocketAddress
-import java.net.Socket
 
 /**
  * Internal helper for strategy management
@@ -37,8 +34,9 @@ class DpiStrategyManagerHelper(
         context.getSharedPreferences("dpi_strategies", Context.MODE_PRIVATE)
     }
     
-    private val gson = Gson()
+    private val json = Json { ignoreUnknownKeys = true }
     
+    @Serializable
     data class NetworkStrategy(
         val networkId: String,
         val networkType: String,
@@ -66,9 +64,12 @@ class DpiStrategyManagerHelper(
     
     fun saveStrategyForNetwork(networkId: String, strategy: String, command: String) {
         val strategiesJson = prefs.getString(KEY_NETWORK_STRATEGIES, null)
-        val type = object : TypeToken<MutableMap<String, NetworkStrategy>>() {}.type
         val strategies: MutableMap<String, NetworkStrategy> = if (strategiesJson != null) {
-            gson.fromJson(strategiesJson, type)
+            try {
+                json.decodeFromString<MutableMap<String, NetworkStrategy>>(strategiesJson)
+            } catch (e: Exception) {
+                mutableMapOf()
+            }
         } else {
             mutableMapOf()
         }
@@ -82,15 +83,18 @@ class DpiStrategyManagerHelper(
         )
         
         prefs.edit {
-            putString(KEY_NETWORK_STRATEGIES, gson.toJson(strategies))
+            putString(KEY_NETWORK_STRATEGIES, json.encodeToString(strategies))
         }
         Log.d(TAG, "Saved strategy for network $networkId: $strategy")
     }
     
     fun getStrategyForNetwork(networkId: String): NetworkStrategy? {
         val strategiesJson = prefs.getString(KEY_NETWORK_STRATEGIES, null) ?: return null
-        val type = object : TypeToken<Map<String, NetworkStrategy>>() {}.type
-        val strategies: Map<String, NetworkStrategy> = gson.fromJson(strategiesJson, type)
-        return strategies[networkId]
+        return try {
+            val strategies: Map<String, NetworkStrategy> = json.decodeFromString(strategiesJson)
+            strategies[networkId]
+        } catch (e: Exception) {
+            null
+        }
     }
 }
