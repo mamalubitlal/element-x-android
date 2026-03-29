@@ -16,4 +16,5 @@ android {
 
 dependencies {
     implementation(projects.libraries.core)
+    implementation(libs.serialization.json)
 }
