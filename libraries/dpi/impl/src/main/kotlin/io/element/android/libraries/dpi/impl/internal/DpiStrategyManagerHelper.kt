@@ -12,11 +12,9 @@ import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.util.Log
-import androidx.core.content.edit
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.io.File
 
 /**
  * Internal helper for strategy management
@@ -82,9 +80,9 @@ class DpiStrategyManagerHelper(
             lastTested = System.currentTimeMillis()
         )
         
-        prefs.edit {
-            putString(KEY_NETWORK_STRATEGIES, json.encodeToString(strategies))
-        }
+        prefs.edit()
+            .putString(KEY_NETWORK_STRATEGIES, json.encodeToString(strategies))
+            .apply()
         Log.d(TAG, "Saved strategy for network $networkId: $strategy")
     }
     
