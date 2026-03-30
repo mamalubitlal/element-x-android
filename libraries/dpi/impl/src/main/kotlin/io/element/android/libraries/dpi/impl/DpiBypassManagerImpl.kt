@@ -125,13 +125,16 @@ class DpiBypassManagerImpl(
         return isLibraryLoaded
     }
     
-    private fun buildArgs(strategy: String, socksPort: Int): Array<String> {
+    private fun buildArgs(strategy: String, socksPort: Int, sniDomain: String? = null): Array<String> {
         return buildList {
             add("-i")
             add("127.0.0.1")
             add("-p")
             add(socksPort.toString())
-            strategy.split(" ").filter { it.isNotBlank() }.forEach { add(it) }
+            // Replace {sni} placeholder with actual domain or use matrix.org as default
+            val effectiveSni = sniDomain ?: "matrix.org"
+            val processedStrategy = strategy.replace("{sni}", effectiveSni)
+            processedStrategy.split(" ").filter { it.isNotBlank() }.forEach { add(it) }
         }.toTypedArray()
     }
 }

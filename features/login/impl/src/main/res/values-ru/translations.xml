@@ -102,7 +102,7 @@
   <string name="screen_server_confirmation_message_login_element_dot_io">"Частный сервер для сотрудников Element."</string>
   <string name="screen_server_confirmation_message_login_matrix_dot_org">"Matrix — это открытая сеть для безопасной децентрализованной связи."</string>
   <string name="screen_server_confirmation_message_register">"Здесь будут храниться ваши разговоры — точно так же, как вы используете электронную почту для хранения писем."</string>
-  <string name="screen_server_confirmation_title_login">"Вы собираетесь войти в %1$s"</string>
+  <string name="screen_server_confirmation_title_login">"Вы собираетесь войти в чатор"</string>
   <string name="screen_server_confirmation_title_picker_mode">"Выберите сервер"</string>
   <string name="screen_server_confirmation_title_register">"Вы собираетесь создать аккаунт на %1$s"</string>
 </resources>
