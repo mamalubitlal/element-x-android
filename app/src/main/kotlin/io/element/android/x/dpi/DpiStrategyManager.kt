@@ -61,6 +61,7 @@ class DpiStrategyManager(private val context: Context) {
         private const val SOCKS_PORT = 1080
     }
     
+    @Suppress("DEPRECATION")
     fun getNetworkId(): String {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return "unknown"
