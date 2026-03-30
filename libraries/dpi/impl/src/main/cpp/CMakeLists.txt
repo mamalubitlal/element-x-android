@@ -21,8 +21,11 @@ add_library(byedpi SHARED ${BYE_DPI_SRC} native-lib.c)
 target_include_directories(byedpi PRIVATE byedpi)
 set_source_files_properties(${BYE_DPI_SRC} native-lib.c PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON)
 
-# Non-standard compile options
-target_compile_options(byedpi PRIVATE -O2 -Wall -Wno-unused -Wextra -Wno-unused-parameter -pedantic)
+# Apply C++17 standard only to C++ files via generator expression
+target_compile_options(byedpi PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>
+    -O2 -Wall -Wno-unused -Wextra -Wno-unused-parameter -pedantic
+)
 target_compile_definitions(byedpi PRIVATE ANDROID_APP)
 
 target_link_libraries(byedpi PRIVATE android log)
