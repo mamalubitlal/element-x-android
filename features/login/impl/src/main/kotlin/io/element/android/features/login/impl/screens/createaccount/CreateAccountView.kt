@@ -157,9 +157,10 @@ fun CreateAccountView(
             }
 
             if (state.createAction is AsyncAction.Failure) {
+                val failure = state.createAction
                 ErrorDialog(
                     title = stringResource(CommonStrings.dialog_title_error),
-                    content = (state.createAction as AsyncAction.Failure).error.message ?: "Registration failed",
+                    content = failure.error.message ?: "Registration failed",
                     onSubmit = { state.eventSink(CreateAccountEvents.ClearError) }
                 )
             }
