@@ -9,9 +9,16 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(dpi_bypass_native C CXX)
 
+# CRITICAL: Override the -std=c99 that Android build system injects into CXX_FLAGS
+# This must be done BEFORE any targets are defined
+set(CMAKE_CXX_FLAGS_INIT "-std=c++17")
+set(CMAKE_C_FLAGS_INIT "-std=c99")
+
 # Set C++ standard globally
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # ============== ByeDPI ==============
 file(GLOB BYE_DPI_SRC "byedpi/*.c")
@@ -19,11 +26,12 @@ list(REMOVE_ITEM BYE_DPI_SRC "${CMAKE_CURRENT_SOURCE_DIR}/byedpi/win_service.c")
 
 add_library(byedpi SHARED ${BYE_DPI_SRC} native-lib.c)
 target_include_directories(byedpi PRIVATE byedpi)
-set_source_files_properties(${BYE_DPI_SRC} native-lib.c PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON)
 
 # Apply C++17 standard only to C++ files via generator expression
+# and ensure C99 for C files
 target_compile_options(byedpi PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>
+    $<$<COMPILE_LANGUAGE:C>:-std=c99>
     -O2 -Wall -Wno-unused -Wextra -Wno-unused-parameter -pedantic
 )
 target_compile_definitions(byedpi PRIVATE ANDROID_APP)
