@@ -8,8 +8,10 @@
 
 package io.element.android.features.login.impl.screens.createaccount
 
+import android.os.Parcelable
 import io.element.android.libraries.architecture.AsyncAction
 import io.element.android.libraries.matrix.api.core.SessionId
+import kotlinx.parcelize.Parcelize
 
 data class CreateAccountState(
     val formState: CreateAccountFormState,
@@ -18,11 +20,12 @@ data class CreateAccountState(
     val eventSink: (CreateAccountEvents) -> Unit
 )
 
+@Parcelize
 data class CreateAccountFormState(
     val username: String = "",
     val password: String = "",
     val confirmPassword: String = "",
-) {
+) : Parcelable {
     val submitEnabled: Boolean
         get() = username.isNotBlank() && password.isNotBlank() && password == confirmPassword
 
