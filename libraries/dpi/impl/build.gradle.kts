@@ -21,17 +21,21 @@ android {
         ndk {
             abiFilters += listOf("armeabi-v7a", "x86", "arm64-v8a", "x86_64")
         }
+        externalNativeBuild {
+            cmake {
+                arguments.addAll(listOf(
+                    "-DANDROID_STL=c++_shared",
+                    "-DCMAKE_C_FLAGS=-std=c99",
+                    "-DCMAKE_CXX_FLAGS=-std=c++17"
+                ))
+            }
+        }
     }
 
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
             version = "3.22.1"
-            cppFlags += "-std=c++17"
-            arguments += listOf(
-                "-DANDROID_STL=c++_shared",
-                "-DCMAKE_C_FLAGS=-std=c99"
-            )
         }
     }
 
