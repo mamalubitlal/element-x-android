@@ -67,6 +67,7 @@ internal fun MessagesViewTopBar(
     sharedHistoryIcon: SharedHistoryIcon,
     onRoomDetailsClick: () -> Unit,
     onJoinCallClick: (isAudioCall: Boolean) -> Unit,
+    onJitsiClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -130,6 +131,7 @@ internal fun MessagesViewTopBar(
             CallMenuItem(
                 roomCallState = roomCallState,
                 onJoinCallClick = onJoinCallClick,
+                onJitsiClick = onJitsiClick,
             )
             Spacer(Modifier.width(8.dp))
         },
