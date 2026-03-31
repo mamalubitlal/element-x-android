@@ -101,6 +101,7 @@ fun TimelineView(
     onMoreReactionsClick: (TimelineItem.Event) -> Unit,
     onReadReceiptClick: (TimelineItem.Event) -> Unit,
     onJoinCallClick: (isAudioCall: Boolean) -> Unit,
+    onJitsiClick: () -> Unit,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     forceJumpToBottomVisibility: Boolean = false,
@@ -184,6 +185,7 @@ fun TimelineView(
                         onReadReceiptClick = onReadReceiptClick,
                         onSwipeToReply = onSwipeToReply,
                         onJoinCallClick = onJoinCallClick,
+                        onJitsiClick = onJitsiClick,
                         eventSink = state.eventSink,
                     )
                 }
@@ -414,6 +416,7 @@ internal fun TimelineViewPreview(
             onMoreReactionsClick = {},
             onReadReceiptClick = {},
             onJoinCallClick = {},
+            onJitsiClick = {},
             forceJumpToBottomVisibility = true,
         )
     }

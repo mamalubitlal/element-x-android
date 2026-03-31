@@ -284,6 +284,10 @@ class ThreadedMessagesNode(
                     onJoinCallClick = { isAudioCall ->
                         callback.navigateToRoomCall(room.roomId, isAudioCall)
                     },
+                    onJitsiClick = {
+                        val jitsiUrl = "https://meet.jit.si/${room.roomId.value}"
+                        activity.openUrlInExternalApp(jitsiUrl)
+                    },
                     onViewAllPinnedMessagesClick = {},
                     modifier = modifier,
                     knockRequestsBannerView = {},
