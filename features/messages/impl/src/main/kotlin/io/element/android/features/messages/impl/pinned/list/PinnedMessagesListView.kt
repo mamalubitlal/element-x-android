@@ -235,6 +235,7 @@ private fun PinnedMessagesListLoaded(
                 onReadReceiptClick = {},
                 onSwipeToReply = {},
                 onJoinCallClick = {},
+                onJitsiClick = {},
                 eventSink = {},
                 eventContentView = { event, contentModifier, onContentLayoutChange ->
                     TimelineItemEventContentViewWrapper(
