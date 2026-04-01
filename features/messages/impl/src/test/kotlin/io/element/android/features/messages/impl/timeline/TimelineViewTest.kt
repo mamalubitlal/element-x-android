@@ -186,6 +186,7 @@ private fun <R : TestRule> AndroidComposeTestRule<R, ComponentActivity>.setTimel
     onMoreReactionsClick: (TimelineItem.Event) -> Unit = EnsureNeverCalledWithParam(),
     onReadReceiptClick: (TimelineItem.Event) -> Unit = EnsureNeverCalledWithParam(),
     onJoinCallClick: (Boolean) -> Unit = EnsureNeverCalledWithParam(),
+    onJitsiClick: () -> Unit = EnsureNeverCalled(),
     forceJumpToBottomVisibility: Boolean = false,
 ) {
     setSafeContent(clearAndroidUiDispatcher = true) {
@@ -202,6 +203,7 @@ private fun <R : TestRule> AndroidComposeTestRule<R, ComponentActivity>.setTimel
             onMoreReactionsClick = onMoreReactionsClick,
             onReadReceiptClick = onReadReceiptClick,
             onJoinCallClick = onJoinCallClick,
+            onJitsiClick = onJitsiClick,
             forceJumpToBottomVisibility = forceJumpToBottomVisibility,
         )
     }
