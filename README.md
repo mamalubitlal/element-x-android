@@ -31,6 +31,12 @@
 | 🏢 | Enterprise-модуль включён |
 | 🔒 | На базе Matrix — децентрализованный и шифрованный |
 
+## 🐍 Активность проекта
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/mamalubitlal/element-x-android/develop/dist/snake.svg" alt="GitHub Contribution Snake">
+</p>
+
 ## 📱 Установка
 
 [**Скачать последнюю версию**](https://github.com/mamalubitlal/element-x-android/releases) — APK-файлы доступны на странице релизов.
