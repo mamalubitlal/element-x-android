@@ -8,8 +8,6 @@
 
 package io.element.android.features.messages.impl
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
