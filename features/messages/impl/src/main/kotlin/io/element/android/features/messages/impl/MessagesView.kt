@@ -482,6 +482,7 @@ private fun MessagesViewContent(
                 onReadReceiptClick = onReadReceiptClick,
                 forceJumpToBottomVisibility = forceJumpToBottomVisibility,
                 onJoinCallClick = onJoinCallClick,
+                onJitsiClick = onJitsiClick,
                 nestedScrollConnection = scrollBehavior.nestedScrollConnection,
             )
 
