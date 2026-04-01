@@ -189,6 +189,7 @@ private fun TimelineItemGroupedEventsRowContent(
                         onReadReceiptClick = onReadReceiptClick,
                         onSwipeToReply = {},
                         onJoinCallClick = {},
+                        onJitsiClick = {},
                         eventSink = eventSink,
                         eventContentView = eventContentView,
                     )
