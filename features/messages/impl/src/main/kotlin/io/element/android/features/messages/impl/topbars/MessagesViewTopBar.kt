@@ -198,6 +198,7 @@ internal fun MessagesViewTopBarPreview() = ElementPreview {
         sharedHistoryIcon = sharedHistoryIcon,
         onRoomDetailsClick = {},
         onJoinCallClick = {},
+        onJitsiClick = {},
         onBackClick = {},
     )
     Column {
