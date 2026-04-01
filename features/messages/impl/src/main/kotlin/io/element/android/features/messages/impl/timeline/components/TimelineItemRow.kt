@@ -211,6 +211,8 @@ internal fun TimelineItemRow(
                     onReactionLongClick = onReactionLongClick,
                     onMoreReactionsClick = onMoreReactionsClick,
                     onReadReceiptClick = onReadReceiptClick,
+                    onJoinCallClick = onJoinCallClick,
+                    onJitsiClick = onJitsiClick,
                     eventSink = eventSink,
                 )
             }
