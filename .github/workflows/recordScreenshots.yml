@@ -17,6 +17,8 @@ jobs:
     permissions:
       # Need write permissions on PRs to remove the label "Record-Screenshots"
       pull-requests: write
+      # Need write permissions to push screenshot commits
+      contents: write
     name: Record screenshots on branch ${{ github.event.pull_request.head.ref || github.ref_name }}
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'Record-Screenshots'
