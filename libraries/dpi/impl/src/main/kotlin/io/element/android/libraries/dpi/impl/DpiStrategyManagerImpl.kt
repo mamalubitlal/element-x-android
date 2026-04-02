@@ -15,17 +15,18 @@ import android.util.Log
 import io.element.android.libraries.dpi.api.DpiStrategyManager
 import io.element.android.libraries.dpi.api.DomainResult
 import io.element.android.libraries.dpi.api.StrategyTestResult
+import io.github.romanvht.byedpi.library.ByeDpiLibrary
+import io.github.romanvht.byedpi.library.picker.StrategyPicker
+import io.github.romanvht.byedpi.library.picker.StrategyCategory
+import io.github.romanvht.byedpi.library.test.TestConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.net.HttpURLConnection
-import java.net.Socket
-import java.net.URL
 
 /**
- * Implementation of DpiStrategyManager
+ * Implementation of DpiStrategyManager using ByeDpiLibrary
  */
 class DpiStrategyManagerImpl(
     private val context: Context
@@ -34,12 +35,11 @@ class DpiStrategyManagerImpl(
     companion object {
         private const val TAG = "DpiStrategyManager"
         private const val SOCKS_PORT = 1080
-        private const val STRATEGIES_URL = "https://raw.githubusercontent.com/romanvht/ByeByeDPI/0dd7a98b0184bad978a1b50d926603328a54b94e/app/src/main/assets/proxytest_strategies.list"
-        private const val STRATEGIES_CACHE_FILE = "strategies_cache.txt"
-        private const val STRATEGIES_VERSION = "bye_bye_dpi_v1"
     }
     
     private val json = Json { ignoreUnknownKeys = true }
+    private val library = ByeDpiLibrary()
+    private val strategyPicker = StrategyPicker()
     
     @Suppress("DEPRECATION")
     override suspend fun getNetworkId(): String = withContext(Dispatchers.IO) {
@@ -61,102 +61,21 @@ class DpiStrategyManagerImpl(
     }
     
     override suspend fun loadStrategies(): List<String> = withContext(Dispatchers.IO) {
-        // Try to fetch from network first
-        val strategies = try {
-            fetchStrategiesFromNetwork()
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to fetch strategies from network: ${e.message}")
-            null
-        }
-        
-        // If network fetch failed, try cache
-        strategies ?: loadStrategiesFromCache() ?: loadStrategiesFromAssets()
-    }
-    
-    private suspend fun fetchStrategiesFromNetwork(): List<String> = withContext(Dispatchers.IO) {
-        Log.d(TAG, "Fetching strategies from network...")
-        val url = URL(STRATEGIES_URL)
-        val connection = url.openConnection() as HttpURLConnection
-        connection.requestMethod = "GET"
-        connection.connectTimeout = 10000
-        connection.readTimeout = 10000
-        connection.setRequestProperty("User-Agent", "Chator/1.0")
-        
-        try {
-            val responseCode = connection.responseCode
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                val strategies = connection.inputStream.bufferedReader().readText()
-                    .lines()
-                    .filter { it.isNotBlank() && !it.trim().startsWith("#") }
-                
-                // Cache the strategies
-                cacheStrategies(strategies)
-                Log.d(TAG, "Fetched ${strategies.size} strategies from network")
-                strategies
-            } else {
-                Log.w(TAG, "Failed to fetch strategies: HTTP $responseCode")
-                throw Exception("HTTP $responseCode")
-            }
-        } finally {
-            connection.disconnect()
-        }
-    }
-    
-    private fun cacheStrategies(strategies: List<String>) {
-        try {
-            val cacheFile = File(context.filesDir, STRATEGIES_CACHE_FILE)
-            val cached = "$STRATEGIES_VERSION\n" + strategies.joinToString("\n")
-            cacheFile.writeText(cached)
-            Log.d(TAG, "Cached ${strategies.size} strategies")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to cache strategies: ${e.message}")
-        }
-    }
-    
-    private fun loadStrategiesFromCache(): List<String>? {
-        return try {
-            val cacheFile = File(context.filesDir, STRATEGIES_CACHE_FILE)
-            if (cacheFile.exists()) {
-                val lines = cacheFile.readText().lines()
-                if (lines.isNotEmpty() && lines[0] == STRATEGIES_VERSION) {
-                    val strategies = lines.drop(1).filter { it.isNotBlank() }
-                    Log.d(TAG, "Loaded ${strategies.size} strategies from cache")
-                    strategies
-                } else {
-                    null
-                }
-            } else null
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to load strategies from cache: ${e.message}")
-            null
-        }
-    }
-    
-    private fun loadStrategiesFromAssets(): List<String> {
-        return try {
-            val inputStream = context.assets.open("proxytest_strategies.list")
-            inputStream.bufferedReader().readLines()
-                .filter { it.isNotBlank() && !it.trim().startsWith("#") }
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to load strategies from assets: ${e.message}")
-            emptyList()
-        }
+        // Use ByeDpiLibrary's built-in strategies
+        val strategies = library.getDefaultStrategies().map { it.command }
+        Log.d(TAG, "Loaded ${strategies.size} default strategies")
+        strategies
     }
     
     override suspend fun loadTestDomains(): List<String> = withContext(Dispatchers.IO) {
-        // Try to load from assets first
-        try {
-            val inputStream = context.assets.open("proxytest_matrix.sites")
-            val domains = inputStream.bufferedReader().readLines()
-                .filter { it.isNotBlank() && !it.trim().startsWith("#") }
-            if (domains.isNotEmpty()) {
-                return@withContext domains
-            }
-        } catch (e: Exception) {
-            // File doesn't exist, use fallback
+        // Use ByeDpiLibrary's active domains (Matrix-related sites)
+        val domains = library.getActiveDomains()
+        if (domains.isNotEmpty()) {
+            Log.d(TAG, "Using ByeDpiLibrary active domains: ${domains.size}")
+            return@withContext domains
         }
         
-        // Fallback to common Matrix domains (tested by ByeByeDPI)
+        // Fallback to common Matrix domains
         Log.d(TAG, "Using fallback Matrix test domains")
         listOf(
             "matrix.org",
@@ -168,39 +87,45 @@ class DpiStrategyManagerImpl(
         )
     }
     
-    @Suppress("DEPRECATION")
     override suspend fun testStrategy(strategy: String, domains: List<String>): StrategyTestResult = withContext(Dispatchers.IO) {
-        val domainResults = mutableMapOf<String, DomainResult>()
-        var totalSuccess = 0
-        var totalTests = 0
+        Log.d(TAG, "Testing strategy: $strategy on ${domains.size} domains")
         
-        for (domain in domains) {
-            var domainSuccess = 0
-            val testsPerDomain = 3
-            
-            for (i in 1..testsPerDomain) {
-                totalTests++
-                val success = testDomainThroughProxy(domain)
-                if (success) {
-                    domainSuccess++
-                    totalSuccess++
-                }
-            }
-            
-            domainResults[domain] = DomainResult(
-                domain = domain,
-                totalTests = testsPerDomain,
-                successfulTests = domainSuccess,
-                successPercentage = (domainSuccess.toFloat() / testsPerDomain) * 100
+        // Create a strategy object
+        val strategyObj = library.createStrategy(
+            command = strategy,
+            name = extractStrategyName(strategy),
+            description = "Tested strategy"
+        )
+        
+        // Test the strategy using ByeDpiLibrary
+        val result = library.testSingleStrategy(
+            strategy = strategyObj,
+            sites = domains,
+            config = TestConfig(
+                delaySeconds = 1,
+                requestsPerSite = 2,
+                requestTimeoutSeconds = 5,
+                maxConcurrentRequests = 5
+            )
+        )
+        
+        // Convert to our format
+        val domainResults = mutableMapOf<String, DomainResult>()
+        result.siteResults.forEach { siteResult ->
+            domainResults[siteResult.site] = DomainResult(
+                domain = siteResult.site,
+                totalTests = siteResult.totalRequests,
+                successfulTests = siteResult.successCount,
+                successPercentage = siteResult.successPercentage.toFloat()
             )
         }
         
         StrategyTestResult(
-            strategy = extractStrategyName(strategy),
-            command = strategy,
-            totalTests = totalTests,
-            successfulTests = totalSuccess,
-            successPercentage = if (totalTests > 0) (totalSuccess.toFloat() / totalTests) * 100 else 0f,
+            strategy = result.name,
+            command = result.command,
+            totalTests = result.totalRequests,
+            successfulTests = result.successCount,
+            successPercentage = result.successPercentage.toFloat(),
             domains = domainResults
         )
     }
@@ -226,42 +151,8 @@ class DpiStrategyManagerImpl(
         }
     }
     
-    private fun testDomainThroughProxy(domain: String): Boolean {
-        return try {
-            val socket = Socket("127.0.0.1", SOCKS_PORT)
-            socket.soTimeout = 5000
-            val outputStream = socket.getOutputStream()
-            val inputStream = socket.getInputStream()
-            
-            val request = buildHttpRequest(domain)
-            outputStream.write(request.toByteArray())
-            outputStream.flush()
-            
-            val response = ByteArray(4096)
-            val bytesRead = inputStream.read(response)
-            
-            socket.close()
-            bytesRead > 0
-        } catch (e: Exception) {
-            false
-        }
-    }
-    
-    private fun buildHttpRequest(domain: String): String {
-        return """
-            |GET / HTTP/1.1
-            |Host: $domain
-            |User-Agent: Chator/1.0
-            |Connection: close
-            |
-            |
-        """.trimMargin()
-    }
-    
     private fun extractStrategyName(command: String): String {
-        // Extract meaningful name from the command
         val trimmed = command.trim()
-        // Show first 25 chars max
         return if (trimmed.length > 25) {
             trimmed.take(22) + "..."
         } else {
