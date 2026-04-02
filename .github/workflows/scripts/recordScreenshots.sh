@@ -78,7 +78,7 @@ else
   git config --local user.email "${INPUT_AUTHOR_EMAIL}"
 fi
 git add -A
-git commit -m "Update screenshots"
+git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update screenshots"
 
 GITHUB_REPO="https://$GITHUB_ACTOR:$TOKEN@github.com/$REPO.git"
 echo "Pushing changes"
