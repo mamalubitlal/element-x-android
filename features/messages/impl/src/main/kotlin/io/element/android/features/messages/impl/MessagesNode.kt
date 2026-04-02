@@ -60,7 +60,7 @@ import io.element.android.libraries.matrix.api.core.RoomId
 import io.element.android.libraries.matrix.api.core.ThreadId
 import io.element.android.libraries.matrix.api.core.UserId
 import io.element.android.libraries.matrix.api.core.toRoomIdOrAlias
-import io.element.android.libraries.matrix.api.message.IntentionalMention
+import io.element.android.libraries.matrix.api.room.IntentionalMention
 import io.element.android.libraries.matrix.api.permalink.PermalinkData
 import io.element.android.libraries.matrix.api.permalink.PermalinkParser
 import io.element.android.libraries.matrix.api.room.JoinedRoom
@@ -288,7 +288,7 @@ class MessagesNode(
                     val jitsiUrl = "https://meet.jit.si/$roomName"
                     // Send the Jitsi link to the room
                     sessionCoroutineScope.launch {
-                        timelineController.liveTimeline.sendMessage(
+                        room.liveTimeline.sendMessage(
                             body = "Jitsi видеозвонок: $jitsiUrl",
                             htmlBody = "Jitsi видеозвонок: <a href=\"$jitsiUrl\">$jitsiUrl</a>",
                             intentionalMentions = emptyList(),
