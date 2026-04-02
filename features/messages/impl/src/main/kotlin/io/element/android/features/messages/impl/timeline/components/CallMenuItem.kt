@@ -10,12 +10,12 @@ package io.element.android.features.messages.impl.timeline.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,12 +30,11 @@ import io.element.android.compound.theme.ElementTheme
 import io.element.android.compound.tokens.generated.CompoundIcons
 import io.element.android.features.roomcall.api.RoomCallState
 import io.element.android.features.roomcall.api.RoomCallStateProvider
-import io.element.android.libraries.designsystem.components.dialogs.AlertDialog
+import io.element.android.libraries.designsystem.components.dialogs.ConfirmationDialog
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.IconButton
-import io.element.android.libraries.designsystem.theme.components.Text
 import io.element.android.libraries.ui.strings.CommonStrings
 
 @Composable
@@ -46,7 +45,7 @@ internal fun CallMenuItem(
     modifier: Modifier = Modifier,
 ) {
     var showJitsiDialog by remember { mutableStateOf(false) }
-    
+
     when (roomCallState) {
         RoomCallState.Unavailable -> {
             // Show video call button even when unavailable, opens Jitsi dialog
@@ -75,7 +74,7 @@ internal fun CallMenuItem(
             )
         }
     }
-    
+
     if (showJitsiDialog) {
         JitsiFallbackDialog(
             onDismiss = { showJitsiDialog = false },
@@ -92,27 +91,12 @@ private fun JitsiFallbackDialog(
     onDismiss: () -> Unit,
     onOpenJitsi: () -> Unit,
 ) {
-    AlertDialog(
-        title = null,
-        content = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "Извините, чатор пока что не поддерживает групповые звонки.",
-                    style = ElementTheme.typography.fontBodyMdRegular,
-                    color = ElementTheme.colors.textPrimary,
-                )
-                Text(
-                    text = "Но вы можете использовать Jitsi.",
-                    style = ElementTheme.typography.fontBodyMdRegular,
-                    color = ElementTheme.colors.textPrimary,
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-            }
-        },
-        confirmText = "Открыть Jitsi",
-        onConfirm = onOpenJitsi,
-        dismissText = "Закрыть",
+    ConfirmationDialog(
+        content = "Извините, чатор пока что не поддерживает групповые звонки. Но вы можете использовать Jitsi.",
+        onSubmitClick = onOpenJitsi,
         onDismiss = onDismiss,
+        submitText = "Открыть Jitsi",
+        cancelText = "Закрыть",
     )
 }
 
@@ -160,8 +144,7 @@ private fun OnGoingCallMenuItem(
                 contentColor = ElementTheme.colors.bgCanvasDefault,
                 containerColor = ElementTheme.colors.iconAccentTertiary
             ),
-            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
-            modifier = modifier.heightIn(min = 36.dp),
+            modifier = modifier,
             enabled = roomCallState.canJoinCall,
         ) {
             Icon(
@@ -181,7 +164,6 @@ private fun OnGoingCallMenuItem(
             Spacer(Modifier.width(8.dp))
         }
     } else {
-        // Else user is already in the call, hide the button.
         Box(modifier)
     }
 }
