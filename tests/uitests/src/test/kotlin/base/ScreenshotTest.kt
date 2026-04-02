@@ -94,6 +94,7 @@ private fun String.toLocale(): Locale {
         "en" -> Locale.US
         "fr" -> Locale.FRANCE
         "de" -> Locale.GERMAN
+        "ru" -> Locale("ru", "RU")
         else -> Locale.Builder().setLanguage(this).build()
     }
 }

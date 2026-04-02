@@ -27,7 +27,7 @@ import sergio.sastre.composable.preview.scanner.core.preview.ComposablePreview
 class TranslationsScreenshotTest(
     @TestParameter(valuesProvider = ComposablePreviewProvider::class)
     val indexedPreview: IndexedValue<ComposablePreview<AndroidPreviewInfo>>,
-    @TestParameter(value = ["de"])
+    @TestParameter(value = ["ru"])
     val localeStr: String,
 ) {
     @get:Rule
