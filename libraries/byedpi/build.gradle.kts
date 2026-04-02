@@ -83,6 +83,11 @@ android {
             jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
+
+    // Disable allWarningsAsErrors for this library since it's external
+    lint {
+        warningsAsErrors = false
+    }
 }
 
 dependencies {
