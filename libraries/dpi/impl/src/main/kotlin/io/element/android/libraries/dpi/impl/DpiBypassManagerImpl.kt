@@ -10,12 +10,14 @@ package io.element.android.libraries.dpi.impl
 import android.content.Context
 import android.util.Log
 import io.element.android.libraries.dpi.api.DpiBypassManager
+import io.github.romanvht.byedpi.library.ByeDpiLibrary
+import io.github.romanvht.byedpi.library.server.ProxyConfig
+import io.github.romanvht.byedpi.library.server.ServerStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Implementation of DpiBypassManager
- * Uses native ByeDPI library via JNI
+ * Implementation of DpiBypassManager using ByeDpiLibrary
  */
 class DpiBypassManagerImpl(
     private val context: Context
@@ -25,70 +27,55 @@ class DpiBypassManagerImpl(
         private const val TAG = "DpiBypassManager"
         const val DEFAULT_SOCKS_PORT = 1080
         const val DEFAULT_STRATEGY = "-p -r -s"
-        
-        private var isLibraryLoaded = false
-        private var libraryLoadError: String? = null
-        
-        init {
-            loadNativeLibrary()
-        }
-        
-        private fun loadNativeLibrary() {
-            try {
-                Log.d(TAG, "Loading native library...")
-                System.loadLibrary("byedpi")
-                isLibraryLoaded = true
-                Log.i(TAG, "Native library loaded successfully")
-            } catch (e: UnsatisfiedLinkError) {
-                libraryLoadError = e.message ?: "Failed to load native library"
-                Log.e(TAG, "Failed to load native library: $libraryLoadError")
-            } catch (e: Exception) {
-                libraryLoadError = e.message ?: "Unknown error loading library"
-                Log.e(TAG, "Error loading native library: $libraryLoadError")
-            }
-        }
     }
     
-    // Native method declarations matching Java_io_element_android_libraries_dpi_impl_DpiBypassManagerImpl_*
-    private external fun nativeStartProxy(args: Array<String>): Int
-    private external fun nativeStopProxy(): Int
-    private external fun nativeForceClose(): Int
+    private val library = ByeDpiLibrary()
     
     @Volatile
-    private var isProxyRunning = false
     private var currentStrategy = DEFAULT_STRATEGY
-    private var currentSocksPort = DEFAULT_SOCKS_PORT
     
     override suspend fun start(strategyCommand: String): Result<Unit> = withContext(Dispatchers.IO) {
-        if (!isLibraryLoaded) {
-            Log.e(TAG, "Native library not loaded: $libraryLoadError")
+        if (!library.isNativeLibraryAvailable()) {
+            Log.e(TAG, "Native library not available")
             return@withContext Result.failure(
-                Exception("Native library not available: ${libraryLoadError ?: "Unknown error"}")
+                Exception("Native library not available")
             )
         }
         
         try {
-            currentStrategy = strategyCommand
-            Log.i(TAG, "Starting DPI bypass with strategy: $strategyCommand, port: $currentSocksPort")
-            
-            val args = buildArgs(strategyCommand, currentSocksPort)
-            Log.d(TAG, "Native proxy args: ${args.joinToString(" ")}")
-            
-            val result = nativeStartProxy(args)
-            
-            if (result != 0) {
-                Log.e(TAG, "Failed to start native proxy, result: $result")
-                return@withContext Result.failure(Exception("Failed to start proxy (error $result)"))
+            // Stop any running server first
+            if (library.isServerRunning) {
+                library.stopServer()
             }
             
-            isProxyRunning = true
-            Log.i(TAG, "Native DPI proxy started successfully on port $currentSocksPort")
+            currentStrategy = strategyCommand
+            Log.i(TAG, "Starting DPI bypass with strategy: $strategyCommand")
             
-            Result.success(Unit)
+            // Create config with strategy as custom args
+            val config = ProxyConfig(
+                ip = "127.0.0.1",
+                port = DEFAULT_SOCKS_PORT,
+                httpConnect = true,
+                customArgs = strategyCommand
+            )
             
-        } catch (e: UnsatisfiedLinkError) {
-            Log.e(TAG, "Native method error: ${e.message}")
-            Result.failure(Exception("Native method error: ${e.message}"))
+            val result = library.startServer(config)
+            
+            when (library.serverStatus) {
+                ServerStatus.RUNNING -> {
+                    Log.i(TAG, "DPI proxy started successfully on port $DEFAULT_SOCKS_PORT")
+                    Result.success(Unit)
+                }
+                ServerStatus.ERROR -> {
+                    Log.e(TAG, "Failed to start DPI proxy")
+                    Result.failure(Exception("Failed to start proxy"))
+                }
+                else -> {
+                    Log.e(TAG, "Unexpected server status: ${library.serverStatus}")
+                    Result.failure(Exception("Unexpected server status: ${library.serverStatus}"))
+                }
+            }
+            
         } catch (e: Exception) {
             Log.e(TAG, "Failed to start DPI bypass: ${e.message}")
             Result.failure(e)
@@ -98,43 +85,19 @@ class DpiBypassManagerImpl(
     override fun stop() {
         Log.i(TAG, "Stopping DPI bypass...")
         
-        if (!isLibraryLoaded) {
-            Log.w(TAG, "Library not loaded, nothing to stop")
-            return
-        }
-        
         try {
-            nativeStopProxy()
-            isProxyRunning = false
+            library.stopServer()
             Log.i(TAG, "DPI proxy stopped")
         } catch (e: Exception) {
             Log.e(TAG, "Error stopping proxy: ${e.message}")
-            try {
-                nativeForceClose()
-            } catch (ignored: Exception) {
-                Log.e(TAG, "Force close failed: ${ignored.message}")
-            }
         }
     }
     
     override fun isRunning(): Boolean {
-        return isProxyRunning
+        return library.isServerRunning
     }
     
     override fun isNativeAvailable(): Boolean {
-        return isLibraryLoaded
-    }
-    
-    private fun buildArgs(strategy: String, socksPort: Int, sniDomain: String? = null): Array<String> {
-        return buildList {
-            add("-i")
-            add("127.0.0.1")
-            add("-p")
-            add(socksPort.toString())
-            // Replace {sni} placeholder with actual domain or use matrix.org as default
-            val effectiveSni = sniDomain ?: "matrix.org"
-            val processedStrategy = strategy.replace("{sni}", effectiveSni)
-            processedStrategy.split(" ").filter { it.isNotBlank() }.forEach { add(it) }
-        }.toTypedArray()
+        return library.isNativeLibraryAvailable()
     }
 }
