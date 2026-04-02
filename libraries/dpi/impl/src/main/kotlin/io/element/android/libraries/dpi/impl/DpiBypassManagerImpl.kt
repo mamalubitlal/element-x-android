@@ -14,6 +14,7 @@ import io.github.romanvht.byedpi.library.ByeDpiLibrary
 import io.github.romanvht.byedpi.library.server.ProxyConfig
 import io.github.romanvht.byedpi.library.server.ServerStatus
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 /**
@@ -86,7 +87,9 @@ class DpiBypassManagerImpl(
         Log.i(TAG, "Stopping DPI bypass...")
         
         try {
-            library.stopServer()
+            runBlocking {
+                library.stopServer()
+            }
             Log.i(TAG, "DPI proxy stopped")
         } catch (e: Exception) {
             Log.e(TAG, "Error stopping proxy: ${e.message}")

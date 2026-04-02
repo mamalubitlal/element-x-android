@@ -17,8 +17,8 @@ import io.element.android.libraries.dpi.api.DomainResult
 import io.element.android.libraries.dpi.api.StrategyTestResult
 import io.github.romanvht.byedpi.library.ByeDpiLibrary
 import io.github.romanvht.byedpi.library.picker.StrategyPicker
-import io.github.romanvht.byedpi.library.picker.StrategyCategory
-import io.github.romanvht.byedpi.library.test.TestConfig
+import io.github.romanvht.byedpi.library.data.Strategy
+import io.github.romanvht.byedpi.library.data.TestConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -101,12 +101,8 @@ class DpiStrategyManagerImpl(
         val result = library.testSingleStrategy(
             strategy = strategyObj,
             sites = domains,
-            config = TestConfig(
-                delaySeconds = 1,
-                requestsPerSite = 2,
-                requestTimeoutSeconds = 5,
-                maxConcurrentRequests = 5
-            )
+            requestsPerSite = 2,
+            timeoutSeconds = 5
         )
         
         // Convert to our format
@@ -114,7 +110,7 @@ class DpiStrategyManagerImpl(
         result.siteResults.forEach { siteResult ->
             domainResults[siteResult.site] = DomainResult(
                 domain = siteResult.site,
-                totalTests = siteResult.totalRequests,
+                totalTests = siteResult.totalCount,
                 successfulTests = siteResult.successCount,
                 successPercentage = siteResult.successPercentage.toFloat()
             )
