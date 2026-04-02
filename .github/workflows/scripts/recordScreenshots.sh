@@ -75,7 +75,7 @@ fi
 if [[ -z ${INPUT_AUTHOR_EMAIL} ]]; then
   git config user.email "android@element.io"
 else
-  git config --local user.name "${INPUT_AUTHOR_EMAIL}"
+  git config --local user.email "${INPUT_AUTHOR_EMAIL}"
 fi
 git add -A
 git commit -m "Update screenshots"
