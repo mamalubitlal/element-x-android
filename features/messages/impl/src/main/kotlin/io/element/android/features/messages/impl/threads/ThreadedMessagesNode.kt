@@ -57,6 +57,7 @@ import io.element.android.libraries.matrix.api.core.RoomId
 import io.element.android.libraries.matrix.api.core.ThreadId
 import io.element.android.libraries.matrix.api.core.UserId
 import io.element.android.libraries.matrix.api.core.toRoomIdOrAlias
+import io.element.android.libraries.matrix.api.message.IntentionalMention
 import io.element.android.libraries.matrix.api.permalink.PermalinkData
 import io.element.android.libraries.matrix.api.permalink.PermalinkParser
 import io.element.android.libraries.matrix.api.room.CreateTimelineParams
@@ -285,7 +286,17 @@ class ThreadedMessagesNode(
                         callback.navigateToRoomCall(room.roomId, isAudioCall)
                     },
                     onJitsiClick = {
-                        val jitsiUrl = "https://meet.jit.si/${room.roomId.value}"
+                        val roomName = generateRandomRoomName()
+                        val jitsiUrl = "https://meet.jit.si/$roomName"
+                        // Send the Jitsi link to the room
+                        lifecycleScope.launch {
+                            timelineController?.liveTimeline?.sendMessage(
+                                body = "Jitsi видеозвонок: $jitsiUrl",
+                                htmlBody = "Jitsi видеозвонок: <a href=\"$jitsiUrl\">$jitsiUrl</a>",
+                                intentionalMentions = emptyList(),
+                            )
+                        }
+                        // Open Jitsi in external app
                         activity.openUrlInExternalApp(jitsiUrl)
                     },
                     onViewAllPinnedMessagesClick = {},
@@ -305,5 +316,15 @@ class ThreadedMessagesNode(
                 }
             }
         }
+    }
+
+    /**
+     * Generates a random 32-character room name for Jitsi calls.
+     */
+    private fun generateRandomRoomName(): String {
+        val chars = "abcdefghijklmnopqrstuvwxyz0123456789"
+        return (1..32)
+            .map { chars.random() }
+            .joinToString("")
     }
 }
