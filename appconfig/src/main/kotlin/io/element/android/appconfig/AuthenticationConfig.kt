@@ -13,26 +13,26 @@ import android.content.SharedPreferences
 
 object AuthenticationConfig {
     const val DEFAULT_MATRIX_URL = "https://chator-server.onrender.com"
-    
+
     @Volatile
     private var customMatrixUrl: String? = null
-    
+
     @Volatile
     private lateinit var prefs: SharedPreferences
-    
+
     fun init(context: Context) {
         prefs = context.getSharedPreferences("chator_settings", Context.MODE_PRIVATE)
         customMatrixUrl = prefs.getString("custom_matrix_url", null)
     }
-    
+
     val MATRIX_ORG_URL: String
         get() = customMatrixUrl ?: DEFAULT_MATRIX_URL
-    
+
     fun setCustomMatrixUrl(url: String) {
         customMatrixUrl = url
         prefs.edit().putString("custom_matrix_url", url).apply()
     }
-    
+
     fun resetMatrixUrl() {
         customMatrixUrl = null
         prefs.edit().remove("custom_matrix_url").apply()
