@@ -26,6 +26,13 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven {
+            url = uri("https://maven.pkg.github.com/mamalubitlal/ByeByeDPI")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as? String ?: ""
+                password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.token") as? String ?: ""
+            }
+        }
+        maven {
             url = uri("https://repo1.maven.org/maven2/")
         }
         flatDir {

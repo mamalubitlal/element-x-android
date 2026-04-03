@@ -59,7 +59,7 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.serialization.json)
     // ByeByeDPI library for advanced DPI bypass
-    implementation(project(":libraries:byedpi"))
+    implementation("io.github.romanvht.byedpi:library:1.0.0")
 
     testCommonDependencies(libs)
 }
