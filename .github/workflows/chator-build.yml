@@ -47,6 +47,9 @@ jobs:
           cache-read-only: false
       
       - name: Build GPlay Debug APK (with Firebase!)
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :app:assembleGplayDebug --rerun-tasks $CI_GRADLE_ARG_PROPERTIES
       
       - name: Upload Debug APK
@@ -57,6 +60,9 @@ jobs:
           retention-days: 30
       
       - name: Build GPlay Release APK (unsigned)
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :app:assembleGplayRelease --rerun-tasks $CI_GRADLE_ARG_PROPERTIES
       
       - name: Upload Release APK
