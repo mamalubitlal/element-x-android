@@ -76,3 +76,48 @@ JNIEXPORT jint JNICALL
 Java_io_element_android_x_dpi_ByeDpiProxy_nativeIsRunning(JNIEnv *env, jobject thiz) {
     return g_proxy_running ? 1 : 0;
 }
+
+JNIEXPORT jint JNICALL
+Java_io_1github_1romanvht_1byedpi_1library_1server_1ByeDpiServer_startNativeProxy(JNIEnv *env, jobject thiz, jobjectArray args) {
+    if (g_proxy_running) {
+        LOGI("proxy already running");
+        return -1;
+    }
+
+    int argc = (*env)->GetArrayLength(env, args);
+    if (argc > 63) argc = 63;
+
+    memset(g_argv, 0, sizeof(g_argv));
+
+    for (int i = 0; i < argc; i++) {
+        jstring arg = (jstring)(*env)->GetObjectArrayElement(env, args, i);
+        if (arg) {
+            const char *arg_str = (*env)->GetStringUTFChars(env, arg, 0);
+            g_argv[i] = arg_str ? strdup(arg_str) : NULL;
+            if (arg_str) (*env)->ReleaseStringUTFChars(env, arg, arg_str);
+            (*env)->DeleteLocalRef(env, arg);
+        }
+    }
+
+    LOGI("starting ByeDPI proxy with %d args", argc);
+    for (int i = 0; i < argc; i++) {
+        if (g_argv[i]) LOGI("  arg[%d]: %s", i, g_argv[i]);
+    }
+
+    g_proxy_running = 1;
+
+    pthread_create(&g_proxy_thread, NULL, proxy_thread_func, &argc);
+
+    return 0;
+}
+
+JNIEXPORT jint JNICALL
+Java_io_1github_1romanvht_1byedpi_1library_1server_1ByeDpiServer_stopNativeProxy(JNIEnv *env, jobject thiz) {
+    LOGI("stopping ByeDPI proxy, server_fd=%d", server_fd);
+    if (server_fd > 0) {
+        shutdown(server_fd, SHUT_RDWR);
+        close(server_fd);
+    }
+    g_proxy_running = 0;
+    return 0;
+}
