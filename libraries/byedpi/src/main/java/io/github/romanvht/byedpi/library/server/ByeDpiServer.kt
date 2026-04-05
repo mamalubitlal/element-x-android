@@ -83,6 +83,11 @@ class ByeDpiServer {
             return@withContext ServerResult.Error(-1, "Server is already running")
         }
         
+        if (!isNativeLibraryAvailable()) {
+            updateStatus(ServerStatus.ERROR)
+            return@withContext ServerResult.Error(-1, "Native library is not available on this device")
+        }
+        
         updateStatus(ServerStatus.STARTING)
         _config.value = config
         
