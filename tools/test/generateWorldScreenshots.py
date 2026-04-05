@@ -20,6 +20,8 @@ def detectAllExistingTranslations():
     folders = list(map(lambda folder: folder.split("-")[0], folders))
     # Remove duplicates
     folders = list(set(folders))
+    # Remove English (it's recorded separately)
+    folders = [f for f in folders if f != "en"]
     return folders
 
 

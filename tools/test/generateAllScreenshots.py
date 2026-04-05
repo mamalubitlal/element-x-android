@@ -32,10 +32,10 @@ def generateAllScreenshots(languages):
         # Record the languages one by one, else it's getting too slow
         for lang in languages:
             print("Generating screenshots for language: %s" % lang)
-            # Patch file TranslationsScreenshotTest.kt, replace `@TestParameter(value = ["de"])` with `@TestParameter(value = [<the languages>])`
+            # Patch file TranslationsScreenshotTest.kt, replace `@TestParameter(value = ["<any>"])` with `@TestParameter(value = [<the language>])`
             with open(tFile, "r") as file:
                 data = file.read()
-            data = data.replace("@TestParameter(value = [\"de\"])", "@TestParameter(value = [\"%s\"])" % lang)
+            data = re.sub(r'@TestParameter\(value = \["[^"]*"\]', '@TestParameter(value = ["%s"])' % lang, data)
             with open(tFile, "w") as file:
                 file.write(data)
             os.system("./gradlew recordPaparazziDebug -PallLanguagesNoEnglish")
