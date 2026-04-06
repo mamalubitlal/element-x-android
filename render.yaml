@@ -2,5 +2,5 @@ services:
   - type: web
     name: chator-website
     env: static
-    buildCommand: ""
-    staticPublishPath: ./website
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./website/dist
