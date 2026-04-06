@@ -29,7 +29,7 @@ static void *proxy_thread_func(void *arg) {
 }
 
 JNIEXPORT jint JNICALL
-Java_io_element_android_libraries_dpi_impl_DpiBypassManagerImpl_nativeStartProxy(JNIEnv *env, jobject thiz, jobjectArray args) {
+Java_io_github_romanvht_byedpi_library_server_ByeDpiServer_startNativeProxy(JNIEnv *env, jobject thiz, jobjectArray args) {
     if (g_proxy_running) {
         LOGI("proxy already running");
         return -1;
