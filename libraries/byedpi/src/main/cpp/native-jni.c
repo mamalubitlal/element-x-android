@@ -4,12 +4,9 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <sys/socket.h>
 
-#define LOG_TAG "DpiBypass"
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+#define LOG_TAG "ByeDPI-JNI"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
 extern int main(int argc, char **argv);
 extern void clear_params(char *line, char **argv);
@@ -29,7 +26,7 @@ static void *proxy_thread_func(void *arg) {
 }
 
 JNIEXPORT jint JNICALL
-Java_io_github_romanvht_byedpi_library_server_ByeDpiServer_startNativeProxy(JNIEnv *env, jobject thiz, jobjectArray args) {
+Java_io_github_romanvht_byedpi_library_jni_ByeDpiJni_startNativeProxy(JNIEnv *env, jclass clazz, jobjectArray args) {
     if (g_proxy_running) {
         LOGI("proxy already running");
         return -1;
@@ -63,23 +60,11 @@ Java_io_github_romanvht_byedpi_library_server_ByeDpiServer_startNativeProxy(JNIE
 }
 
 JNIEXPORT jint JNICALL
-Java_io_github_romanvht_byedpi_library_server_ByeDpiServer_stopNativeProxy(JNIEnv *env, jobject thiz) {
-    LOGI("stopping ByeDPI proxy, server_fd=%d", server_fd);
+Java_io_github_romanvht_byedpi_library_jni_ByeDpiJni_stopNativeProxy(JNIEnv *env, jclass clazz) {
+    LOGI("stopping ByeDPI proxy via ByeDpiJni");
     if (server_fd > 0) {
         shutdown(server_fd, SHUT_RDWR);
         close(server_fd);
-    }
-    g_proxy_running = 0;
-    return 0;
-}
-
-JNIEXPORT jint JNICALL
-Java_io_element_android_libraries_dpi_impl_DpiBypassManagerImpl_nativeForceClose(JNIEnv *env, jobject thiz) {
-    LOGI("force closing ByeDPI proxy");
-    if (server_fd > 0) {
-        shutdown(server_fd, SHUT_RDWR);
-        close(server_fd);
-        server_fd = -1;
     }
     g_proxy_running = 0;
     return 0;
