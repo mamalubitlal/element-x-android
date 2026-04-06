@@ -63,7 +63,7 @@ Java_io_github_romanvht_byedpi_library_server_ByeDpiServer_startNativeProxy(JNIE
 }
 
 JNIEXPORT jint JNICALL
-Java_io_element_android_libraries_dpi_impl_DpiBypassManagerImpl_nativeStopProxy(JNIEnv *env, jobject thiz) {
+Java_io_github_romanvht_byedpi_library_server_ByeDpiServer_stopNativeProxy(JNIEnv *env, jobject thiz) {
     LOGI("stopping ByeDPI proxy, server_fd=%d", server_fd);
     if (server_fd > 0) {
         shutdown(server_fd, SHUT_RDWR);
