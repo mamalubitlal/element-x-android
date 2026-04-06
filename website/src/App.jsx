@@ -73,10 +73,15 @@ function Nav({ t, lang, toggleLang }) {
 function Hero({ t }) {
   return (
     <header className="hero">
+      <div className="hero__bg">
+        <div className="blob blob--blue" />
+        <div className="blob blob--violet" />
+        <div className="blob blob--cyan" />
+      </div>
       <div className="hero__inner">
         <div className="hero__text">
           <h1 className="hero__title">
-            {t.hero_title} <span>{t.hero_title_accent}</span>
+            {t.hero_title} <span className="accent">{t.hero_title_accent}</span>
           </h1>
           <p className="hero__subtitle">{t.hero_subtitle}</p>
           <div className="hero__actions">
@@ -101,11 +106,6 @@ function Hero({ t }) {
           </div>
         </div>
       </div>
-      <div className="hero__wave">
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-          <path d="M0,64 C360,120 1080,0 1440,64 L1440,120 L0,120 Z" fill="var(--bg)" />
-        </svg>
-      </div>
     </header>
   );
 }
@@ -113,12 +113,12 @@ function Hero({ t }) {
 /* ─── FEATURES ─── */
 function Features({ t }) {
   const feats = [
-    { icon: "\uD83C\uDDF7", title: t.feature_russian_title, desc: t.feature_russian_desc },
+    { icon: "\uD83C\uDDE7", title: t.feature_russian_title, desc: t.feature_russian_desc },
     { icon: "\uD83C\uDFA8", title: t.feature_brand_title, desc: t.feature_brand_desc },
-    { icon: "\uD83D\uDCDE", title: t.feature_calls_title, desc: t.feature_calls_desc },
-    { icon: "\uD83C\uDFE2", title: t.feature_enterprise_title, desc: t.feature_enterprise_desc },
+    { icon: "\uD83D\uDCAF", title: t.feature_enterprise_title, desc: t.feature_enterprise_desc },
     { icon: "\uD83D\uDD12", title: t.feature_crypto_title, desc: t.feature_crypto_desc },
     { icon: "\uD83C\uDF10", title: t.feature_decentral_title, desc: t.feature_decentral_desc },
+    { icon: "\uD83D\uDCDE", title: t.feature_calls_title, desc: t.feature_calls_desc },
   ];
   return (
     <section className="features" id="features">
