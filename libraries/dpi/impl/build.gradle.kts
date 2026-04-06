@@ -16,34 +16,6 @@ plugins {
 
 android {
     namespace = "io.element.android.libraries.dpi.impl"
-
-    defaultConfig {
-        ndk {
-            abiFilters += listOf("armeabi-v7a", "x86", "arm64-v8a", "x86_64")
-        }
-        externalNativeBuild {
-            cmake {
-                arguments.addAll(listOf(
-                    "-DANDROID_STL=c++_shared",
-                    "-DCMAKE_C_FLAGS=-std=c99",
-                    "-DCMAKE_CXX_FLAGS=-std=c++17"
-                ))
-            }
-        }
-    }
-
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
-
-    packaging {
-        jniLibs {
-            pickFirsts.addAll(listOf("**/libbyedpi.so"))
-        }
-    }
 }
 
 setupDependencyInjection()
@@ -58,7 +30,7 @@ dependencies {
     implementation(projects.libraries.core)
     implementation(libs.coroutines.core)
     implementation(libs.serialization.json)
-    // ByeByeDPI library for advanced DPI bypass
+    // ByeByeDPI library for advanced DPI bypass (bundles native .so)
     implementation(projects.libraries.byedpi)
 
     testCommonDependencies(libs)

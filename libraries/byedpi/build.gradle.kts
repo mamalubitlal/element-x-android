@@ -57,6 +57,24 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        ndk {
+            abiFilters += listOf("armeabi-v7a", "x86", "arm64-v8a", "x86_64")
+        }
+        externalNativeBuild {
+            cmake {
+                arguments.addAll(listOf(
+                    "-DANDROID_STL=c++_shared",
+                ))
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     buildFeatures {
@@ -87,6 +105,12 @@ android {
     // Disable allWarningsAsErrors for this library since it's external
     lint {
         warningsAsErrors = false
+    }
+
+    packaging {
+        jniLibs {
+            pickFirsts.add("**/libbyedpi.so")
+        }
     }
 }
 
