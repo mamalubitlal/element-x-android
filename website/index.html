@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="meta_title">Чатор — Свободный мессенджер</title>
+  <meta name="description" content="Чатор — свободный мессенджер на базе Matrix. Децентрализованный, шифрованный, с русским интерфейсом.">
+  <link rel="icon" type="image/png" href="../chator-logo.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ===== NAV ===== -->
+  <nav class="nav" id="nav">
+    <div class="nav__container">
+      <a class="nav__logo" href="#">
+        <img src="../chator-logo.png" alt="Чатор" width="32" height="32">
+        <span data-i18n="logo_name">Чатор</span>
+      </a>
+      <button class="nav__toggle" aria-label="Menu" id="navToggle">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav__links" id="navLinks">
+        <li><a href="#features" data-i18n="nav_features">Возможности</a></li>
+        <li><a href="#about" data-i18n="nav_about">О технологии</a></li>
+        <li><a href="#screenshots" data-i18n="nav_screenshots">Скриншоты</a></li>
+        <li><a href="#install" data-i18n="nav_install">Установка</a></li>
+        <li><a href="#contribute" data-i18n="nav_contribute">Участие</a></li>
+        <li>
+          <button class="lang-switch" id="langSwitch" aria-label="Switch language">
+            <span class="lang-switch__current">RU</span>
+            <span class="lang-switch__separator">/</span>
+            <span class="lang-switch__other">EN</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <header class="hero" id="hero">
+    <div class="hero__container">
+      <div class="hero__text">
+        <h1 class="hero__title" data-i18n="hero_title">Свободный мессенджер</h1>
+        <p class="hero__subtitle" data-i18n="hero_subtitle">Альтернатива навязанным государством мессенджерам. Работает, не блокируется, принадлежит вам.</p>
+        <div class="hero__actions">
+          <a href="https://github.com/mamalubitlal/element-x-android/releases" class="btn btn--primary" data-i18n="hero_download" target="_blank" rel="noopener">Скачать</a>
+          <a href="https://github.com/mamalubitlal/element-x-android" class="btn btn--outline" data-i18n="hero_github" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+      <div class="hero__visual">
+        <div class="phone-mockup">
+          <div class="phone-mockup__screen">
+            <div class="phone-mockup__screen-header">
+              <span class="phone-mockup__status-bar">Чатор</span>
+            </div>
+            <div class="phone-mockup__screen-body">
+              <div class="phone-mockup__chat">
+                <div class="phone-mockup__msg phone-mockup__msg--other">Привет!</div>
+                <div class="phone-mockup__msg phone-mockup__msg--self">Привет! Как дела?</div>
+                <div class="phone-mockup__msg phone-mockup__msg--other">Отлично, спасибо!</div>
+                <div class="phone-mockup__msg phone-mockup__msg--self">Чатор — свободный мессенджер на базе Matrix</div>
+                <div class="phone-mockup__msg phone-mockup__msg--other">Работает, не блокируется!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero__wave">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,64 C360,120 1080,0 1440,64 L1440,120 L0,120 Z" fill="var(--color-bg)"/></svg>
+    </div>
+  </header>
+
+  <!-- ===== FEATURES ===== -->
+  <section class="features" id="features">
+    <div class="section__container">
+      <h2 class="section__title" data-i18n="features_title">Возможности</h2>
+      <div class="features__grid">
+        <div class="feature-card">
+          <div class="feature-card__icon">🇷</div>
+          <h3 data-i18n="feature_russian_title">Полностью русский интерфейс</h3>
+          <p data-i18n="feature_russian_desc">Весь интерфейс переведён на русский язык — без английских вставок и недопереведённых меню.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">🎨</div>
+          <h3 data-i18n="feature_brand_title">Собственный брендинг</h3>
+          <p data-i18n="feature_brand_desc">Уникальный логотип, цветовая палитра и название — Чатор это не просто клон.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">📞</div>
+          <h3 data-i18n="feature_calls_title">Групповые звонки</h3>
+          <p data-i18n="feature_calls_desc">Голосовые и видеозвонки через Jitsi Meet — без ограничений на количество участников.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">🏢</div>
+          <h3 data-i18n="feature_enterprise_title">Enterprise-модуль</h3>
+          <p data-i18n="feature_enterprise_desc">Дополнительные возможности для корпоративного использования — SSO, OIDC и не только.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">🔒</div>
+          <h3 data-i18n="feature_crypto_title">Шифрование</h3>
+          <p data-i18n="feature_crypto_desc">Сквозное шифрование по умолчанию на базе Matrix протокола — никто не прочитает.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">🌐</div>
+          <h3 data-i18n="feature_decentral_title">Децентрализация</h3>
+          <p data-i18n="feature_decentral_desc">Работает на любом Matrix-сервере. Нет единой точки отказа — и никто не может заблокировать.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT TECH ===== -->
+  <section class="about" id="about">
+    <div class="section__container">
+      <h2 class="section__title" data-i18n="about_title">О технологии</h2>
+      <div class="about__grid">
+        <div class="about__card">
+          <h3 data-i18n="about_matrix_title">Matrix</h3>
+          <p data-i18n="about_matrix_desc">Открытый стандарт для децентрализованной коммуникации. Серверы общаются между собой — вы не привязаны к одному провайдеру. Протокол используется в правительственных организациях, армии и больницах по всему миру.</p>
+          <a href="https://matrix.org" target="_blank" rel="noopener" class="about__link" data-i18n="about_matrix_link">Узнать больше о Matrix</a>
+        </div>
+        <div class="about__card">
+          <h3 data-i18n="about_tech_title">Технологический стек</h3>
+          <ul class="about__tech-list">
+            <li><strong data-i18n="about_tech_rust">matrix-rust-sdk</strong> <span data-i18n="about_tech_rust_desc">— ядро обработки протокола Matrix на Rust</span></li>
+            <li><strong data-i18n="about_tech_compose">Jetpack Compose</strong> <span data-i18n="about_tech_compose_desc">— современный UI на Kotlin</span></li>
+            <li><strong data-i18n="about_tech_jitsi">Jitsi Meet</strong> <span data-i18n="about_tech_jitsi_desc">— открытая видеоконференция</span></li>
+            <li><strong data-i18n="about_tech_sso">OIDC / SSO</strong> <span data-i18n="about_tech_sso_desc">— корпоративная аутентификация</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SCREENSHOTS ===== -->
+  <section class="screenshots" id="screenshots">
+    <div class="section__container">
+      <h2 class="section__title" data-i18n="screenshots_title">Скриншоты</h2>
+      <p class="section__subtitle" data-i18n="screenshots_subtitle">Скриншоты скоро появятся</p>
+      <div class="screenshots__grid">
+        <div class="screenshot-placeholder">
+          <div class="screenshot-placeholder__icon">📱</div>
+          <span data-i18n="screenshot_placeholder">Скриншот</span>
+        </div>
+        <div class="screenshot-placeholder">
+          <div class="screenshot-placeholder__icon">💬</div>
+          <span data-i18n="screenshot_placeholder">Скриншот</span>
+        </div>
+        <div class="screenshot-placeholder">
+          <div class="screenshot-placeholder__icon">📞</div>
+          <span data-i18n="screenshot_placeholder">Скриншот</span>
+        </div>
+        <div class="screenshot-placeholder">
+          <div class="screenshot-placeholder__icon">⚙️</div>
+          <span data-i18n="screenshot_placeholder">Скриншот</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== INSTALL ===== -->
+  <section class="install" id="install">
+    <div class="section__container">
+      <h2 class="section__title" data-i18n="install_title">Установка</h2>
+      <div class="install__grid">
+        <div class="install__card">
+          <h3 data-i18n="install_apk_title">Скачать APK</h3>
+          <p data-i18n="install_apk_desc">Последняя стабильная версия доступна на GitHub Releases.</p>
+          <a href="https://github.com/mamalubitlal/element-x-android/releases" class="btn btn--primary" data-i18n="install_apk_btn" target="_blank" rel="noopener">Перейти к релизам</a>
+        </div>
+        <div class="install__card">
+          <h3 data-i18n="install_build_title">Сборка из исходников</h3>
+          <p data-i18n="install_build_desc">Склонируйте репозиторий и откройте проект в Android Studio.</p>
+          <pre><code>git clone https://github.com/mamalubitlal/element-x-android.git
+cd element-x-android
+# Откройте в Android Studio → запустите конфигурацию "app"</code></pre>
+          <a href="https://github.com/mamalubitlal/element-x-android/blob/develop/docs/_developer_onboarding.md" class="btn btn--outline" data-i18n="install_build_btn" target="_blank" rel="noopener">Подробнее</a>
+        </div>
+      </div>
+      <div class="install__reqs">
+        <h4 data-i18n="install_reqs_title">Требования</h4>
+        <ul>
+          <li><span data-i18n="install_req_1"><strong>Android 7.0</strong> (API 24) и выше — обычная версия</span></li>
+          <li><span data-i18n="install_req_2"><strong>Android 13</strong> (API 33) и выше — Enterprise-версия</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTRIBUTE ===== -->
+  <section class="contribute" id="contribute">
+    <div class="section__container">
+      <h2 class="section__title" data-i18n="contribute_title">Участие в проекте</h2>
+      <div class="contribute__steps">
+        <div class="contribute__step">
+          <span class="contribute__step-num">1</span>
+          <p data-i18n="contribute_step_1"></p>
+        </div>
+        <div class="contribute__step">
+          <span class="contribute__step-num">2</span>
+          <p data-i18n="contribute_step_2"></p>
+        </div>
+        <div class="contribute__step">
+          <span class="contribute__step-num">3</span>
+          <p data-i18n="contribute_step_3"></p>
+        </div>
+      </div>
+      <a href="https://github.com/mamalubitlal/element-x-android/issues" class="btn btn--primary" data-i18n="contribute_btn" target="_blank" rel="noopener">Смотреть задачи</a>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="section__container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <img src="../chator-logo.png" alt="Чатор" width="28" height="28">
+          <span data-i18n="footer_name">Чатор</span>
+        </div>
+        <p class="footer__legal" data-i18n="footer_legal">Лицензия: AGPL-3.0</p>
+        <p class="footer__copy" data-i18n="footer_copy">© 2025 Element Creations Ltd. / 2022–2025 New Vector Ltd.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

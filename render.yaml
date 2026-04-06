@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: chator-website
+    env: static
+    buildCommand: ""
+    staticPublishPath: ./website
