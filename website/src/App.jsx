@@ -95,13 +95,51 @@ function Hero({ t }) {
         </div>
         <div className="phone">
           <div className="phone__screen">
-            <div className="phone__hdr">{t.logo_name}</div>
+            {/* Matrix-style top bar */}
+            <div className="phone__topbar">
+              <svg className="phone__back" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              <div className="phone__room-avatar">Ч</div>
+              <div className="phone__room-info">
+                <span className="phone__room-name">{t.logo_name}</span>
+                <span className="phone__room-members">{t.phone_member_count || ""}</span>
+              </div>
+            </div>
+            {/* Message bubbles (Matrix-style) */}
             <div className="phone__body">
-              <div className="msg msg--other">{t.hero_chat_1}</div>
-              <div className="msg msg--self">{t.hero_chat_2}</div>
-              <div className="msg msg--other">{t.hero_chat_3}</div>
-              <div className="msg msg--self">{t.hero_chat_4}</div>
-              <div className="msg msg--other">{t.hero_chat_5}</div>
+              {/* Incoming: 1st msg (new thread) */}
+              <div className="tl-row tl-row--other">
+                <div className="tl-avatar" style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)" }}>А</div>
+                <div className="tl-col">
+                  <span className="tl-name">Алексей</span>
+                  <div className="tl-body tl-body--first">{t.hero_chat_1}</div>
+                </div>
+              </div>
+              {/* Outgoing: 1st msg */}
+              <div className="tl-row tl-row--self tl-row--first">
+                <div className="tl-body tl-body--sent">{t.hero_chat_2}</div>
+              </div>
+              {/* Incoming: new message with avatar */}
+              <div className="tl-row tl-row--other">
+                <div className="tl-avatar" style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)" }}>А</div>
+                <div className="tl-col">
+                  <div className="tl-body tl-body--first">{t.hero_chat_3}</div>
+                </div>
+              </div>
+              {/* Outgoing: group start */}
+              <div className="tl-row tl-row--self tl-row--first">
+                <div className="tl-body tl-body--sent tl-body--group-start">{t.hero_chat_4}</div>
+              </div>
+              <div className="tl-row tl-row--self tl-row--same">
+                <div className="tl-body tl-body--sent">{t.hero_chat_5}</div>
+              </div>
+              {/* Read receipts */}
+              <div className="tl-receipts">
+                <svg viewBox="0 0 16 12" width="14" height="11" fill="none" stroke="var(--primary-light)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity=".6">
+                  <path d="M1 6l3.5 4L13 1" /><path d="M5 6l3.5 4L13 1" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
@@ -285,11 +323,10 @@ function Footer({ t }) {
       <div className="container">
         <div className="footer__inner">
           <div className="footer__brand">
-            <img src={logo} alt="Чатор" width="28" height="28" />
+            <img src={logo} alt="Чатор" width="26" height="26" />
             <span>{t.footer_name}</span>
           </div>
-          <p className="footer__legal">{t.footer_legal}</p>
-          <p className="footer__copy">{t.footer_copy}</p>
+          <p className="footer__license">{t.footer_legal}</p>
         </div>
       </div>
     </footer>

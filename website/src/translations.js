@@ -76,7 +76,7 @@ export const translations = {
     contribute_btn: "Смотреть задачи",
     footer_name: "Чатор",
     footer_legal: "Лицензия: AGPL-3.0",
-    footer_copy: "© 2025 Element Creations Ltd. / 2022–2025 New Vector Ltd.",
+    phone_member_count: "3 участника",
     lang_switch_label: "RU",
   },
   en: {
@@ -156,7 +156,7 @@ export const translations = {
     contribute_btn: "View issues",
     footer_name: "Chator",
     footer_legal: "License: AGPL-3.0",
-    footer_copy: "© 2025 Element Creations Ltd. / 2022–2025 New Vector Ltd.",
+    phone_member_count: "3 members",
     lang_switch_label: "EN",
   },
 };
