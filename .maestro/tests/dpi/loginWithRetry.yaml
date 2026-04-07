@@ -1,0 +1,27 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Single login attempt (one shot).
+# The shell wrapper (.github/workflows/scripts/dpi-bypass-test.sh) handles the retry loop
+# by re-running this flow if connection errors occur.
+- tapOn: "Sign in manually"
+- runFlow: ../assertions/assertLoginDisplayed.yaml
+- runFlow: ../account/changeServer.yaml
+- tapOn:
+    id: "login-continue"
+## Wait for MAS login form (long timeout for slow networks)
+- extendedWaitUntil:
+    visible:
+      id: "form-1"
+    timeout: 30000
+- tapOn:
+    id: "form-1"
+- inputText: ${MAESTRO_USERNAME}
+- pressKey: Enter
+- tapOn:
+    id: "form-3"
+- inputText: ${MAESTRO_PASSWORD}
+- pressKey: Enter
+- tapOn: "Continue"
+## Wait for verification screen (login succeeded)
+- runFlow: ../account/verifySession.yaml
+

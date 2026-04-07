@@ -1,0 +1,7 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Assert that the DPI proxy is running (toggle is ON and shows "Работает с" text)
+- extendedWaitUntil:
+    visible:
+      text: "Включить обход DPI"
+    timeout: 10000

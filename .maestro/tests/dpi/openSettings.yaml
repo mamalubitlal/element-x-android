@@ -1,0 +1,8 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Open settings from home screen (tap the profile/settings button)
+- tapOn:
+    id: "home_screen-settings"
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 10000
