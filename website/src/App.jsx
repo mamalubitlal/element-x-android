@@ -71,12 +71,25 @@ function Nav({ t, lang, toggleLang }) {
 
 /* ─── HERO ─── */
 function Hero({ t }) {
+  const msgs = [
+    { type: "other", name: "Алексей", avatar: "linear-gradient(135deg,#6366f1,#4f46e5)", letter: "А", text: t.hero_chat_1 },
+    { type: "self", text: t.hero_chat_2, first: true },
+    { type: "other", name: "Алексей", avatar: "linear-gradient(135deg,#6366f1,#4f46e5)", letter: "А", text: t.hero_chat_3 },
+    { type: "self", text: t.hero_chat_4, group: true },
+    { type: "self", text: t.hero_chat_5 },
+  ];
+
   return (
     <header className="hero">
       <div className="hero__bg">
         <div className="blob blob--blue" />
         <div className="blob blob--violet" />
         <div className="blob blob--cyan" />
+      </div>
+      <div className="particles">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div className="particle" key={i} />
+        ))}
       </div>
       <div className="hero__inner">
         <div className="hero__text">
@@ -106,34 +119,34 @@ function Hero({ t }) {
                 <span className="phone__room-members">{t.phone_member_count || ""}</span>
               </div>
             </div>
-            {/* Message bubbles (Matrix-style) */}
+            {/* Message bubbles with typewriter animation */}
             <div className="phone__body">
-              {/* Incoming: 1st msg (new thread) */}
-              <div className="tl-row tl-row--other">
-                <div className="tl-avatar" style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)" }}>А</div>
-                <div className="tl-col">
-                  <span className="tl-name">Алексей</span>
-                  <div className="tl-body tl-body--first">{t.hero_chat_1}</div>
-                </div>
-              </div>
-              {/* Outgoing: 1st msg */}
-              <div className="tl-row tl-row--self tl-row--first">
-                <div className="tl-body tl-body--sent">{t.hero_chat_2}</div>
-              </div>
-              {/* Incoming: new message with avatar */}
-              <div className="tl-row tl-row--other">
-                <div className="tl-avatar" style={{ background: "linear-gradient(135deg,#6366f1,#4f46e5)" }}>А</div>
-                <div className="tl-col">
-                  <div className="tl-body tl-body--first">{t.hero_chat_3}</div>
-                </div>
-              </div>
-              {/* Outgoing: group start */}
-              <div className="tl-row tl-row--self tl-row--first">
-                <div className="tl-body tl-body--sent tl-body--group-start">{t.hero_chat_4}</div>
-              </div>
-              <div className="tl-row tl-row--self tl-row--same">
-                <div className="tl-body tl-body--sent">{t.hero_chat_5}</div>
-              </div>
+              {msgs.map((m, i) => {
+                if (m.type === "other") return (
+                  <div key={i} className="tl-row tl-row--other">
+                    <div className="tl-avatar" style={{ background: m.avatar }}>{m.letter}</div>
+                    <div className="tl-col">
+                      {m.name && <span className="tl-name">{m.name}</span>}
+                      <div className="tl-body tl-body--first">{m.text}</div>
+                    </div>
+                  </div>
+                );
+                if (m.first) return (
+                  <div key={i} className="tl-row tl-row--self tl-row--first">
+                    <div className="tl-body tl-body--sent">{m.text}</div>
+                  </div>
+                );
+                if (m.group) return (
+                  <div key={i} className="tl-row tl-row--self tl-row--first">
+                    <div className="tl-body tl-body--sent tl-body--group-start">{m.text}</div>
+                  </div>
+                );
+                return (
+                  <div key={i} className="tl-row tl-row--self tl-row--same">
+                    <div className="tl-body tl-body--sent">{m.text}</div>
+                  </div>
+                );
+              })}
               {/* Read receipts */}
               <div className="tl-receipts">
                 <svg viewBox="0 0 16 12" width="14" height="11" fill="none" stroke="var(--primary-light)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity=".6">
