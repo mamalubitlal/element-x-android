@@ -1,0 +1,18 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Navigate: Settings → DPI Settings → Enable bypass
+# Assumes the app is already logged in (home screen showing "Chats")
+# This flow leaves the app on the DPI settings screen
+
+- tapOn: "Profile"
+- runFlow: ../assertions/assertHomeDisplayed.yaml
+- runFlow: openSettings.yaml
+# Tap on "Обход DPI" (DPI settings) in the General section
+- tapOn: "Обход DPI"
+- extendedWaitUntil:
+    visible: "Обход DPI"
+    timeout: 10000
+- takeScreenshot: build/maestro/500-DpiSettingsOpened
+# Toggle "Включить обход DPI" to ON
+- tapOn: "Включить обход DPI"
+- runFlow: assertDpiProxyRunning.yaml

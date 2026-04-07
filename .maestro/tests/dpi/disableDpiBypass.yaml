@@ -1,0 +1,10 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Verify DPI proxy status indicator is visible
+# Expects the DPI settings screen to be already open
+- extendedWaitUntil:
+    visible: "Включить обход DPI"
+    timeout: 10000
+- takeScreenshot: build/maestro/510-DpiProxyStatus
+# The settings screen should show the toggle — proxy is enabled if "Работает с" text is visible
+- runFlow: ../assertions/assertDpiProxyRunning.yaml

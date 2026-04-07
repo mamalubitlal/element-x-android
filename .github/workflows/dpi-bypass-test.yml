@@ -1,0 +1,130 @@
+name: DPI Bypass Check
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx8g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC -Dkotlin.daemon.jvm.options=-Xmx4g
+  CI_GRADLE_ARG_PROPERTIES: --stacktrace --no-daemon -Dsonar.gradle.skipCompile=true --no-configuration-cache
+  ARCH: x86_64
+  DEVICE: pixel_7_pro
+  API_LEVEL: 33
+  TARGET: google_apis
+
+jobs:
+  dpi-bypass-test:
+    name: Build & Test DPI Bypass
+    runs-on: ubuntu-latest
+    # Allow only one at a time since they use the same emulator
+    concurrency:
+      group: ${{ format('dpi-bypass-{0}', github.ref) }}
+      cancel-in-progress: true
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+        with:
+          tool-cache: true
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          persist-credentials: false
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Configure Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/develop' }}
+
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleGplayDebug $CI_GRADLE_ARG_PROPERTIES
+        env:
+          ELEMENT_ANDROID_MAPTILER_API_KEY: ${{ secrets.MAPTILER_KEY }}
+          ELEMENT_ANDROID_MAPTILER_LIGHT_MAP_ID: ${{ secrets.MAPTILER_LIGHT_MAP_ID }}
+          ELEMENT_ANDROID_MAPTILER_DARK_MAP_ID: ${{ secrets.MAPTILER_DARK_MAP_ID }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chator-dpi-apk
+          path: app/build/outputs/apk/gplay/debug/app-gplay-x86_64-debug.apk
+          retention-days: 5
+          overwrite: true
+          if-no-files-found: error
+
+      - name: Install Maestro CLI
+        run: curl -fsSL "https://get.maestro.mobile.dev" | bash
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run DPI Bypass Test with Retry
+        id: dpi_test
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          MAESTRO_USERNAME: ${{ secrets.TESTUSR }}
+          MAESTRO_PASSWORD: ${{ secrets.TESTPSW }}
+          MAESTRO_RECOVERY_KEY: ${{ secrets.TESTUSR_RECOVERY_KEY }}
+          MAESTRO_APP_ID: im.chator.android.debug
+        with:
+          api-level: ${{ env.API_LEVEL }}
+          arch: ${{ env.ARCH }}
+          profile: ${{ env.DEVICE }}
+          target: ${{ env.TARGET }}
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          disk-size: 3G
+          script: |
+            chmod +x .github/workflows/scripts/dpi-bypass-test.sh
+            .github/workflows/scripts/dpi-bypass-test.sh
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dpi-test-results
+          path: |
+            ~/.maestro/tests/**
+            /tmp/dpi-test-errors.log
+          retention-days: 5
+          overwrite: true
+          if-no-files-found: ignore
+
+      - name: Update summary
+        if: always()
+        run: |
+          if [ -f /tmp/dpi-test-errors.log ] && [ -s /tmp/dpi-test-errors.log ]; then
+            echo "## DPI Bypass Test — ❌ Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>Click to see error log</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            tail -n 100 /tmp/dpi-test-errors.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## DPI Bypass Test — ✅ Passed" >> $GITHUB_STEP_SUMMARY
+            echo "App built and DPI bypass verified successfully." >> $GITHUB_STEP_SUMMARY
+          fi

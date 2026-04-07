@@ -1,0 +1,32 @@
+appId: ${MAESTRO_APP_ID}
+androidWebViewHierarchy: devtools
+---
+## Check that all env variables are declared
+- runScript: ./scripts/checkEnv.js
+## Launch app and wait for init screen
+- clearState
+- launchApp:
+    clearKeychain: true
+- runFlow: tests/init.yaml
+## Retry loop: attempt login with retries (handles "can't connect to server" by retrying after 30s)
+- runFlow: tests/dpi/loginWithRetry.yaml
+## Verify login succeeded
+- runFlow: tests/assertions/assertHomeDisplayed.yaml
+- takeScreenshot: build/maestro/400-LoggedIn
+## Navigate to DPI settings
+- runFlow: tests/dpi/openSettings.yaml
+## Open DPI settings
+- tapOn: "Обход DPI"
+- extendedWaitUntil:
+    visible: "Обход DPI"
+    timeout: 10000
+- takeScreenshot: build/maestro/500-DpiSettingsOpened
+## Toggle "Включить обход DPI" to ON
+- tapOn: "Включить обход DPI"
+- extendedWaitUntil:
+    visible: "Тестировать стратегии"
+    timeout: 15000
+- takeScreenshot: build/maestro/510-DpiProxyEnabled
+## Summary
+- output: "DPI bypass verification complete"
+- takeScreenshot: build/maestro/520-DpiTestComplete
