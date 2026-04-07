@@ -152,10 +152,7 @@ function Hero({ t }) {
 function Features({ t }) {
   const feats = [
     { icon: "\uD83C\uDDE7", title: t.feature_russian_title, desc: t.feature_russian_desc },
-    { icon: "\uD83C\uDFA8", title: t.feature_brand_title, desc: t.feature_brand_desc },
-    { icon: "\uD83D\uDCAF", title: t.feature_enterprise_title, desc: t.feature_enterprise_desc },
     { icon: "\uD83D\uDD12", title: t.feature_crypto_title, desc: t.feature_crypto_desc },
-    { icon: "\uD83C\uDF10", title: t.feature_decentral_title, desc: t.feature_decentral_desc },
     { icon: "\uD83D\uDCDE", title: t.feature_calls_title, desc: t.feature_calls_desc },
   ];
   return (
