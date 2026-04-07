@@ -217,6 +217,7 @@ android {
 
         jniLibs {
             useLegacyPackaging = project.findProperty("useLegacyPackaging")?.toString()?.toBoolean()
+            pickFirsts += "**/libbyedpi.so"
         }
     }
 }
