@@ -17,7 +17,7 @@ env:
 jobs:
   build:
     name: Build чатор Android
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -46,30 +46,17 @@ jobs:
         with:
           cache-read-only: false
       
-      - name: Build GPlay Debug APK (with Firebase!)
+      - name: Build GPlay Debug APK
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :app:assembleGplayDebug --rerun-tasks $CI_GRADLE_ARG_PROPERTIES
-      
+        run: ./gradlew :app:assembleGplayDebug $CI_GRADLE_ARG_PROPERTIES
+
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: chator-elementx-debug
           path: app/build/outputs/apk/gplay/debug/*-universal-debug.apk
-          retention-days: 30
-      
-      - name: Build GPlay Release APK (unsigned)
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :app:assembleGplayRelease --rerun-tasks $CI_GRADLE_ARG_PROPERTIES
-      
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: chator-elementx-release
-          path: app/build/outputs/apk/gplay/release/*-universal-release.apk
           retention-days: 30
       
       - name: Build Summary
