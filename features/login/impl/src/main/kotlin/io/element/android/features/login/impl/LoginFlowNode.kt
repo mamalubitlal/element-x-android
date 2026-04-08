@@ -135,8 +135,7 @@ class LoginFlowNode(
                 val callback = object : OnBoardingNode.Callback {
                     override fun navigateToSignUpFlow() {
                         // Skip confirmation page, go directly to account creation
-                        // For Matrix.org, use the default registration URL
-                        val defaultUrl = "https://matrix.org/_matrix/client/r0/register"
+                        val defaultUrl = "https://chator-server.onrender.com/_matrix/client/r0/register"
                         backstack.push(NavTarget.CreateAccount(defaultUrl))
                     }
 
