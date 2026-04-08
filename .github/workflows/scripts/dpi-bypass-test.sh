@@ -17,9 +17,10 @@ echo "=== Disabling Chrome onboarding ==="
 adb shell 'echo "chrome --disable-fre --no-default-browser-check --no-first-run" > /data/local/tmp/chrome-command-line'
 
 echo "=== Starting error-level logcat ==="
-# Clear any existing logcat, then stream only errors and fatals
+# Clear any existing logcat
 adb logcat -c || true
-adb logcat -b all -e "^(E|F)/" --pid="$(adb shell ps | grep "$APP_ID" | awk 'NR==1{print $2}')" &> "$ERROR_LOG" &
+# Start logcat filtering for errors only (we'll refine by app name/PID later in the loop)
+adb logcat -b all "*:S" "ByeDPI:V" "ChatorDPI:V" "*:E" &> "$ERROR_LOG" &
 LOGCAT_PID=$!
 
 cleanup() {
@@ -33,10 +34,10 @@ start_logcat_filtered() {
   local PID
   PID=$(adb shell "pidof $APP_ID" 2>/dev/null || echo "")
   if [ -n "$PID" ]; then
-    adb logcat -b all --pid="$PID" -e "^(E|F)/" &>> "$ERROR_LOG" &
+    adb logcat -b all --pid="$PID" "*:S" "ByeDPI:V" "ChatorDPI:V" "*:E" &>> "$ERROR_LOG" &
     LOGCAT_PID=$!
   else
-    # Fallback: grep for the tag
+    # Fallback: grep for the tag (less efficient but works when PID lookup fails)
     adb logcat -b all "*:S" "ByeDPI:V" "ChatorDPI:V" "*:E" &>> "$ERROR_LOG" &
     LOGCAT_PID=$!
   fi
