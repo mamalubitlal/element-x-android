@@ -3,19 +3,12 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "login-change_server"
 - takeScreenshot: build/maestro/200-ChangeServer
-- tapOn: "matrix.org"
-- tapOn:
-    id: "login-change_server"
 - tapOn: "Other"
 - tapOn:
     id: "change_server-server"
-- inputText: "element"
+- inputText: "chator-server.onrender.com"
 - hideKeyboard
 - extendedWaitUntil:
-    visible: "element.io"
+    visible: "chator-server.onrender.com"
     timeout: 10000
-- tapOn: "element.io"
-# Revert to matrix.org
-- tapOn:
-    id: "login-change_server"
-- tapOn: "matrix.org"
+- tapOn: "chator-server.onrender.com"
