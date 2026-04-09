@@ -86,6 +86,9 @@ jobs:
           MAESTRO_USERNAME: ${{ secrets.TESTUSR }}
           MAESTRO_PASSWORD: ${{ secrets.TESTPSW }}
           MAESTRO_RECOVERY_KEY: ${{ secrets.TESTUSR_RECOVERY_KEY }}
+          MAESTRO_ROOM_NAME: ${{ secrets.MAESTRO_ROOM_NAME }}
+          MAESTRO_INVITEE1_MXID: ${{ secrets.MAESTRO_INVITEE1_MXID }}
+          MAESTRO_INVITEE2_MXID: ${{ secrets.MAESTRO_INVITEE2_MXID }}
           MAESTRO_APP_ID: im.chator.android.debug
         with:
           api-level: ${{ env.API_LEVEL }}
