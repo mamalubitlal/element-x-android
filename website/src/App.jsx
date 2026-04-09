@@ -39,6 +39,25 @@ function Reveal({ children, className = "" }) {
   );
 }
 
+/* ─── TYPEWRITER HOOK ─── */
+function useTypewriter(text, speed = 55, delay = 0) {
+  const [displayed, setDisplayed] = useState("");
+  useEffect(() => {
+    setDisplayed("");
+    const t = setTimeout(() => {
+      let i = 0;
+      const interval = setInterval(() => {
+        setDisplayed(text.slice(0, i + 1));
+        i++;
+        if (i >= text.length) clearInterval(interval);
+      }, speed);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(t);
+  }, [text, speed, delay]);
+  return displayed;
+}
+
 /* ─── NAV ─── */
 function Nav({ t, lang, toggleLang }) {
   const [open, setOpen] = useState(false);
@@ -67,25 +86,6 @@ function Nav({ t, lang, toggleLang }) {
       </div>
     </nav>
   );
-}
-
-/* ─── TYPEWRITER HOOK ─── */
-function useTypewriter(text, speed = 55, delay = 0) {
-  const [displayed, setDisplayed] = useState("");
-  useEffect(() => {
-    setDisplayed("");
-    const t = setTimeout(() => {
-      let i = 0;
-      const interval = setInterval(() => {
-        setDisplayed(text.slice(0, i + 1));
-        i++;
-        if (i >= text.length) clearInterval(interval);
-      }, speed);
-      return () => clearInterval(interval);
-    }, delay);
-    return () => clearTimeout(t);
-  }, [text, speed, delay]);
-  return displayed;
 }
 
 /* ─── HERO ─── */
@@ -129,7 +129,6 @@ function Hero({ t }) {
         </div>
         <div className="phone">
           <div className="phone__screen">
-            {/* Matrix-style top bar */}
             <div className="phone__topbar">
               <svg className="phone__back" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 18l-6-6 6-6" />
@@ -140,7 +139,6 @@ function Hero({ t }) {
                 <span className="phone__room-members">{t.phone_member_count || ""}</span>
               </div>
             </div>
-            {/* Message bubbles with typewriter animation */}
             <div className="phone__body">
               {msgs.map((m, i) => {
                 if (m.type === "other") return (
@@ -168,7 +166,6 @@ function Hero({ t }) {
                   </div>
                 );
               })}
-              {/* Read receipts */}
               <div className="tl-receipts">
                 <svg viewBox="0 0 16 12" width="14" height="11" fill="none" stroke="var(--primary-light)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity=".6">
                   <path d="M1 6l3.5 4L13 1" /><path d="M5 6l3.5 4L13 1" />
@@ -310,31 +307,24 @@ cd element-x-android
 
 /* ─── CONTRIBUTE ─── */
 function Contribute({ t }) {
-  const steps = [
-    <p key="1">
-      {t.contribute_step_1_start}
-      <a href="https://github.com/mamalubitlal/element-x-android/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22" target="_blank" rel="noopener">
-        {t.contribute_step_1_link}
-      </a>
-    </p>,
-    <p key="2">{t.contribute_step_2}</p>,
-    <p key="3">
-      {t.contribute_step_3_start}
-      <a href="https://github.com/mamalubitlal/element-x-android/blob/develop/CONTRIBUTING.md" target="_blank" rel="noopener">
-        {t.contribute_step_3_link}
-      </a>
-    </p>,
+  const areas = [
+    { icon: "\uD83D\uDCBB", title: t.contribute_kotlin, desc: t.contribute_kotlin_desc },
+    { icon: "\uD83D\uDC80", title: t.contribute_rust, desc: t.contribute_rust_desc },
+    { icon: "\uD83C\uDF10", title: t.contribute_translate, desc: t.contribute_translate_desc },
+    { icon: "\uD83D\uDCAC", title: t.contribute_matrix, desc: t.contribute_matrix_desc },
   ];
   return (
     <section className="contribute" id="contribute">
       <div className="container">
         <h2 className="section-title">{t.contribute_title}</h2>
+        <p className="section-subtitle">{t.contribute_subtitle}</p>
         <div className="contribute__steps">
-          {steps.map((s, i) => (
+          {areas.map((a, i) => (
             <Reveal key={i}>
               <div className="contribute__step">
-                <span className="step-num">{i + 1}</span>
-                {s}
+                <div className="step-icon">{a.icon}</div>
+                <h3>{a.title}</h3>
+                <p>{a.desc}</p>
               </div>
             </Reveal>
           ))}
