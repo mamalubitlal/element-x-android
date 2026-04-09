@@ -28,5 +28,4 @@ androidWebViewHierarchy: devtools
     timeout: 15000
 - takeScreenshot: build/maestro/510-DpiProxyEnabled
 ## Summary
-- log: "DPI bypass verification complete"
 - takeScreenshot: build/maestro/520-DpiTestComplete
