@@ -69,8 +69,29 @@ function Nav({ t, lang, toggleLang }) {
   );
 }
 
+/* ─── TYPEWRITER HOOK ─── */
+function useTypewriter(text, speed = 55, delay = 0) {
+  const [displayed, setDisplayed] = useState("");
+  useEffect(() => {
+    setDisplayed("");
+    const t = setTimeout(() => {
+      let i = 0;
+      const interval = setInterval(() => {
+        setDisplayed(text.slice(0, i + 1));
+        i++;
+        if (i >= text.length) clearInterval(interval);
+      }, speed);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(t);
+  }, [text, speed, delay]);
+  return displayed;
+}
+
 /* ─── HERO ─── */
 function Hero({ t }) {
+  const heroTitle = useTypewriter(t.hero_title, 55, 400);
+  const heroAccent = useTypewriter(t.hero_title_accent, 45, 1100);
   const msgs = [
     { type: "other", name: "Алексей", avatar: "linear-gradient(135deg,#6366f1,#4f46e5)", letter: "А", text: t.hero_chat_1 },
     { type: "self", text: t.hero_chat_2, first: true },
@@ -81,11 +102,11 @@ function Hero({ t }) {
 
   return (
     <header className="hero">
-      <div className="hero__bg">
-        <div className="blob blob--blue" />
-        <div className="blob blob--violet" />
-        <div className="blob blob--cyan" />
-      </div>
+      {/* Decorative diagonal slashes */}
+      <div className="diagonal-slash diagonal-slash--tl" />
+      <div className="diagonal-slash diagonal-slash--tr" />
+      <div className="diagonal-slash diagonal-slash--bl" />
+      <div className="diagonal-slash diagonal-slash--br" />
       <div className="particles">
         {Array.from({ length: 12 }).map((_, i) => (
           <div className="particle" key={i} />
@@ -94,7 +115,7 @@ function Hero({ t }) {
       <div className="hero__inner">
         <div className="hero__text">
           <h1 className="hero__title">
-            {t.hero_title} <span className="accent">{t.hero_title_accent}</span>
+            {heroTitle}<span className="accent">{heroAccent}</span><span className="cursor" />
           </h1>
           <p className="hero__subtitle">{t.hero_subtitle}</p>
           <div className="hero__actions">
