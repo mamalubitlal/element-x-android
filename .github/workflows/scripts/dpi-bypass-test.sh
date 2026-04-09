@@ -19,8 +19,9 @@ adb shell 'echo "chrome --disable-fre --no-default-browser-check --no-first-run"
 echo "=== Starting error-level logcat ==="
 # Clear any existing logcat
 adb logcat -c || true
-# Start logcat filtering for errors only (we'll refine by app name/PID later in the loop)
-adb logcat -b all "*:S" "ByeDPI:V" "ChatorDPI:V" "*:E" &> "$ERROR_LOG" &
+# Filter: verbose for our app tags, error for everything else
+# Exclude known system noise: Firebase (no google-services.json in CI), gRPC, binder
+adb logcat -b all "*:S" "ByeDPI:V" "ChatorDPI:V" "im.chator.android:E" "*:E" -m "FirebaseMessaging:g" -m "CCTFlatFileLogStore:g" -m "GmsTaskScheduler:g" -m "binder:g" &> "$ERROR_LOG" &
 LOGCAT_PID=$!
 
 cleanup() {
