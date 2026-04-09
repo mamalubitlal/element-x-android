@@ -49,6 +49,132 @@ body::before {
   90% { transform: translate(-1%, 1%); }
 }
 
+/* ───────── CRT SCANLINES ───────── */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,.08) 2px,
+    rgba(0,0,0,.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+  animation: scanlineFlicker 8s ease-in-out infinite;
+}
+@keyframes scanlineFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .85; }
+  52% { opacity: 1; }
+  54% { opacity: .9; }
+}
+
+/* ───────── CUSTOM SCROLLBAR ───────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #030303; }
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
+
+/* ───────── GLITCH LOGO ───────── */
+.nav__logo img {
+  position: relative;
+}
+.nav__logo:hover img {
+  animation: glitchImg 0.3s steps(2) 3;
+}
+@keyframes glitchImg {
+  0% { clip-path: inset(0 0 70% 0); transform: translate(-3px, 0); filter: hue-rotate(90deg); }
+  25% { clip-path: inset(30% 0 40% 0); transform: translate(3px, 0); filter: hue-rotate(0deg); }
+  50% { clip-path: inset(60% 0 10% 0); transform: translate(-2px, 0); filter: hue-rotate(-90deg); }
+  75% { clip-path: inset(80% 0 0 0); transform: translate(2px, 0); filter: hue-rotate(0deg); }
+  100% { clip-path: inset(0 0 0 0); transform: translate(0); filter: none; }
+}
+
+/* ───────── BLINKING CURSOR ───────── */
+.cursor {
+  display: inline-block;
+  width: 3px;
+  height: .9em;
+  background: var(--primary);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 0.8s step-end infinite;
+  border-radius: 1px;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ───────── CRT SCANLINES ───────── */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,.08) 2px,
+    rgba(0,0,0,.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+  animation: scanlineFlicker 8s ease-in-out infinite;
+}
+@keyframes scanlineFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .85; }
+  52% { opacity: 1; }
+  54% { opacity: .9; }
+}
+
+/* ───────── CUSTOM SCROLLBAR ───────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #030303; }
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
+
+/* ───────── GLITCH LOGO ───────── */
+.nav__logo img {
+  position: relative;
+}
+.nav__logo:hover img {
+  animation: glitchImg 0.3s steps(2) 3;
+}
+@keyframes glitchImg {
+  0% { clip-path: inset(0 0 70% 0); transform: translate(-3px, 0); filter: hue-rotate(90deg); }
+  25% { clip-path: inset(30% 0 40% 0); transform: translate(3px, 0); filter: hue-rotate(0deg); }
+  50% { clip-path: inset(60% 0 10% 0); transform: translate(-2px, 0); filter: hue-rotate(-90deg); }
+  75% { clip-path: inset(80% 0 0 0); transform: translate(2px, 0); filter: hue-rotate(0deg); }
+  100% { clip-path: inset(0 0 0 0); transform: translate(0); filter: none; }
+}
+
+/* ───────── BLINKING CURSOR ───────── */
+.cursor {
+  display: inline-block;
+  width: 3px;
+  height: .9em;
+  background: var(--primary);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 0.8s step-end infinite;
+  border-radius: 1px;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 /* ───────── COLORS ───────── */
 :root {
   --bg: #030303;
