@@ -24,9 +24,7 @@ jobs:
         ports:
           - 8082:8082
         env:
-          # Reuse your existing OpenRouter API key
           OPENAI_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          # Reuse your existing base URL (already points to OpenRouter)
           OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
           PREFERRED_PROVIDER: "openai"
           BIG_MODEL: ${{ secrets.MODEL_NAME }}
@@ -39,27 +37,10 @@ jobs:
       - name: Run Claude Code Action
         uses: anthropics/claude-code-action@v1
         with:
-          anthropic_api_key: "dummy-key"
+          github_token: ${{ secrets.GITHUB_TOKEN }}   # ✅ ADDED – required for commenting
+          anthropic_api_key: "sk-ant-dummy"           # ✅ Changed to Anthropic‑format placeholder
         env:
           ANTHROPIC_BASE_URL: "http://localhost:8082"
-          ANTHROPIC_DEFAULT_SONNET_MODEL: ${{ secrets.MODEL_NAME }}
-          ANTHROPIC_DEFAULT_OPUS_MODEL: ${{ secrets.MODEL_NAME }}
-          ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ secrets.MODEL_NAME }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run Claude Code Action
-        uses: anthropics/claude-code-action@v1
-        with:
-          # Dummy key – the proxy will handle real auth
-          anthropic_api_key: dummy-key
-        env:
-          # Point Claude to the local proxy
-          ANTHROPIC_BASE_URL: http://localhost:3000
-          # If you set PROXY_API_KEY above, pass it here
-          ANTHROPIC_AUTH_TOKEN: ${{ secrets.PROXY_API_KEY }}
-          # Again map the models (the proxy needs to know which model to use)
           ANTHROPIC_DEFAULT_SONNET_MODEL: ${{ secrets.MODEL_NAME }}
           ANTHROPIC_DEFAULT_OPUS_MODEL: ${{ secrets.MODEL_NAME }}
           ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ secrets.MODEL_NAME }}
