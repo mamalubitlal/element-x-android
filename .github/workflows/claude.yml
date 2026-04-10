@@ -1,4 +1,4 @@
-name: Claude Code with OpenAI Endpoint via Proxy
+name: Claude Code with OpenCode Zen (Big Pickle)
 
 on:
   issues:
@@ -18,23 +18,33 @@ jobs:
       pull-requests: write
       issues: write
 
-    # Run the translation proxy as a service container
     services:
       claude-proxy:
-        image: ghcr.io/nielspeter/claude-code-proxy:latest
+        image: ghcr.io/1rgs/claude-code-proxy:latest
         ports:
-          - 3000:3000
+          - 8082:8082
         env:
-          # Your OpenAI‑compatible endpoint
+          # Reuse your existing OpenRouter API key
+          OPENAI_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          # Reuse your existing base URL (already points to OpenRouter)
           OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          # Map Claude's default models to your chosen model
+          PREFERRED_PROVIDER: "openai"
+          BIG_MODEL: ${{ secrets.MODEL_NAME }}
+          SMALL_MODEL: ${{ secrets.MODEL_NAME }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Claude Code Action
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: "dummy-key"
+        env:
+          ANTHROPIC_BASE_URL: "http://localhost:8082"
           ANTHROPIC_DEFAULT_SONNET_MODEL: ${{ secrets.MODEL_NAME }}
           ANTHROPIC_DEFAULT_OPUS_MODEL: ${{ secrets.MODEL_NAME }}
           ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ secrets.MODEL_NAME }}
-          # Optional: require a key for the proxy itself
-          PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
