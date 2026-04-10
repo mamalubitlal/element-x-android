@@ -34,7 +34,7 @@ jobs:
       # Start the Anthropic→OpenAI translation proxy
       # This allows Claude Code (Anthropic API) to work with opencode.ai (OpenAI-compatible)
       proxy:
-        image: ghcr.io/1rgs/claude-code-proxy:latest
+        image: ghcr.io/1rgs/claude-code-proxy:main
         env:
           # Use opencode.ai as the OpenAI-compatible backend
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
