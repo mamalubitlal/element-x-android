@@ -42,8 +42,8 @@ jobs:
           OPENAI_BASE_URL: https://opencode.ai/zen/v1
           # Map Claude models to Qwen3.6-Plus-Free
           PREFERRED_PROVIDER: openai
-          BIG_MODEL: qwen3.6-plus-free
-          SMALL_MODEL: qwen3.6-plus-free
+          BIG_MODEL: nemotron-3-super-free
+          SMALL_MODEL: big-pickle
           # Disable Anthropic/Gemini backends (we only use opencode.ai)
           ANTHROPIC_API_KEY: sk-placeholder
           GEMINI_API_KEY: sk-placeholder
