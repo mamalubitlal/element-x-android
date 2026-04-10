@@ -49,10 +49,10 @@ jobs:
         ports:
           - 8082:8082
         options: >-
-          --health-cmd "curl -f http://localhost:8082/health || exit 1"
+          --health-cmd "curl -f http://localhost:8082/ || exit 1"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 3
+          --health-retries 5
 
     steps:
       # Wait for proxy to be healthy
@@ -60,7 +60,7 @@ jobs:
         run: |
           echo "Waiting for claude-code-proxy to be ready..."
           for i in {1..30}; do
-            if curl -f http://localhost:8082/health 2>/dev/null; then
+            if curl -f http://localhost:8082/ 2>/dev/null; then
               echo "Proxy is ready!"
               exit 0
             fi
