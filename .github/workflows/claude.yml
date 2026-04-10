@@ -1,70 +1,92 @@
-name: Claude Code with OpenCode Zen (Big Pickle)
+# Claude Code GitHub Action with OpenAI-Compatible Backend (opencode.ai)
+#
+# This workflow runs the claude-code-proxy to translate Anthropic API requests
+# to OpenAI-compatible format, enabling Claude Code to use Qwen3.6-Plus-Free
+# via opencode.ai Zen API.
+#
+# Setup:
+# 1. Get your opencode.ai API key from https://opencode.ai
+# 2. Add it as a GitHub secret: OPENAI_API_KEY
+# 3. This workflow will automatically start the proxy and route requests
+
+name: Claude Code (opencode.ai)
 
 on:
-  issues:
-    types: [opened, edited]
   issue_comment:
-    types: [created, edited]
-  pull_request:
-    types: [opened, synchronize, edited]
+    types: [created]
   pull_request_review_comment:
-    types: [created, edited]
+    types: [created]
+  issues:
+    types: [opened, assigned]
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
 
 jobs:
-  claude-openai:
+  claude:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
+    
+    services:
+      # Start the Anthropic→OpenAI translation proxy
+      # This allows Claude Code (Anthropic API) to work with opencode.ai (OpenAI-compatible)
+      proxy:
+        image: ghcr.io/1rgs/claude-code-proxy:latest
+        env:
+          # Use opencode.ai as the OpenAI-compatible backend
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: https://opencode.ai/zen/v1
+          # Map Claude models to Qwen3.6-Plus-Free
+          PREFERRED_PROVIDER: openai
+          BIG_MODEL: qwen3.6-plus-free
+          SMALL_MODEL: qwen3.6-plus-free
+          # Disable Anthropic/Gemini backends (we only use opencode.ai)
+          ANTHROPIC_API_KEY: sk-placeholder
+          GEMINI_API_KEY: sk-placeholder
+        ports:
+          - 8082:8082
+        options: >-
+          --health-cmd "curl -f http://localhost:8082/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
 
     steps:
-      - name: Checkout code
+      # Wait for proxy to be healthy
+      - name: Wait for proxy service
+        run: |
+          echo "Waiting for claude-code-proxy to be ready..."
+          for i in {1..30}; do
+            if curl -f http://localhost:8082/health 2>/dev/null; then
+              echo "Proxy is ready!"
+              exit 0
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+          echo "Proxy failed to start"
+          exit 1
+
+      # Checkout repository (required for Claude Code to analyze code)
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          fetch-depth: 0
 
-      - name: Install Claude Code Router
-        run: npm install -g @musistudio/claude-code-router
-
-      - name: Create router config
-        run: |
-          mkdir -p ~/.claude-code-router
-          cat > ~/.claude-code-router/config.json << EOF
-          {
-            "NON_INTERACTIVE_MODE": true,
-            "API_TIMEOUT_MS": 600000,
-            "Providers": [
-              {
-                "name": "opencode",
-                "api_base_url": "${{ secrets.OPENAI_BASE_URL }}",
-                "api_key": "${{ secrets.OPENROUTER_API_KEY }}",
-                "models": ["${{ secrets.MODEL_NAME }}"]
-              }
-            ],
-            "Router": {
-              "default": "opencode,${{ secrets.MODEL_NAME }}"
-            }
-          }
-          EOF
-
-      - name: Start Claude Code Router in background
-        run: |
-          ccr start &
-          sleep 5
-          # Verify router is running
-          curl --fail http://127.0.0.1:3456/health || exit 1
-
-      - name: Run Claude Code Action
+      # Run Claude Code with proxy endpoint
+      - name: Run Claude Code
         uses: anthropics/claude-code-action@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          anthropic_api_key: "sk-ant-dummy"
+          # Use placeholder key (actual auth happens via proxy)
+          anthropic_api_key: sk-placeholder
+          # Point to the local proxy instead of Anthropic's API
+          claude_args: >-
+            --max-turns 10
+            --model claude-sonnet-4-6
         env:
-          ANTHROPIC_BASE_URL: "http://127.0.0.1:3456"
-          ANTHROPIC_DEFAULT_SONNET_MODEL: ${{ secrets.MODEL_NAME }}
-          ANTHROPIC_DEFAULT_OPUS_MODEL: ${{ secrets.MODEL_NAME }}
-          ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ secrets.MODEL_NAME }}
+          # Override the base URL to use our local proxy
+          ANTHROPIC_BASE_URL: http://localhost:8082
+          
