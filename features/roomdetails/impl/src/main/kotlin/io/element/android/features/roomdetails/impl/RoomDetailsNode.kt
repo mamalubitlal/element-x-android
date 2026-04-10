@@ -8,7 +8,9 @@
 
 package io.element.android.features.roomdetails.impl
 
+import android.app.Activity
 import android.content.Context
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,17 +25,28 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
 import im.vector.app.features.analytics.plan.MobileScreen
 import io.element.android.annotations.ContributesNode
+import io.element.android.features.call.api.CallType
+import io.element.android.features.call.api.ElementCallEntryPoint
 import io.element.android.features.leaveroom.api.LeaveRoomRenderer
+import io.element.android.libraries.androidutils.system.openUrlInExternalApp
 import io.element.android.libraries.androidutils.system.startSharePlainTextIntent
 import io.element.android.libraries.architecture.appyx.launchMolecule
 import io.element.android.libraries.architecture.callback
 import io.element.android.libraries.di.RoomScope
+import io.element.android.libraries.matrix.api.core.EventId
+import io.element.android.libraries.matrix.api.core.SessionId
 import io.element.android.libraries.matrix.api.core.UserId
 import io.element.android.libraries.matrix.api.notification.CallIntent
 import io.element.android.libraries.matrix.api.room.BaseRoom
+import io.element.android.libraries.matrix.api.room.JoinedRoom
+import io.element.android.libraries.matrix.api.room.powerlevels.canCall
+import io.element.android.libraries.matrix.api.timeline.Timeline
+import io.element.android.libraries.matrix.api.timeline.item.TimelineEvent
 import io.element.android.services.analytics.api.AnalyticsService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.jitsi.meet.sdk.JitsiMeet
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
 import timber.log.Timber
 import io.element.android.libraries.androidutils.R as AndroidUtilsR
 
@@ -46,6 +59,7 @@ class RoomDetailsNode(
     private val room: BaseRoom,
     private val analyticsService: AnalyticsService,
     private val leaveRoomRenderer: LeaveRoomRenderer,
+    private val elementCallEntryPoint: ElementCallEntryPoint,
 ) : Node(buildContext, plugins = plugins) {
     interface Callback : Plugin {
         fun navigateToRoomMemberList()
@@ -66,6 +80,61 @@ class RoomDetailsNode(
     }
 
     private val callback: Callback = callback()
+
+    /**
+     * Generates a random 32-character room name for Jitsi calls.
+     */
+    private fun generateRandomRoomName(): String {
+        val chars = "abcdefghijklmnopqrstuvwxyz0123456789"
+        return (1..32)
+            .map { chars.random() }
+            .joinToString("")
+    }
+
+    /**
+     * Handles room call with Element Call fallback to Jitsi.
+     * If Element Call is available, uses it; otherwise falls back to Jitsi.
+     */
+    private fun handleRoomCall(callIntent: CallIntent) {
+        // Check if Element Call is available by checking the room call state
+        val roomCallState = state.roomCallState
+        if (roomCallState.hasPermissionToJoin()) {
+            // Element Call is available, use it
+            callback.navigateToRoomCall(callIntent)
+        } else {
+            // Element Call not available, fall back to Jitsi
+            val roomName = generateRandomRoomName()
+            
+            // Send the Jitsi link to the room (only if we're in a joined room)
+            if (room is JoinedRoom) {
+                val joinedRoom = room as JoinedRoom
+                val jitsiUrl = "https://meet.jit.si/$roomName"
+                lifecycleScope.launch {
+                    joinedRoom.liveTimeline.sendMessage(
+                        body = "Jitsi видеозвонок: $jitsiUrl",
+                        htmlBody = "Jitsi видеозвонок: <a href=\"$jitsiUrl\">$jitsiUrl</a>",
+                        intentionalMentions = emptyList(),
+                    )
+                }
+                
+                // Join the Jitsi meeting using the SDK
+                val activity = LocalActivity.current ?: return
+                try {
+                    val options = JitsiMeetConferenceOptions.Builder()
+                        .setRoom($roomName)
+                        .setServerURL("https://meet.jit.si")
+                        .setFeatureFlag("invite.enabled", false)
+                        .setFeatureFlag("kick.enabled", false)
+                        .setFeatureFlag("security.enabled", false)
+                        .build()
+                    JitsiMeet.join(activity, options)
+                } catch (e: Exception) {
+                    // Fallback to external browser if SDK fails
+                    activity.openUrlInExternalApp("https://meet.jit.si/$roomName")
+                }
+            }
+        }
+    }
 
     init {
         lifecycle.subscribe(
@@ -129,7 +198,7 @@ class RoomDetailsNode(
             openPollHistory = callback::navigateToPollHistory,
             openMediaGallery = callback::navigateToMediaGallery,
             openAdminSettings = callback::navigateToAdminSettings,
-            onJoinCallClick = callback::navigateToRoomCall,
+            onJoinCallClick = { callIntent -> handleRoomCall(callIntent) },
             onPinnedMessagesClick = callback::navigateToPinnedMessagesList,
             onKnockRequestsClick = callback::navigateToKnockRequestsList,
             onSecurityAndPrivacyClick = callback::navigateToSecurityAndPrivacy,
