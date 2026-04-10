@@ -18,29 +18,53 @@ jobs:
       pull-requests: write
       issues: write
 
-    services:
-      claude-proxy:
-        image: ghcr.io/1rgs/claude-code-proxy:latest
-        ports:
-          - 8082:8082
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
-          PREFERRED_PROVIDER: "openai"
-          BIG_MODEL: ${{ secrets.MODEL_NAME }}
-          SMALL_MODEL: ${{ secrets.MODEL_NAME }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Claude Code Router
+        run: npm install -g @musistudio/claude-code-router
+
+      - name: Create router config
+        run: |
+          mkdir -p ~/.claude-code-router
+          cat > ~/.claude-code-router/config.json << EOF
+          {
+            "NON_INTERACTIVE_MODE": true,
+            "API_TIMEOUT_MS": 600000,
+            "Providers": [
+              {
+                "name": "opencode",
+                "api_base_url": "${{ secrets.OPENAI_BASE_URL }}",
+                "api_key": "${{ secrets.OPENROUTER_API_KEY }}",
+                "models": ["${{ secrets.MODEL_NAME }}"]
+              }
+            ],
+            "Router": {
+              "default": "opencode,${{ secrets.MODEL_NAME }}"
+            }
+          }
+          EOF
+
+      - name: Start Claude Code Router in background
+        run: |
+          ccr start &
+          sleep 5
+          # Verify router is running
+          curl --fail http://127.0.0.1:3456/health || exit 1
+
       - name: Run Claude Code Action
         uses: anthropics/claude-code-action@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}   # ✅ ADDED – required for commenting
-          anthropic_api_key: "sk-ant-dummy"           # ✅ Changed to Anthropic‑format placeholder
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          anthropic_api_key: "sk-ant-dummy"
         env:
-          ANTHROPIC_BASE_URL: "http://localhost:8082"
+          ANTHROPIC_BASE_URL: "http://127.0.0.1:3456"
           ANTHROPIC_DEFAULT_SONNET_MODEL: ${{ secrets.MODEL_NAME }}
           ANTHROPIC_DEFAULT_OPUS_MODEL: ${{ secrets.MODEL_NAME }}
           ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ secrets.MODEL_NAME }}
