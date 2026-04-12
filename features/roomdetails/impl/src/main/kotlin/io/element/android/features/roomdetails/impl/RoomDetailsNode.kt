@@ -98,10 +98,9 @@ class RoomDetailsNode(
             
             // Send the Jitsi link to the room (only if we're in a joined room)
             if (room is JoinedRoom) {
-                val joinedRoom = room as JoinedRoom
                 val jitsiUrl = "https://meet.jit.si/$roomName"
                 lifecycleScope.launch {
-                    joinedRoom.liveTimeline.sendMessage(
+                    room.liveTimeline.sendMessage(
                         body = "Jitsi видеозвонок: $jitsiUrl",
                         htmlBody = "Jitsi видеозвонок: <a href=\"$jitsiUrl\">$jitsiUrl</a>",
                         intentionalMentions = emptyList(),
