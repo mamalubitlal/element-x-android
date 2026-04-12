@@ -8,9 +8,7 @@
 
 package io.element.android.features.roomdetails.impl
 
-import android.app.Activity
 import android.content.Context
-import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -88,9 +86,7 @@ class RoomDetailsNode(
      * Handles room call with Element Call fallback to Jitsi (external browser).
      * If Element Call is available, uses it; otherwise opens Jitsi in external browser.
      */
-    private fun handleRoomCall(callIntent: CallIntent) {
-        // Check if Element Call is available by checking the room call state
-        val roomCallState = state.roomCallState
+    private fun handleRoomCall(callIntent: CallIntent, roomCallState: RoomCallState) {
         if (roomCallState.hasPermissionToJoin()) {
             // Element Call is available, use it
             callback.navigateToRoomCall(callIntent)
@@ -110,10 +106,6 @@ class RoomDetailsNode(
                     )
                 }
             }
-            
-            // Open Jitsi meeting in external browser
-            val activity = LocalActivity.current ?: return
-            activity.openUrlInExternalApp("https://meet.jit.si/$roomName")
         }
     }
 
@@ -155,6 +147,15 @@ class RoomDetailsNode(
             lifecycleScope.onShareRoom(context)
         }
 
+        fun onJoinCallClick(callIntent: CallIntent) {
+            handleRoomCall(callIntent, state.roomCallState)
+            // Open Jitsi in external browser if Element Call is not available
+            if (!state.roomCallState.hasPermissionToJoin()) {
+                val roomName = generateRandomRoomName()
+                context.openUrlInExternalApp("https://meet.jit.si/$roomName")
+            }
+        }
+
         fun onActionClick(action: RoomDetailsAction) {
             when (action) {
                 RoomDetailsAction.Edit -> {
@@ -179,7 +180,7 @@ class RoomDetailsNode(
             openPollHistory = callback::navigateToPollHistory,
             openMediaGallery = callback::navigateToMediaGallery,
             openAdminSettings = callback::navigateToAdminSettings,
-            onJoinCallClick = { callIntent -> handleRoomCall(callIntent) },
+            onJoinCallClick = ::onJoinCallClick,
             onPinnedMessagesClick = callback::navigateToPinnedMessagesList,
             onKnockRequestsClick = callback::navigateToKnockRequestsList,
             onSecurityAndPrivacyClick = callback::navigateToSecurityAndPrivacy,
