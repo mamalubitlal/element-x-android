@@ -254,54 +254,54 @@ androidComponents {
 setupDependencyInjection()
 
     dependencies {
-        allLibrariesImpl()
-        allServicesImpl()
-        if (isEnterpriseBuild) {
-            allEnterpriseImpl(project)
-            implementation(projects.appicon.enterprise)
-        } else {
-            implementation(projects.features.enterprise.implFoss)
-            implementation(projects.appicon.element)
-        }
-        allFeaturesImpl(project)
-        implementation(projects.features.migration.api)
-        implementation(projects.appnav)
-        implementation(projects.libraries.dpi.impl)
-        implementation(projects.appconfig)
-        implementation(projects.libraries.uiStrings)
-        implementation(projects.services.analytics.compose)
-
-        if (ModulesConfig.pushProvidersConfig.includeFirebase) {
-            "gplayImplementation"(projects.libraries.pushproviders.firebase)
-        }
-        if (ModulesConfig.pushProvidersConfig.includeUnifiedPush) {
-            implementation(projects.libraries.pushproviders.unifiedpush)
-        }
-
-        implementation(libs.appyx.core)
-        implementation("com.google.code.gson:gson:2.10.1")
-        implementation(libs.androidx.splash)
-        implementation(libs.androidx.core)
-        implementation(libs.androidx.corektx)
-        implementation(libs.androidx.lifecycle.runtime)
-        implementation(libs.androidx.lifecycle.process)
-        implementation(libs.androidx.activity.compose)
-        implementation(libs.androidx.startup)
-        implementation(libs.androidx.preference)
-        implementation(libs.coil)
-
-        implementation(platform(libs.network.okhttp.bom))
-        implementation(libs.network.okhttp.logging)
-        implementation(libs.serialization.json)
-
-        implementation(libs.matrix.emojibase.bindings)
-        // Jitsi Meet SDK for video conferencing
-        implementation("org.jitsi.meet.sdk:jitsi-meet-sdk:5.2.2")
-
-        testCommonDependencies(libs)
-        testImplementation(projects.libraries.matrix.test)
-        testImplementation(projects.services.toolbox.test)
+    allLibrariesImpl()
+    allServicesImpl()
+    if (isEnterpriseBuild) {
+        allEnterpriseImpl(project)
+        implementation(projects.appicon.enterprise)
+    } else {
+        implementation(projects.features.enterprise.implFoss)
+        implementation(projects.appicon.element)
     }
+    allFeaturesImpl(project)
+    implementation(projects.features.migration.api)
+    implementation(projects.appnav)
+    implementation(projects.libraries.dpi.impl)
+    implementation(projects.appconfig)
+    implementation(projects.libraries.uiStrings)
+    implementation(projects.services.analytics.compose)
+
+    if (ModulesConfig.pushProvidersConfig.includeFirebase) {
+        "gplayImplementation"(projects.libraries.pushproviders.firebase)
+    }
+    if (ModulesConfig.pushProvidersConfig.includeUnifiedPush) {
+        implementation(projects.libraries.pushproviders.unifiedpush)
+    }
+
+    implementation(libs.appyx.core)
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.androidx.splash)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.corektx)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.startup)
+    implementation(libs.androidx.preference)
+    implementation(libs.coil)
+
+    implementation(platform(libs.network.okhttp.bom))
+    implementation(libs.network.okhttp.logging)
+    implementation(libs.serialization.json)
+
+    implementation(libs.matrix.emojibase.bindings)
+    // Jitsi Meet SDK for video conferencing
+    implementation("com.github.jitsi:jitsi-meet-sdk-android:5.2.2")
+
+    testCommonDependencies(libs)
+    testImplementation(projects.libraries.matrix.test)
+    testImplementation(projects.services.toolbox.test)
+}
 
 tasks.withType<GenerateBuildConfig>().configureEach {
     outputs.upToDateWhen { false }
