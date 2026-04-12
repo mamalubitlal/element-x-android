@@ -77,9 +77,8 @@ object Versions {
 
     /**
      * Minimum SDK version for FOSS builds.
-     * Changed from 24 to 26 for Jitsi SDK compatibility.
      */
-    private const val MIN_SDK_FOSS = 26
+    private const val MIN_SDK_FOSS = 24
 
     /**
      * Minimum SDK version for Enterprise builds.
