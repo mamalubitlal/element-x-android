@@ -46,6 +46,9 @@ jobs:
         with:
           cache-read-only: false
       
+      - name: Clear Jitsi SDK cache
+        run: rm -rf ~/.gradle/caches/transforms-* ~/.gradle/caches/modules-*/files-*/org.jitsi* 2>/dev/null || true
+      
       - name: Build GPlay Debug APK
         env:
           GITHUB_ACTOR: ${{ github.actor }}
