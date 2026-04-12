@@ -19,9 +19,6 @@ import io.element.android.x.info.logApplicationInfo
 import io.element.android.x.initializer.CacheCleanerInitializer
 import io.element.android.x.initializer.CrashInitializer
 import io.element.android.x.initializer.PlatformInitializer
-import org.jitsi.meet.sdk.JitsiMeet
-import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
-import java.net.MalformedURLException
 import java.util.Locale
 
 class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkConfiguration.Provider {
@@ -36,14 +33,6 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkCo
         
         // Force Russian locale for чатор
         setRussianLocale()
-        
-        // Initialize Jitsi Meet SDK
-        try {
-            JitsiMeetConferenceOptions.DEFAULT_SERVER_URL = "https://meet.jit.si"
-            JitsiMeetConferenceOptions.DEFAULT_WELCOME_PAGE_ENABLED = false
-        } catch (e: MalformedURLException) {
-            // Handle invalid URL
-        }
         
         AppInitializer.getInstance(this).apply {
             initializeComponent(CrashInitializer::class.java)
