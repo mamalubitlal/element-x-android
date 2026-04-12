@@ -9,7 +9,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Override minSdk for Jitsi SDK and its transitive deps (require 26, but we support 24+) -->
-    <uses-sdk tools:overrideLibrary="org.jitsi.meet.sdk, com.giphyreactnativesdk" />
+    <uses-sdk tools:overrideLibrary="org.jitsi.meet.sdk, com.giphyreactnativesdk, com.brentvatne.react" />
 
     <!-- To be able to install APK from the application -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
