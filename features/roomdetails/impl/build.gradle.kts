@@ -62,6 +62,11 @@ dependencies {
     implementation(projects.features.roomdetailsedit.api)
     implementation(projects.features.invitepeople.api)
 
+    // Jitsi SDK for embedded group calls
+    implementation("org.jitsi.react:jitsi-meet-sdk:+") {
+        isTransitive = true
+    }
+
     testCommonDependencies(libs, true)
     testImplementation(projects.libraries.matrix.test)
     testImplementation(projects.libraries.mediaupload.test)
