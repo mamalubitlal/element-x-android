@@ -295,8 +295,7 @@ setupDependencyInjection()
     implementation(libs.serialization.json)
 
     implementation(libs.matrix.emojibase.bindings)
-    // Jitsi Meet SDK for video conferencing (via JitPack)
-    implementation("com.github.jitsi:jitsi-meet-sdk-android:5.2.2")
+    // Jitsi fallback for group calls (uses external browser, no SDK dependency needed)
 
     testCommonDependencies(libs)
     testImplementation(projects.libraries.matrix.test)
