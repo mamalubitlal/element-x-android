@@ -331,6 +331,7 @@ licensee {
     ignoreDependencies(groupId = "io.element.android")
     // Ignore Jitsi SDK React Native (Facebook) dependencies - they use MIT/Apache-2.0
     ignoreDependencies(groupId = "com.facebook.react")
+    ignoreDependencies(groupId = "com.facebook")
 }
 
 fun Project.configureLicensesTasks(reportingExtension: ReportingExtension) {
