@@ -19,9 +19,6 @@ dependencyResolutionManagement {
     repositories {
         maven {
             url = uri("https://www.jitpack.io")
-            content {
-                includeModule("com.github.matrix-org", "matrix-analytics-events")
-            }
         }
         google()
         mavenCentral()
