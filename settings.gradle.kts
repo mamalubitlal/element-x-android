@@ -28,6 +28,10 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://repo1.maven.org/maven2/")
         }
+        // Jitsi Meet SDK
+        maven {
+            url = uri("https://github.com/jitsi/jitsi-maven-repository/raw/master/releases")
+        }
         flatDir {
             dirs("libraries/matrix/libs")
         }
