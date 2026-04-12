@@ -46,14 +46,17 @@ jobs:
         with:
           cache-read-only: false
       
-      - name: Clear Jitsi SDK cache
-        run: rm -rf ~/.gradle/caches/transforms-* ~/.gradle/caches/modules-*/files-*/org.jitsi* 2>/dev/null || true
+      - name: Clear Gradle caches
+        run: |
+          rm -rf ~/.gradle/caches/transforms-* 2>/dev/null || true
+          rm -rf ~/.gradle/caches/modules-*/files-*/org.jitsi* 2>/dev/null || true
+          rm -rf ~/.gradle/caches/jars-* 2>/dev/null || true
       
       - name: Build GPlay Debug APK
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :app:assembleGplayDebug $CI_GRADLE_ARG_PROPERTIES
+        run: ./gradlew :app:assembleGplayDebug --no-build-cache $CI_GRADLE_ARG_PROPERTIES
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
