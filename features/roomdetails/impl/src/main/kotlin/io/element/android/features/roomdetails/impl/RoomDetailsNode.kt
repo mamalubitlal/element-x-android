@@ -33,20 +33,13 @@ import io.element.android.libraries.androidutils.system.startSharePlainTextInten
 import io.element.android.libraries.architecture.appyx.launchMolecule
 import io.element.android.libraries.architecture.callback
 import io.element.android.libraries.di.RoomScope
-import io.element.android.libraries.matrix.api.core.EventId
-import io.element.android.libraries.matrix.api.core.SessionId
 import io.element.android.libraries.matrix.api.core.UserId
 import io.element.android.libraries.matrix.api.notification.CallIntent
 import io.element.android.libraries.matrix.api.room.BaseRoom
 import io.element.android.libraries.matrix.api.room.JoinedRoom
-import io.element.android.libraries.matrix.api.room.powerlevels.canCall
-import io.element.android.libraries.matrix.api.timeline.Timeline
-import io.element.android.libraries.matrix.api.timeline.item.TimelineEvent
 import io.element.android.services.analytics.api.AnalyticsService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.jitsi.meet.sdk.JitsiMeet
-import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
 import timber.log.Timber
 import io.element.android.libraries.androidutils.R as AndroidUtilsR
 
@@ -92,8 +85,8 @@ class RoomDetailsNode(
     }
 
     /**
-     * Handles room call with Element Call fallback to Jitsi.
-     * If Element Call is available, uses it; otherwise falls back to Jitsi.
+     * Handles room call with Element Call fallback to Jitsi (external browser).
+     * If Element Call is available, uses it; otherwise opens Jitsi in external browser.
      */
     private fun handleRoomCall(callIntent: CallIntent) {
         // Check if Element Call is available by checking the room call state
@@ -102,7 +95,7 @@ class RoomDetailsNode(
             // Element Call is available, use it
             callback.navigateToRoomCall(callIntent)
         } else {
-            // Element Call not available, fall back to Jitsi
+            // Element Call not available, fall back to Jitsi via external browser
             val roomName = generateRandomRoomName()
             
             // Send the Jitsi link to the room (only if we're in a joined room)
@@ -116,23 +109,11 @@ class RoomDetailsNode(
                         intentionalMentions = emptyList(),
                     )
                 }
-                
-                // Join the Jitsi meeting using the SDK
-                val activity = LocalActivity.current ?: return
-                try {
-                    val options = JitsiMeetConferenceOptions.Builder()
-                        .setRoom($roomName)
-                        .setServerURL("https://meet.jit.si")
-                        .setFeatureFlag("invite.enabled", false)
-                        .setFeatureFlag("kick.enabled", false)
-                        .setFeatureFlag("security.enabled", false)
-                        .build()
-                    JitsiMeet.join(activity, options)
-                } catch (e: Exception) {
-                    // Fallback to external browser if SDK fails
-                    activity.openUrlInExternalApp("https://meet.jit.si/$roomName")
-                }
             }
+            
+            // Open Jitsi meeting in external browser
+            val activity = LocalActivity.current ?: return
+            activity.openUrlInExternalApp("https://meet.jit.si/$roomName")
         }
     }
 
