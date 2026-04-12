@@ -8,9 +8,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Override minSdk for Jitsi SDK and all React Native transitive deps -->
-    <uses-sdk tools:overrideLibrary="org.jitsi.meet.sdk, com.giphyreactnativesdk, com.brentvatne.react, com.facebook.react" />
-
     <!-- To be able to install APK from the application -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     
@@ -20,7 +17,6 @@
     <application
         android:name=".ElementXApplication"
         android:allowBackup="false"
-        tools:replace="android:allowBackup"
         android:appCategory="social"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
