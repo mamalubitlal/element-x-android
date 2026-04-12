@@ -295,7 +295,10 @@ setupDependencyInjection()
     implementation(libs.serialization.json)
 
     implementation(libs.matrix.emojibase.bindings)
-    // Jitsi fallback for group calls (uses external browser, no SDK dependency needed)
+    // Jitsi SDK for embedded group calls with browser fallback
+    implementation("org.jitsi.react:jitsi-meet-sdk:+") {
+        isTransitive = true
+    }
 
     testCommonDependencies(libs)
     testImplementation(projects.libraries.matrix.test)

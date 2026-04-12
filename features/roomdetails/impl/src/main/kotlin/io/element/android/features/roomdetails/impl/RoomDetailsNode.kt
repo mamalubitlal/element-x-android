@@ -40,6 +40,8 @@ import io.element.android.libraries.matrix.api.room.JoinedRoom
 import io.element.android.services.analytics.api.AnalyticsService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.jitsi.meet.sdk.JitsiMeetActivity
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
 import timber.log.Timber
 import io.element.android.libraries.androidutils.R as AndroidUtilsR
 
@@ -54,6 +56,10 @@ class RoomDetailsNode(
     private val leaveRoomRenderer: LeaveRoomRenderer,
     private val elementCallEntryPoint: ElementCallEntryPoint,
 ) : Node(buildContext, plugins = plugins) {
+    companion object {
+        private val loggerTag = Timber.tag("RoomDetailsNode")
+    }
+
     interface Callback : Plugin {
         fun navigateToRoomMemberList()
         fun navigateToInviteMembers()
@@ -85,29 +91,78 @@ class RoomDetailsNode(
     }
 
     /**
-     * Handles room call with Element Call fallback to Jitsi (external browser).
-     * If Element Call is available, uses it; otherwise opens Jitsi in external browser.
+     * Cascading fallback for group calls:
+     * 1. Element Call (if hasPermissionToJoin)
+     * 2. Embedded Jitsi SDK
+     * 3. External browser fallback
      */
-    private fun handleRoomCall(callIntent: CallIntent, roomCallState: RoomCallState) {
+    private fun handleRoomCall(context: Context, callIntent: CallIntent, roomCallState: RoomCallState) {
         if (roomCallState.hasPermissionToJoin()) {
-            // Element Call is available, use it
-            callback.navigateToRoomCall(callIntent)
-        } else {
-            // Element Call not available, fall back to Jitsi via external browser
-            val roomName = generateRandomRoomName()
-            
-            // Send the Jitsi link to the room (only if we're in a joined room)
-            if (room is JoinedRoom) {
-                val jitsiUrl = "https://meet.jit.si/$roomName"
-                lifecycleScope.launch {
-                    room.liveTimeline.sendMessage(
-                        body = "Jitsi видеозвонок: $jitsiUrl",
-                        htmlBody = "Jitsi видеозвонок: <a href=\"$jitsiUrl\">$jitsiUrl</a>",
-                        intentionalMentions = emptyList(),
-                    )
-                }
+            // Step 1: Try Element Call first
+            try {
+                callback.navigateToRoomCall(callIntent)
+                return
+            } catch (e: Exception) {
+                loggerTag.w(e, "Element Call failed, trying Jitsi SDK")
             }
         }
+
+        // Step 2: Try embedded Jitsi SDK
+        val roomName = generateRandomRoomName()
+        if (launchJitsiMeeting(context, roomName)) {
+            // Jitsi SDK launched successfully
+            sendJitsiNotification(roomName)
+            return
+        }
+
+        // Step 3: Fall back to external browser
+        loggerTag.d("Jitsi SDK unavailable, using browser fallback")
+        launchJitsiBrowserFallback(context, roomName)
+    }
+
+    /**
+     * Attempts to launch Jitsi meeting using the embedded SDK.
+     * @return true if SDK was available and launched, false otherwise
+     */
+    private fun launchJitsiMeeting(context: Context, roomName: String): Boolean {
+        return try {
+            val jitsiUrl = "https://meet.jit.si/$roomName"
+            val options = JitsiMeetConferenceOptions.Builder()
+                .setRoom(jitsiUrl)
+                .build()
+            JitsiMeetActivity.launch(context, options)
+            true
+        } catch (e: Exception) {
+            loggerTag.w(e, "Jitsi SDK not available")
+            false
+        }
+    }
+
+    /**
+     * Sends Jitsi meeting link to the room chat.
+     */
+    private fun sendJitsiNotification(roomName: String) {
+        if (room is JoinedRoom) {
+            val jitsiUrl = "https://meet.jit.si/$roomName"
+            lifecycleScope.launch {
+                room.liveTimeline.sendMessage(
+                    body = "Jitsi видеозвонок: $jitsiUrl",
+                    htmlBody = "Jitsi видеозвонок: <a href=\"$jitsiUrl\">$jitsiUrl</a>",
+                    intentionalMentions = emptyList(),
+                )
+            }
+        }
+    }
+
+    /**
+     * Opens Jitsi meeting in external browser as final fallback.
+     */
+    private fun launchJitsiBrowserFallback(context: Context, roomName: String) {
+        val jitsiUrl = "https://meet.jit.si/$roomName"
+        // Send notification first
+        sendJitsiNotification(roomName)
+        // Then open in browser
+        context.openUrlInExternalApp(jitsiUrl)
     }
 
     init {
@@ -149,12 +204,7 @@ class RoomDetailsNode(
         }
 
         fun onJoinCallClick(callIntent: CallIntent) {
-            handleRoomCall(callIntent, state.roomCallState)
-            // Open Jitsi in external browser if Element Call is not available
-            if (!state.roomCallState.hasPermissionToJoin()) {
-                val roomName = generateRandomRoomName()
-                context.openUrlInExternalApp("https://meet.jit.si/$roomName")
-            }
+            handleRoomCall(context, callIntent, state.roomCallState)
         }
 
         fun onActionClick(action: RoomDetailsAction) {
