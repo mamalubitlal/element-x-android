@@ -3,7 +3,7 @@ appId: ${MAESTRO_APP_ID}
 # Single login attempt (one shot).
 # The shell wrapper (.github/workflows/scripts/dpi-bypass-test.sh) handles the retry loop
 # by re-running this flow if connection errors occur.
-- tapOn: "Sign in manually"
+- tapOn: "Войти"
 - runFlow: ../assertions/assertLoginDisplayed.yaml
 - runFlow: ../account/changeServer.yaml
 - tapOn:
