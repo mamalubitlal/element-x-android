@@ -1,32 +1,28 @@
-# Чатор — Свободный мессенджер
+# Чатор
 
 <img src="./chator-logo.png" alt="Чатор" width="150">
 
-Свободный мессенджер на базе [Matrix](https://matrix.org/) — альтернатива навязанным мессенджерам. Работает, не блокируется, принадлежит вам.
+Свободный Android-мессенджер с поддержкой Matrix.
 
 [![Скачать](https://img.shields.io/github/v/release/mamalubitlal/element-x-android?label=Скачать)](https://github.com/mamalubitlal/element-x-android/releases)
-[![Лицензия](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
+[![AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 
 ---
 
-## О проекте
-
-**Чатор** — самостоятельный Matrix-клиент для Android с русскоязычным интерфейсом.
-
-### Особенности
+## Особенности
 
 | | |
 |---|---|
 | 🇷🇺 | Русский интерфейс |
-| 📞 | Групповые звонки (Jitsi Meet) |
-| 🔒 | E2E шифрование |
-| 🌐 | Любой Matrix-сервер |
+| 🔒 | E2E шифрование (Matrix) |
+| 📞 | Групповые звонки через Jitsi Meet |
+| 🌐 | Работает с любым Matrix-сервером |
+| 🔓 | **Обход DPI** — для сетей с ограничениями |
 
-### Стек
+## Требования
 
-- **UI**: Jetpack Compose + Material 3
-- **Backend**: Matrix Rust SDK
-- **Min Android**: 8.0 (API 26)
+- **Android 8.0** (API 26) и выше
+- ARM64-v8a, ARMv7, x86_64 или x86 процессор
 
 ## Установка
 
@@ -36,19 +32,16 @@
 
 ```bash
 git clone https://github.com/mamalubitlal/element-x-android.git
+cd element-x-android
 ./gradlew :app:assembleGplayDebug
 ```
 
-APK: `app/build/outputs/apk/gplay/debug/`
+APK появится в `app/build/outputs/apk/gplay/debug/`.
 
-## Баги
+## Баги и предложения
 
-[GitHub Issues](https://github.com/mamalubitlal/element-x-android/issues) или через настройки приложения.
+[GitHub Issues](https://github.com/mamalubitlal/element-x-android/issues) — также можно отправить через настройки приложения.
 
 ## Лицензия
 
-Copyright (c) 2025 Element Creations Ltd. — [AGPL-3.0](LICENSE)
-
-## Активность
-
-<img src="https://raw.githubusercontent.com/mamalubitlal/element-x-android/develop/dist/snake.svg" alt="GitHub Contribution Snake">
+[AGPL-3.0](LICENSE) — Copyright (c) 2025 uggan
