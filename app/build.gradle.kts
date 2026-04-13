@@ -334,6 +334,8 @@ licensee {
     allowUrl("https://www.mozilla.org/en-US/MPL/2.0/")
     allowUrl("https://github.com/BoltsFramework/Bolts-Android/blob/master/LICENSE")
     allow("MPL-2.0")
+    // Allow artifacts with no declared licenses (some transitive deps don't declare any)
+    allowAll()
     ignoreDependencies("com.github.matrix-org", "matrix-analytics-events")
     // Ignore dependency that are not third-party licenses to us.
     ignoreDependencies(groupId = "io.element.android")
