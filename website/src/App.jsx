@@ -1,0 +1,373 @@
+import { useState, useEffect, useRef } from "react";
+import logo from "./chator-logo.png";
+import { translations } from "./translations";
+
+/* ─── helpers ─── */
+function useLang() {
+  const [lang, setLang] = useState(() => localStorage.getItem("chator_lang") || "ru");
+  const t = translations[lang] || translations.ru;
+  const toggle = () => {
+    const next = lang === "ru" ? "en" : "ru";
+    setLang(next);
+    localStorage.setItem("chator_lang", next);
+  };
+  return { lang, t, toggle };
+}
+
+function useReveal() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { e.target.classList.add("visible"); obs.unobserve(e.target); } },
+      { threshold: 0.15 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return ref;
+}
+
+/* ─── Reveal wrapper ─── */
+function Reveal({ children, className = "" }) {
+  const ref = useReveal();
+  return (
+    <div ref={ref} className={`reveal ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+/* ─── TYPEWRITER HOOK ─── */
+function useTypewriter(text, speed = 55, delay = 0) {
+  const [displayed, setDisplayed] = useState("");
+  useEffect(() => {
+    setDisplayed("");
+    const t = setTimeout(() => {
+      let i = 0;
+      const interval = setInterval(() => {
+        setDisplayed(text.slice(0, i + 1));
+        i++;
+        if (i >= text.length) clearInterval(interval);
+      }, speed);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(t);
+  }, [text, speed, delay]);
+  return displayed;
+}
+
+/* ─── NAV ─── */
+function Nav({ t, lang, toggleLang }) {
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
+
+  return (
+    <nav className="nav">
+      <div className="nav__inner">
+        <a href="#" className="nav__logo" onClick={close}>
+          <img src={logo} alt="Чатор" width="32" height="32" />
+          <span>{t.logo_name}</span>
+        </a>
+        <button className="nav__burger" onClick={() => setOpen(!open)} aria-label="Menu">
+          <span /><span /><span />
+        </button>
+        <ul className={`nav__links ${open ? "open" : ""}`}>
+          <li><a href="#features" onClick={close}>{t.nav_features}</a></li>
+          <li><a href="#about" onClick={close}>{t.nav_about}</a></li>
+          <li><a href="#screenshots" onClick={close}>{t.nav_screenshots}</a></li>
+          <li><a href="#install" onClick={close}>{t.nav_install}</a></li>
+          <li><a href="#contribute" onClick={close}>{t.nav_contribute}</a></li>
+          <li>
+            <button className="lang-btn" onClick={toggleLang}>{t.lang_switch_label}</button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  );
+}
+
+/* ─── HERO ─── */
+function Hero({ t }) {
+  const heroTitle = useTypewriter(t.hero_title, 55, 400);
+  const heroAccent = useTypewriter(t.hero_title_accent, 45, 1100);
+  const msgs = [
+    { type: "other", name: "Алексей", avatar: "linear-gradient(135deg,#6366f1,#4f46e5)", letter: "А", text: t.hero_chat_1 },
+    { type: "self", text: t.hero_chat_2, first: true },
+    { type: "other", name: "Алексей", avatar: "linear-gradient(135deg,#6366f1,#4f46e5)", letter: "А", text: t.hero_chat_3 },
+    { type: "self", text: t.hero_chat_4, group: true },
+    { type: "self", text: t.hero_chat_5 },
+  ];
+
+  return (
+    <header className="hero">
+      {/* Decorative diagonal slashes */}
+      <div className="diagonal-slash diagonal-slash--tl" />
+      <div className="diagonal-slash diagonal-slash--tr" />
+      <div className="diagonal-slash diagonal-slash--bl" />
+      <div className="diagonal-slash diagonal-slash--br" />
+      <div className="particles">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div className="particle" key={i} />
+        ))}
+      </div>
+      <div className="hero__inner">
+        <div className="hero__text">
+          <h1 className="hero__title">
+            {heroTitle}<span className="accent">{heroAccent}</span><span className="cursor" />
+          </h1>
+          <p className="hero__subtitle">{t.hero_subtitle}</p>
+          <div className="hero__actions">
+            <a href="https://github.com/mamalubitlal/element-x-android/releases" className="btn btn--primary" target="_blank" rel="noopener">
+              {t.hero_download}
+            </a>
+            <a href="https://github.com/mamalubitlal/element-x-android" className="btn btn--outline" target="_blank" rel="noopener">
+              {t.hero_github}
+            </a>
+          </div>
+        </div>
+        <div className="phone">
+          <div className="phone__screen">
+            <div className="phone__topbar">
+              <svg className="phone__back" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              <div className="phone__room-avatar">Ч</div>
+              <div className="phone__room-info">
+                <span className="phone__room-name">{t.logo_name}</span>
+                <span className="phone__room-members">{t.phone_member_count || ""}</span>
+              </div>
+            </div>
+            <div className="phone__body">
+              {msgs.map((m, i) => {
+                if (m.type === "other") return (
+                  <div key={i} className="tl-row tl-row--other">
+                    <div className="tl-avatar" style={{ background: m.avatar }}>{m.letter}</div>
+                    <div className="tl-col">
+                      {m.name && <span className="tl-name">{m.name}</span>}
+                      <div className="tl-body tl-body--first">{m.text}</div>
+                    </div>
+                  </div>
+                );
+                if (m.first) return (
+                  <div key={i} className="tl-row tl-row--self tl-row--first">
+                    <div className="tl-body tl-body--sent">{m.text}</div>
+                  </div>
+                );
+                if (m.group) return (
+                  <div key={i} className="tl-row tl-row--self tl-row--first">
+                    <div className="tl-body tl-body--sent tl-body--group-start">{m.text}</div>
+                  </div>
+                );
+                return (
+                  <div key={i} className="tl-row tl-row--self tl-row--same">
+                    <div className="tl-body tl-body--sent">{m.text}</div>
+                  </div>
+                );
+              })}
+              <div className="tl-receipts">
+                <svg viewBox="0 0 16 12" width="14" height="11" fill="none" stroke="var(--primary-light)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" opacity=".6">
+                  <path d="M1 6l3.5 4L13 1" /><path d="M5 6l3.5 4L13 1" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ─── FEATURES ─── */
+function Features({ t }) {
+  const feats = [
+    { icon: "\uD83C\uDDE7", title: t.feature_russian_title, desc: t.feature_russian_desc },
+    { icon: "\uD83D\uDD12", title: t.feature_crypto_title, desc: t.feature_crypto_desc },
+    { icon: "\uD83D\uDCDE", title: t.feature_calls_title, desc: t.feature_calls_desc },
+  ];
+  return (
+    <section className="features" id="features">
+      <div className="container">
+        <h2 className="section-title">{t.features_title}</h2>
+        <div className="features__grid">
+          {feats.map((f, i) => (
+            <Reveal key={i}>
+              <div className="feature">
+                <div className="feature__icon">{f.icon}</div>
+                <h3>{f.title}</h3>
+                <p>{f.desc}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── ABOUT ─── */
+function About({ t }) {
+  return (
+    <section className="about" id="about">
+      <div className="container">
+        <h2 className="section-title">{t.about_title}</h2>
+        <div className="about__grid">
+          <Reveal>
+            <div className="about__card">
+              <h3>{t.about_matrix_title}</h3>
+              <p>{t.about_matrix_desc}</p>
+              <a href="https://matrix.org" className="about__link" target="_blank" rel="noopener">
+                {t.about_matrix_link} →
+              </a>
+            </div>
+          </Reveal>
+          <Reveal>
+            <div className="about__card">
+              <h3>{t.about_tech_title}</h3>
+              <ul className="about__tech">
+                <li><strong>{t.about_tech_rust}</strong> {t.about_tech_rust_desc}</li>
+                <li><strong>{t.about_tech_compose}</strong> {t.about_tech_compose_desc}</li>
+                <li><strong>{t.about_tech_jitsi}</strong> {t.about_tech_jitsi_desc}</li>
+                <li><strong>{t.about_tech_sso}</strong> {t.about_tech_sso_desc}</li>
+              </ul>
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── SCREENSHOTS ─── */
+function Screenshots({ t }) {
+  const icons = ["\uD83D\uDCF1", "\uD83D\uDCAC", "\uD83D\uDCDE", "\u2699\uFE0F"];
+  return (
+    <section className="screenshots" id="screenshots">
+      <div className="container">
+        <h2 className="section-title">{t.screenshots_title}</h2>
+        {t.screenshots_subtitle && <p className="section-subtitle">{t.screenshots_subtitle}</p>}
+        <div className="screenshots__grid">
+          {icons.map((ic, i) => (
+            <Reveal key={i}>
+              <div className="sshot">
+                <div className="sshot__icon">{ic}</div>
+                Screenshot
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── INSTALL ─── */
+function Install({ t }) {
+  return (
+    <section className="install" id="install">
+      <div className="container">
+        <h2 className="section-title">{t.install_title}</h2>
+        <div className="install__grid">
+          <Reveal>
+            <div className="install__card">
+              <h3>{t.install_apk_title}</h3>
+              <p>{t.install_apk_desc}</p>
+              <a href="https://github.com/mamalubitlal/element-x-android/releases" className="btn btn--primary" target="_blank" rel="noopener">
+                {t.install_apk_btn}
+              </a>
+            </div>
+          </Reveal>
+          <Reveal>
+            <div className="install__card">
+              <h3>{t.install_build_title}</h3>
+              <p>{t.install_build_desc}</p>
+              <pre className="install__code"><code>{`git clone https://github.com/mamalubitlal/element-x-android.git
+cd element-x-android
+# Open in Android Studio → run "app" configuration`}</code></pre>
+              <a href="https://github.com/mamalubitlal/element-x-android/blob/develop/docs/_developer_onboarding.md" className="btn btn--outline" target="_blank" rel="noopener">
+                {t.install_build_btn}
+              </a>
+            </div>
+          </Reveal>
+        </div>
+        <Reveal>
+          <div className="install__reqs">
+            <h4>{t.install_reqs_title}</h4>
+            <ul>
+              <li><strong>{t.install_req_1a}</strong>{t.install_req_1b}</li>
+              <li><strong>{t.install_req_2a}</strong>{t.install_req_2b}</li>
+            </ul>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ─── CONTRIBUTE ─── */
+function Contribute({ t }) {
+  const areas = [
+    { icon: "\uD83D\uDCBB", title: t.contribute_kotlin, desc: t.contribute_kotlin_desc },
+    { icon: "\uD83D\uDC80", title: t.contribute_rust, desc: t.contribute_rust_desc },
+    { icon: "\uD83C\uDF10", title: t.contribute_translate, desc: t.contribute_translate_desc },
+    { icon: "\uD83D\uDCAC", title: t.contribute_matrix, desc: t.contribute_matrix_desc },
+  ];
+  return (
+    <section className="contribute" id="contribute">
+      <div className="container">
+        <h2 className="section-title">{t.contribute_title}</h2>
+        <p className="section-subtitle">{t.contribute_subtitle}</p>
+        <div className="contribute__steps">
+          {areas.map((a, i) => (
+            <Reveal key={i}>
+              <div className="contribute__step">
+                <div className="step-icon">{a.icon}</div>
+                <h3>{a.title}</h3>
+                <p>{a.desc}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <a href="https://github.com/mamalubitlal/element-x-android/issues" className="btn btn--primary" target="_blank" rel="noopener">
+          {t.contribute_btn}
+        </a>
+      </div>
+    </section>
+  );
+}
+
+/* ─── FOOTER ─── */
+function Footer({ t }) {
+  return (
+    <footer className="footer">
+      <div className="container">
+        <div className="footer__inner">
+          <div className="footer__brand">
+            <img src={logo} alt="Чатор" width="26" height="26" />
+            <span>{t.footer_name}</span>
+          </div>
+          <p className="footer__license">{t.footer_legal}</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ─── APP ── */
+export default function App() {
+  const { lang, t, toggle } = useLang();
+  useEffect(() => { document.documentElement.lang = lang; }, [lang]);
+  return (
+    <>
+      <Nav t={t} lang={lang} toggleLang={toggle} />
+      <Hero t={t} />
+      <Features t={t} />
+      <About t={t} />
+      <Screenshots t={t} />
+      <Install t={t} />
+      <Contribute t={t} />
+      <Footer t={t} />
+    </>
+  );
+}
