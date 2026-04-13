@@ -22,6 +22,7 @@ import io.element.android.x.initializer.PlatformInitializer
 import org.jitsi.meet.sdk.JitsiMeet
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
 import timber.log.Timber
+import java.net.URL
 import java.util.Locale
 import io.element.android.libraries.core.log.logger.LoggerTag
 
@@ -60,7 +61,7 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkCo
     private fun initializeJitsiMeet() {
         try {
             val defaultOptions = JitsiMeetConferenceOptions.Builder()
-                .setServerURL("https://meet.jit.si")
+                .setServerURL(URL("https://meet.jit.si"))
                 .setFeatureFlag("add-people.enabled", false)
                 .setFeatureFlag("calendar.enabled", false)
                 .setFeatureFlag("call-integration.enabled", false)
