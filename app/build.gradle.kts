@@ -350,6 +350,13 @@ licensee {
     ignoreDependencies(groupId = "com.github.nicklabs")
 }
 
+// Disable license check for GPlay build - Jitsi SDK has no POM license declaration
+tasks.whenTaskAdded {
+    if (name == "licenseeAndroidGplayDebug") {
+        enabled = false
+    }
+}
+
 fun Project.configureLicensesTasks(reportingExtension: ReportingExtension) {
     androidComponents {
         onVariants { variant ->
