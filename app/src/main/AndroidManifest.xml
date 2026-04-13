@@ -6,7 +6,8 @@
   ~ Please see LICENSE files in the repository root for full details.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:overrideLibrary="org.jitsi.meet.sdk">
 
     <!-- To be able to install APK from the application -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
@@ -169,7 +170,8 @@
             android:name="org.jitsi.meet.sdk.JitsiMeetActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
             android:exported="false"
-            android:theme="@style/Theme.ElementX.Splash" />
+            android:theme="@style/Theme.ElementX.Splash"
+            tools:replace="android:configChanges" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
