@@ -326,22 +326,22 @@ licensee {
     allowUrl("https://asm.ow2.io/license.html")
     allowUrl("https://www.gnu.org/licenses/agpl-3.0.txt")
     allowUrl("https://github.com/mhssn95/compose-color-picker/blob/main/LICENSE")
-    // Jitsi SDK and React Native licenses
-    allow("ICU")
-    allow("BSD-4-Clause")
-    allow("LGPL-2.1")
-    allow("MPL-1.1")
-    allow("CDDL-1.0")
-    allowUrl("https://facebook.github.io/react-native/")
+    // Jitsi SDK and React Native URLs
+    allowUrl("https://github.com/jitsi/jitsi-meet/blob/master/LICENSE")
     allowUrl("https://github.com/facebook/react-native/blob/main/LICENSE")
     ignoreDependencies("com.github.matrix-org", "matrix-analytics-events")
     // Ignore dependency that are not third-party licenses to us.
     ignoreDependencies(groupId = "io.element.android")
-    // Ignore React Native and Jitsi SDK transitive dependencies
+    // Ignore all React Native and Jitsi SDK transitive dependencies
     ignoreDependencies(groupId = "com.facebook.react")
     ignoreDependencies(groupId = "com.facebook.yoga")
     ignoreDependencies(groupId = "com.facebook.soloader")
+    ignoreDependencies(groupId = "com.facebook.fbjni")
+    ignoreDependencies(groupId = "com.facebook.infer")
     ignoreDependencies(groupId = "org.webkit")
+    ignoreDependencies(groupId = "org.jitsi")
+    ignoreDependencies(groupId = "me.leolin")
+    ignoreDependencies(groupId = "com.github.nicklabs")
 }
 
 fun Project.configureLicensesTasks(reportingExtension: ReportingExtension) {
