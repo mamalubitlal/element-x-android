@@ -331,7 +331,7 @@ licensee {
     allow("BSD-4-Clause")
     allow("LGPL-2.1")
     allow("MPL-1.1")
-    allow("CDDL")
+    allow("CDDL-1.0")
     allowUrl("https://facebook.github.io/react-native/")
     allowUrl("https://github.com/facebook/react-native/blob/main/LICENSE")
     ignoreDependencies("com.github.matrix-org", "matrix-analytics-events")
