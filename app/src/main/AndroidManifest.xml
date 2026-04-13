@@ -170,8 +170,7 @@
             android:name="org.jitsi.meet.sdk.JitsiMeetActivity"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
             android:exported="false"
-            android:theme="@style/Theme.ElementX.Splash"
-            tools:replace="android:configChanges" />
+            tools:replace="android:configChanges,android:theme" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
