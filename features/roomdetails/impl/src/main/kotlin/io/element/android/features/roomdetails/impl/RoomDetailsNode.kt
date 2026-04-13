@@ -93,7 +93,7 @@ class RoomDetailsNode(
      * 1. Element Call (if hasPermissionToJoin)
      * 2. Jitsi via external browser
      */
-    private fun handleRoomCall(context: Context, callIntent: CallIntent, roomCallState: RoomCallState) {
+    fun handleRoomCall(context: Context, callIntent: CallIntent, roomCallState: RoomCallState) {
         if (roomCallState.hasPermissionToJoin()) {
             // Step 1: Try Element Call first
             try {

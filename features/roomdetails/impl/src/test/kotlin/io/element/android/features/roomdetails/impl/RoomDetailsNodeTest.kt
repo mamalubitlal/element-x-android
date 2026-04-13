@@ -13,6 +13,7 @@ import com.bumble.appyx.core.plugin.Plugin
 import com.google.common.truth.Truth.assertThat
 import io.element.android.features.call.api.ElementCallEntryPoint
 import io.element.android.features.leaveroom.api.LeaveRoomRenderer
+import io.element.android.features.roomcall.api.RoomCallState
 import io.element.android.libraries.matrix.api.notification.CallIntent
 import io.element.android.libraries.matrix.api.room.BaseRoom
 import io.element.android.libraries.matrix.test.FakeUserId
@@ -72,12 +73,19 @@ class RoomDetailsNodeTest {
     @Test
     fun `given room call state allows join when handleRoomCall then navigates to element call`() = runTest {
         // GIVEN: Room call state allows joining (Element Call available)
-        val fakeRoomCallState = FakeRoomCallState(canJoin = true)
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val roomCallState = RoomCallState.OnGoing(
+            canJoinCall = true,
+            isAudioCall = true,
+            isUserInTheCall = false,
+            isUserLocallyInTheCall = false
+        )
+        val fakeRoomCallState = FakeRoomCallState(roomCallState)
         val presenterState = FakeRoomDetailsState(roomCallState = fakeRoomCallState)
         presenter.state = presenterState
 
         // WHEN
-        roomDetailsNode.handleRoomCall(CallIntent.AUDIO)
+        roomDetailsNode.handleRoomCall(context, CallIntent.AUDIO, roomCallState)
 
         // THEN: Should navigate to Element Call, not use Jitsi
         assertThat(elementCallEntryPoint.navigateToRoomCallCalled).isTrue()
@@ -87,12 +95,17 @@ class RoomDetailsNodeTest {
     @Test
     fun `given room call state does not allow join when handleRoomCall then uses jitsi via browser`() = runTest {
         // GIVEN: Room call state does NOT allow joining (Element Call unavailable)
-        val fakeRoomCallState = FakeRoomCallState(canJoin = false)
+        val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val roomCallState = RoomCallState.StandBy(
+            canStartCall = false,
+            isDM = false
+        )
+        val fakeRoomCallState = FakeRoomCallState(roomCallState)
         val presenterState = FakeRoomDetailsState(roomCallState = fakeRoomCallState)
         presenter.state = presenterState
 
         // WHEN
-        roomDetailsNode.handleRoomCall(CallIntent.VIDEO)
+        roomDetailsNode.handleRoomCall(context, CallIntent.VIDEO, roomCallState)
 
         // THEN: Should NOT navigate to Element Call (Jitsi fallback will be used)
         assertThat(elementCallEntryPoint.navigateToRoomCallCalled).isFalse()
@@ -117,7 +130,7 @@ class RoomDetailsNodeTest {
     }
 
     private class FakeRoomDetailsState(
-        var roomCallState: FakeRoomCallState = FakeRoomCallState()
+        var roomCallState: FakeRoomCallState = FakeRoomCallState(RoomCallState.StandBy(false, false))
     ) : RoomDetailsState(
         roomId = "!test:localhost",
         roomName = "Test Room",
@@ -137,9 +150,7 @@ class RoomDetailsNodeTest {
         override val roomCallState: FakeRoomCallState get() = roomCallState
     }
 
-    private class FakeRoomCallState(var canJoin: Boolean = false) {
-        fun hasPermissionToJoin(): Boolean = canJoin
-    }
+    private class FakeRoomCallState(private val delegate: RoomCallState) : RoomCallState by delegate
 
     private class FakeLeaveRoomState : LeaveRoomState(
         roomId = "!test:localhost",
