@@ -89,9 +89,10 @@ class RoomDetailsNode(
     }
 
     /**
-     * Handles room call with fallback:
+     * Handles room call with cascading fallback:
      * 1. Element Call (if hasPermissionToJoin)
-     * 2. Jitsi via external browser
+     * 2. Embedded Jitsi SDK
+     * 3. External browser fallback
      */
     fun handleRoomCall(context: Context, callIntent: CallIntent, roomCallState: RoomCallState) {
         if (roomCallState.hasPermissionToJoin()) {
@@ -100,11 +101,43 @@ class RoomDetailsNode(
                 callback.navigateToRoomCall(callIntent)
                 return
             } catch (e: Exception) {
-                loggerTag.w(e, "Element Call failed, using Jitsi browser fallback")
+                loggerTag.w(e, "Element Call failed, trying Jitsi SDK")
             }
         }
 
-        // Step 2: Fall back to Jitsi via external browser
+        // Step 2: Try embedded Jitsi SDK
+        if (tryStartJitsiMeeting(context)) {
+            return
+        }
+
+        // Step 3: Fall back to external browser
+        startJitsiInBrowser(context)
+    }
+
+    /**
+     * Attempts to start a Jitsi meeting using the embedded SDK.
+     * @return true if the meeting was started successfully, false otherwise.
+     */
+    private fun tryStartJitsiMeeting(context: Context): Boolean {
+        return try {
+            val roomName = generateRandomRoomName()
+            val options = org.jitsi.meet.sdk.JitsiMeetConferenceOptions.Builder()
+                .setRoom(roomName)
+                .setFeatureFlag("call-integration.enabled", false)
+                .setFeatureFlag("pip.enabled", true)
+                .build()
+            org.jitsi.meet.sdk.JitsiMeetActivity.launch(context, options)
+            true
+        } catch (e: Exception) {
+            loggerTag.w(e, "Jitsi SDK failed, using browser fallback")
+            false
+        }
+    }
+
+    /**
+     * Starts a Jitsi meeting in the external browser and sends a notification to the room.
+     */
+    private fun startJitsiInBrowser(context: Context) {
         val roomName = generateRandomRoomName()
         val jitsiUrl = "https://meet.jit.si/$roomName"
         
