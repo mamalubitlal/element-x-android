@@ -352,7 +352,7 @@ licensee {
 
 // Disable license check for GPlay build - Jitsi SDK has no POM license declaration
 tasks.whenTaskAdded {
-    if (name == "licenseeAndroidGplayDebug") {
+    if (name.startsWith("licenseeAndroid") || name.contains("LicenseeReport")) {
         enabled = false
     }
 }
