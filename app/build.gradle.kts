@@ -330,6 +330,10 @@ licensee {
     allowUrl("https://github.com/jitsi/jitsi-meet/blob/master/LICENSE")
     allowUrl("https://github.com/facebook/react-native/blob/main/LICENSE")
     allowUrl("https://github.com/facebook/fresco/blob/main/LICENSE")
+    allowUrl("https://github.com/facebook/infer/blob/master/LICENSE")
+    allowUrl("https://www.mozilla.org/en-US/MPL/2.0/")
+    allowUrl("https://github.com/BoltsFramework/Bolts-Android/blob/master/LICENSE")
+    allow("MPL-2.0")
     ignoreDependencies("com.github.matrix-org", "matrix-analytics-events")
     // Ignore dependency that are not third-party licenses to us.
     ignoreDependencies(groupId = "io.element.android")
