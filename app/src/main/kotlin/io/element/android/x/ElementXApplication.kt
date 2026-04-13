@@ -19,8 +19,6 @@ import io.element.android.x.info.logApplicationInfo
 import io.element.android.x.initializer.CacheCleanerInitializer
 import io.element.android.x.initializer.CrashInitializer
 import io.element.android.x.initializer.PlatformInitializer
-import org.jitsi.meet.sdk.JitsiMeet
-import org.jitsi.meet.sdk.JitsiMeetConferenceOptions
 import timber.log.Timber
 import java.util.Locale
 import io.element.android.libraries.core.log.logger.LoggerTag
@@ -41,9 +39,6 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkCo
         
         // Force Russian locale for чатор
         setRussianLocale()
-        
-        // Initialize Jitsi SDK for embedded group calls
-        initializeJitsiMeet()
 
         AppInitializer.getInstance(this).apply {
             initializeComponent(CrashInitializer::class.java)
@@ -52,35 +47,6 @@ class ElementXApplication : Application(), DependencyInjectionGraphOwner, WorkCo
         }
 
         logApplicationInfo(this)
-    }
-
-    /**
-     * Initialize Jitsi Meet SDK with default conference options.
-     */
-    private fun initializeJitsiMeet() {
-        try {
-            val defaultOptions = JitsiMeetConferenceOptions.Builder()
-                .setServerURL("https://meet.jit.si")
-                .setFeatureFlag("add-people.enabled", false)
-                .setFeatureFlag("calendar.enabled", false)
-                .setFeatureFlag("call-integration.enabled", false)
-                .setFeatureFlag("close-captions.enabled", false)
-                .setFeatureFlag("chat.enabled", true)
-                .setFeatureFlag("invite.enabled", false)
-                .setFeatureFlag("live-streaming.enabled", false)
-                .setFeatureFlag("meeting-name.enabled", false)
-                .setFeatureFlag("meeting-password.enabled", false)
-                .setFeatureFlag("pip.enabled", true)
-                .setFeatureFlag("prejoinpage.enabled", false)
-                .setFeatureFlag("recording.enabled", false)
-                .setFeatureFlag("tile-view.enabled", true)
-                .setFeatureFlag("welcomepage.enabled", false)
-                .build()
-            JitsiMeet.setDefaultConferenceOptions(defaultOptions)
-        } catch (e: Exception) {
-            // Jitsi SDK not available, will use browser fallback
-            Timber.tag(loggerTag.value).w(e, "Jitsi SDK initialization failed, using browser fallback")
-        }
     }
     
     override fun attachBaseContext(base: android.content.Context) {
