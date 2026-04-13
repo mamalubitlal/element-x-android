@@ -334,8 +334,9 @@ licensee {
     allowUrl("https://www.mozilla.org/en-US/MPL/2.0/")
     allowUrl("https://github.com/BoltsFramework/Bolts-Android/blob/master/LICENSE")
     allow("MPL-2.0")
-    // Allow artifacts with no license declarations (like Jitsi SDK)
-    allowAllPomLicenses()
+    // Ignore license violations for artifacts with no declared licenses
+    // (org.jitsi.react:jitsi-meet-sdk has no <licenses> section in POM)
+    violationAction(IGNORE)
     ignoreDependencies("com.github.matrix-org", "matrix-analytics-events")
     // Ignore dependency that are not third-party licenses to us.
     ignoreDependencies(groupId = "io.element.android")
