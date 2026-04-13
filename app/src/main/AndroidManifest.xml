@@ -164,6 +164,13 @@
             </intent-filter>
         </activity>
 
+        <!-- Jitsi Meet SDK Activity for embedded video calls -->
+        <activity
+            android:name="org.jitsi.meet.sdk.JitsiMeetActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
+            android:exported="false"
+            android:theme="@style/Theme.ElementX.Splash" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
