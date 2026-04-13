@@ -295,6 +295,10 @@ setupDependencyInjection()
     implementation(libs.serialization.json)
 
     implementation(libs.matrix.emojibase.bindings)
+    // Jitsi SDK for embedded group calls
+    implementation("org.jitsi.react:jitsi-meet-sdk:+") {
+        isTransitive = true
+    }
 
     testCommonDependencies(libs)
     testImplementation(projects.libraries.matrix.test)
