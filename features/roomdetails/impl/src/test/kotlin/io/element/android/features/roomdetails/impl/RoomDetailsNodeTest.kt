@@ -119,7 +119,7 @@ class RoomDetailsNodeTest {
         notificationSettingsService = FakeNotificationSettingsService(),
         roomMembersDetailsPresenterFactory = { _ -> FakeRoomMemberDetailsPresenter() },
         leaveRoomPresenter = { FakeLeaveRoomState() },
-        roomCallStatePresenter = { FakeRoomCallState() },
+        roomCallStatePresenter = { FakeRoomCallState(RoomCallState.StandBy(false, false)) },
         dispatchers = FakeCoroutineDispatchers(),
         analyticsService = FakeAnalyticsService(),
         clipboardHelper = FakeClipboardHelper(),
