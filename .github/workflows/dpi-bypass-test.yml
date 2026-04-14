@@ -95,9 +95,10 @@ jobs:
           arch: ${{ env.ARCH }}
           profile: ${{ env.DEVICE }}
           target: ${{ env.TARGET }}
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 4096
           disable-animations: true
-          disk-size: 3G
+          disk-size: 6G
+          emulator-boot-timeout: 900
           script: |
             chmod +x .github/workflows/scripts/dpi-bypass-test.sh
             .github/workflows/scripts/dpi-bypass-test.sh
