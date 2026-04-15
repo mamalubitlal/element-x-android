@@ -11,7 +11,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
-import android.util.Log
 import io.element.android.libraries.dpi.api.DpiStrategyManager
 import io.element.android.libraries.dpi.api.DomainResult
 import io.element.android.libraries.dpi.api.StrategyTestResult
@@ -24,6 +23,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.coroutines.withContext
 import java.io.File
+import timber.log.Timber
 
 /**
  * Implementation of DpiStrategyManager using ByeDpiLibrary
@@ -63,7 +63,7 @@ class DpiStrategyManagerImpl(
     override suspend fun loadStrategies(): List<String> = withContext(Dispatchers.IO) {
         // Use ByeDpiLibrary's built-in strategies
         val strategies = library.getDefaultStrategies().map { it.command }
-        Log.d(TAG, "Loaded ${strategies.size} default strategies")
+        Timber.tag(TAG).d("Loaded ${strategies.size} default strategies")
         strategies
     }
     
@@ -71,12 +71,12 @@ class DpiStrategyManagerImpl(
         // Use ByeDpiLibrary's active domains (Matrix-related sites)
         val domains = library.getActiveDomains()
         if (domains.isNotEmpty()) {
-            Log.d(TAG, "Using ByeDpiLibrary active domains: ${domains.size}")
+            Timber.tag(TAG).d("Using ByeDpiLibrary active domains: ${domains.size}")
             return@withContext domains
         }
         
         // Fallback to common Matrix domains
-        Log.d(TAG, "Using fallback Matrix test domains")
+        Timber.tag(TAG).d("Using fallback Matrix test domains")
         listOf(
             "matrix.org",
             "matrix-client.matrix.org",
@@ -88,7 +88,7 @@ class DpiStrategyManagerImpl(
     }
     
     override suspend fun testStrategy(strategy: String, domains: List<String>): StrategyTestResult = withContext(Dispatchers.IO) {
-        Log.d(TAG, "Testing strategy: $strategy on ${domains.size} domains")
+        Timber.tag(TAG).d("Testing strategy: $strategy on ${domains.size} domains")
         
         // Create a strategy object
         val strategyObj = library.createStrategy(
@@ -133,7 +133,7 @@ class DpiStrategyManagerImpl(
                 json.decodeFromString<List<StrategyTestResult>>(file.readText())
             } else null
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to load test results: ${e.message}")
+            Timber.tag(TAG).w(e, "Failed to load test results: ${e.message}")
             null
         }
     }
@@ -143,7 +143,7 @@ class DpiStrategyManagerImpl(
             val file = File(context.filesDir, "dpi_test_results_$networkId.json")
             file.writeText(json.encodeToString(results))
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to save test results: ${e.message}")
+            Timber.tag(TAG).e(e, "Failed to save test results: ${e.message}")
         }
     }
     

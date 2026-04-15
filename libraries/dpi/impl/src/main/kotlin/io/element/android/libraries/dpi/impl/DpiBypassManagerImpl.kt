@@ -8,7 +8,6 @@
 package io.element.android.libraries.dpi.impl
 
 import android.content.Context
-import android.util.Log
 import io.element.android.libraries.dpi.api.DpiBypassManager
 import io.github.romanvht.byedpi.library.ByeDpiLibrary
 import io.github.romanvht.byedpi.library.server.ProxyConfig
@@ -16,6 +15,7 @@ import io.github.romanvht.byedpi.library.server.ServerStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 /**
  * Implementation of DpiBypassManager using ByeDpiLibrary
@@ -37,7 +37,7 @@ class DpiBypassManagerImpl(
     
     override suspend fun start(strategyCommand: String): Result<Unit> = withContext(Dispatchers.IO) {
         if (!library.isNativeLibraryAvailable()) {
-            Log.e(TAG, "Native library not available")
+            Timber.tag(TAG).e("Native library not available")
             return@withContext Result.failure(
                 Exception("Native library not available")
             )
@@ -50,7 +50,7 @@ class DpiBypassManagerImpl(
             }
             
             currentStrategy = strategyCommand
-            Log.i(TAG, "Starting DPI bypass with strategy: $strategyCommand")
+            Timber.tag(TAG).i("Starting DPI bypass with strategy: $strategyCommand")
             
             // Create config with strategy as custom args
             val config = ProxyConfig(
@@ -64,35 +64,35 @@ class DpiBypassManagerImpl(
             
             when (library.serverStatus) {
                 ServerStatus.RUNNING -> {
-                    Log.i(TAG, "DPI proxy started successfully on port $DEFAULT_SOCKS_PORT")
+                    Timber.tag(TAG).i("DPI proxy started successfully on port $DEFAULT_SOCKS_PORT")
                     Result.success(Unit)
                 }
                 ServerStatus.ERROR -> {
-                    Log.e(TAG, "Failed to start DPI proxy")
+                    Timber.tag(TAG).e("Failed to start DPI proxy")
                     Result.failure(Exception("Failed to start proxy"))
                 }
                 else -> {
-                    Log.e(TAG, "Unexpected server status: ${library.serverStatus}")
+                    Timber.tag(TAG).e("Unexpected server status: ${library.serverStatus}")
                     Result.failure(Exception("Unexpected server status: ${library.serverStatus}"))
                 }
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to start DPI bypass: ${e.message}")
+            Timber.tag(TAG).e(e, "Failed to start DPI bypass: ${e.message}")
             Result.failure(e)
         }
     }
     
     override fun stop() {
-        Log.i(TAG, "Stopping DPI bypass...")
+        Timber.tag(TAG).i("Stopping DPI bypass...")
         
         try {
             runBlocking {
                 library.stopServer()
             }
-            Log.i(TAG, "DPI proxy stopped")
+            Timber.tag(TAG).i("DPI proxy stopped")
         } catch (e: Exception) {
-            Log.e(TAG, "Error stopping proxy: ${e.message}")
+            Timber.tag(TAG).e(e, "Error stopping proxy: ${e.message}")
         }
     }
     
