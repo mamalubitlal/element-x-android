@@ -1,0 +1,129 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Full DPI bypass test: Login with recovery key → Navigate to DPI settings → Enable bypass
+# Uses Russian UI strings verified from code
+
+# 1. Open app → Tap "Войти" (screen_onboarding_sign_in_manually)
+- tapOn:
+    regex: ".*Войти| войти|Sign in.*"
+
+# 2. Wait for server selection / login form
+- runFlow: ../assertions/assertLoginDisplayed.yaml
+
+# 3. Change server if needed (for non-matrix.org accounts)
+- runFlow: ../account/changeServer.yaml
+
+# 4. Continue to login form
+- tapOn:
+    id: "login-continue"
+
+# 5. Fill username (form-1)
+- extendedWaitUntil:
+    visible:
+      id: "form-1"
+    timeout: 30000
+- tapOn:
+    id: "form-1"
+- inputText: ${MAESTRO_USERNAME}
+- pressKey: Enter
+
+# 6. Fill password (form-3)
+- tapOn:
+    id: "form-3"
+- inputText: ${MAESTRO_PASSWORD}
+- pressKey: Enter
+
+# 7. Tap Continue / Login button
+- tapOn:
+    regex: ".*Продолжить|Continue|^Войти$"
+
+# 8. Wait for identity verification screen
+- extendedWaitUntil:
+    visible: "Использовать ключ восстановления"
+    timeout: 30000
+- takeScreenshot: build/maestro/100-IdentityVerification
+
+# 9. Tap "Использовать ключ восстановления" (screen_identity_confirmation_use_recovery_key)
+- tapOn:
+    regex: ".*Использовать ключ восстановления|Use recovery key.*"
+
+# 10. Enter recovery key
+- tapOn:
+    id: "verification-recovery_key"
+- inputText: ${MAESTRO_RECOVERY_KEY}
+- hideKeyboard
+- tapOn:
+    regex: ".*Продолжить|Continue"
+
+# 11. Wait for device verification (Device verified)
+- retry:
+    maxRetries: 3
+    commands:
+      - extendedWaitUntil:
+          visible: "Device verified"
+          timeout: 30000
+
+# 12. Continue past verification
+- tapOn:
+    regex: ".*Продолжить|Continue"
+
+# 13. Dismiss first "Не сейчас" dialog (analytics prompt) - action_not_now
+- extendedWaitUntil:
+    visible: "Не сейчас"
+    timeout: 15000
+- tapOn:
+    regex: ".*Не сейчас|Not now|Не сейчас"
+- takeScreenshot: build/maestro/200-AnalyticsDismissed
+
+# 14. Dismiss second "Не сейчас" dialog (notifications) - action_not_now
+- extendedWaitUntil:
+    visible: "Не сейчас"
+    timeout: 15000
+- tapOn:
+    regex: ".*Не сейчас|Not now|Не сейчас"
+
+# 15. Wait for home screen (Chats)
+- runFlow: ../assertions/assertHomeDisplayed.yaml
+- takeScreenshot: build/maestro/300-HomeScreen
+
+# 16. Navigate to Settings via avatar (tap on Profile button)
+- tapOn: "Profile"
+
+# 17. Open Settings
+- extendedWaitUntil:
+    visible: "Settings"
+    timeout: 10000
+- takeScreenshot: build/maestro/400-SettingsOpened
+
+# 18. Navigate to DPI settings ("Обход DPI")
+- tapOn:
+    regex: ".*Обход DPI|DPI Bypass"
+- extendedWaitUntil:
+    visible: "Обход DPI"
+    timeout: 10000
+- takeScreenshot: build/maestro/500-DpiSettings
+
+# 19. Test strategies first ("Тестировать стратегии")
+- tapOn:
+    regex: ".*Тестировать стратегии|Test strategies"
+- extendedWaitUntil:
+    visible: "Тестирование"
+    timeout: 30000
+- takeScreenshot: build/maestro/510-TestingStrategies
+
+# 20. Wait for test to complete
+- extendedWaitUntil:
+    visible: "Тестирование завершено"
+    timeout: 60000
+
+# 21. Go back to DPI settings
+- tapOn: "Back"
+- extendedWaitUntil:
+    visible: "Обход DPI"
+    timeout: 10000
+
+# 22. Enable DPI bypass ("Включить обход DPI")
+- tapOn:
+    regex: ".*Включить обход DPI|Enable DPI"
+- runFlow: ../assertions/assertDpiProxyRunning.yaml
+- takeScreenshot: build/maestro/600-DpiEnabled

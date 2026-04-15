@@ -1,11 +1,11 @@
-name: DPI Bypass Check
+name: DPI Bypass Test
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master, develop ]
-  workflow_dispatch:
 
 permissions: {}
 
@@ -18,12 +18,11 @@ env:
   TARGET: google_apis
 
 jobs:
-  dpi-bypass-test:
-    name: Build & Test DPI Bypass
+  build-apk:
+    name: Build APK
     runs-on: ubuntu-latest
-    # Allow only one at a time since they use the same emulator
     concurrency:
-      group: ${{ format('dpi-bypass-{0}', github.ref) }}
+      group: ${{ format('dpi-test-build-{0}', github.ref) }}
       cancel-in-progress: true
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -37,98 +36,127 @@ jobs:
           docker-images: true
           swap-storage: false
 
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ github.ref }}
           persist-credentials: false
-
-      - name: Setup JDK 21
-        uses: actions/setup-java@v5
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654
+        name: Use JDK 21
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '21'
-
-      - name: Configure Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Configure gradle
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/develop' }}
-
-      - name: Build Debug APK
+      - name: Assemble debug APK
         run: ./gradlew :app:assembleGplayDebug $CI_GRADLE_ARG_PROPERTIES
         env:
           ELEMENT_ANDROID_MAPTILER_API_KEY: ${{ secrets.MAPTILER_KEY }}
           ELEMENT_ANDROID_MAPTILER_LIGHT_MAP_ID: ${{ secrets.MAPTILER_LIGHT_MAP_ID }}
           ELEMENT_ANDROID_MAPTILER_DARK_MAP_ID: ${{ secrets.MAPTILER_DARK_MAP_ID }}
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: chator-dpi-apk
-          path: app/build/outputs/apk/gplay/debug/app-gplay-x86_64-debug.apk
-          retention-days: 5
+          path: |
+            app/build/outputs/apk/gplay/debug/app-gplay-x86_64-debug.apk
+          retention-days: 1
           overwrite: true
           if-no-files-found: error
 
-      - name: Install Maestro CLI
-        run: curl -fsSL "https://get.maestro.mobile.dev" | bash
-
-      - name: Enable KVM
+  dpi-bypass-test:
+    name: DPI Bypass Test
+    runs-on: ubuntu-latest
+    needs: [ build-apk ]
+    concurrency:
+      group: dpi-bypass-test
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        if: (github.event_name == 'pull_request' && github.event.pull_request.fork == null) || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+        with:
+          ref: ${{ github.ref }}
+          persist-credentials: false
+      - name: Download APK artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
+        with:
+          name: chator-dpi-apk
+      - name: Enable KVM group perms
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-
-      - name: Run DPI Bypass Test with Retry
-        id: dpi_test
-        uses: reactivecircus/android-emulator-runner@v2
+      - name: Install maestro
+        run: curl -fsSL "https://get.maestro.mobile.dev" | bash
+      - name: Run DPI bypass test in emulator
+        id: maestro_test
+        uses: reactivecircus/android-emulator-runner@5d6e86df22ab11632167a1a6b0c9ab0dc3469586
+        continue-on-error: true
         env:
+          MAESTRO_APP_ID: io.element.android.x.debug
           MAESTRO_USERNAME: ${{ secrets.TESTUSR }}
           MAESTRO_PASSWORD: ${{ secrets.TESTPSW }}
           MAESTRO_RECOVERY_KEY: ${{ secrets.TESTUSR_RECOVERY_KEY }}
-          MAESTRO_ROOM_NAME: ${{ secrets.MAESTRO_ROOM_NAME }}
-          MAESTRO_INVITEE1_MXID: ${{ secrets.MAESTRO_INVITEE1_MXID }}
-          MAESTRO_INVITEE2_MXID: ${{ secrets.MAESTRO_INVITEE2_MXID }}
-          MAESTRO_APP_ID: im.chator.android.debug
         with:
           api-level: ${{ env.API_LEVEL }}
           arch: ${{ env.ARCH }}
           profile: ${{ env.DEVICE }}
           target: ${{ env.TARGET }}
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 4096
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          disk-size: 6G
-          emulator-boot-timeout: 900
+          disk-size: 3G
           script: |
-            chmod +x .github/workflows/scripts/dpi-bypass-test.sh
-            .github/workflows/scripts/dpi-bypass-test.sh
-
+            adb install -r app-gplay-x86_64-debug.apk
+            ~/.maestro/bin/maestro test \
+              -e MAESTRO_APP_ID=io.element.android.x.debug \
+              -e MAESTRO_USERNAME=${MAESTRO_USERNAME} \
+              -e MAESTRO_PASSWORD=${MAESTRO_PASSWORD} \
+              -e MAESTRO_RECOVERY_KEY=${MAESTRO_RECOVERY_KEY} \
+              .maestro/tests/dpi/loginAndEnableDpiBypass.yaml
+      - name: Upload screenshots on failure
+        if: steps.maestro_test.outcome != 'success'
+        run: |
+          mkdir -p build/maestro
+          adb pull /sdcard/maestro/ build/maestro/ 2>/dev/null || true
+          adb pull /sdcard/screenshots/ build/maestro/ 2>/dev/null || true
       - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: dpi-test-results
           path: |
+            build/maestro/**
             ~/.maestro/tests/**
-            /tmp/dpi-test-errors.log
           retention-days: 5
           overwrite: true
-          if-no-files-found: ignore
-
-      - name: Update summary
-        if: always()
+          if-no-files-found: error
+      - name: Update summary (success)
+        if: steps.maestro_test.outcome == 'success'
         run: |
-          if [ -f /tmp/dpi-test-errors.log ] && [ -s /tmp/dpi-test-errors.log ]; then
-            echo "## DPI Bypass Test — ❌ Failed" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ DPI Bypass Test Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The app successfully:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Logged in with recovery key" >> $GITHUB_STEP_SUMMARY
+          echo "2. Navigated to DPI settings" >> $GITHUB_STEP_SUMMARY
+          echo "3. Enabled DPI bypass" >> $GITHUB_STEP_SUMMARY
+      - name: Update summary (failure)
+        if: steps.maestro_test.outcome != 'success'
+        run: |
+          LOG_FILE=$(find ~/.maestro/tests/ -name maestro.log 2>/dev/null | head -1)
+          if [ -n "$LOG_FILE" ]; then
+            LOG_LINES="$(tail -n 50 $LOG_FILE)"
+            echo "## ❌ DPI Bypass Test Failed" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "<details><summary>Click to see error log</summary>" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Last 50 lines of maestro log:" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
-            tail -n 100 /tmp/dpi-test-errors.log >> $GITHUB_STEP_SUMMARY
+            echo "$LOG_LINES" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "</details>" >> $GITHUB_STEP_SUMMARY
           else
-            echo "## DPI Bypass Test — ✅ Passed" >> $GITHUB_STEP_SUMMARY
-            echo "App built and DPI bypass verified successfully." >> $GITHUB_STEP_SUMMARY
+            echo "## ❌ DPI Bypass Test Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "No maestro log found. Check emulator logs." >> $GITHUB_STEP_SUMMARY
           fi
+      - name: Fail the workflow on test failure
+        if: steps.maestro_test.outcome != 'success'
+        run: |
+          echo "DPI Bypass test failed. Check artifacts for screenshots and logs."
+          exit 1
