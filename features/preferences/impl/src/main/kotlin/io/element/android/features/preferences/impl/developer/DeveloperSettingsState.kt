@@ -28,6 +28,16 @@ data class DeveloperSettingsState(
     val tracingLogPacks: ImmutableList<TraceLogPack>,
     val isEnterpriseBuild: Boolean,
     val showColorPicker: Boolean,
+    // Debug tools state
+    val networkInfo: String = "Unknown",
+    val isProxyEnabled: Boolean = false,
+    val currentProxyAddress: String = "",
+    val isConnectivityTesting: Boolean = false,
+    val connectivityResult: String? = null,
+    val isDpiProxyRunning: Boolean = false,
+    val dpiProxyStrategy: String = "",
+    val isDpiTesting: Boolean = false,
+    val dpiTestResult: String? = null,
     val eventSink: (DeveloperSettingsEvents) -> Unit
 ) {
     val showLoader = clearCacheAction is AsyncAction.Loading

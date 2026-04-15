@@ -22,4 +22,10 @@ sealed interface DeveloperSettingsEvents {
     data class ChangeBrandColor(val color: Color?) : DeveloperSettingsEvents
     data object ClearCache : DeveloperSettingsEvents
     data object VacuumStores : DeveloperSettingsEvents
+    // Debug tools events
+    data object TestConnectivity : DeveloperSettingsEvents
+    data object StartDpiProxy : DeveloperSettingsEvents
+    data object StopDpiProxy : DeveloperSettingsEvents
+    data object QuickDpiTest : DeveloperSettingsEvents
+    data object ShareLogcat : DeveloperSettingsEvents
 }

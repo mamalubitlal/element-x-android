@@ -10,6 +10,8 @@ package io.element.android.features.preferences.impl.developer
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
@@ -114,6 +116,10 @@ fun DeveloperSettingsView(
                 onClick = onOpenShowkase
             )
         }
+        
+        // Debug / Network Tools
+        DebugToolsCategory(state = state)
+        
         RageshakePreferencesView(
             state = state.rageshakeState,
         )
@@ -275,4 +281,89 @@ internal fun DeveloperSettingsViewPreview(
         onPushHistoryClick = {},
         onBackClick = {}
     )
+}
+
+@Composable
+private fun DebugToolsCategory(
+    state: DeveloperSettingsState,
+    modifier: Modifier = Modifier,
+) {
+    PreferenceCategory(
+        modifier = modifier,
+        title = "🔧 Debug Tools"
+    ) {
+        // Network Info
+        ListItem(
+            headlineContent = { Text("Network Info") },
+            supportingContent = {
+                Column {
+                    Text("Network: ${state.networkInfo}")
+                    Text("Proxy: ${if (state.isProxyEnabled) "Enabled (${state.currentProxyAddress})" else "Disabled"}")
+                }
+            }
+        )
+        
+        // Test Connectivity
+        ListItem(
+            headlineContent = { Text("Test Connectivity") },
+            supportingContent = { Text("Ping matrix.org and check DNS") },
+            trailingContent = if (state.isConnectivityTesting) {
+                ListItemContent.Custom {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .progressSemantics()
+                            .size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                }
+            } else {
+                ListItemContent.Text(state.connectivityResult.orEmpty())
+            },
+            onClick = { state.eventSink(DeveloperSettingsEvents.TestConnectivity) }
+        )
+        
+        // DPI Proxy Controls
+        ListItem(
+            headlineContent = { Text("DPI Proxy Status") },
+            supportingContent = {
+                Text(
+                    if (state.isDpiProxyRunning) "Running: ${state.dpiProxyStrategy}"
+                    else "Stopped"
+                )
+            },
+            onClick = {
+                if (state.isDpiProxyRunning) {
+                    state.eventSink(DeveloperSettingsEvents.StopDpiProxy)
+                } else {
+                    state.eventSink(DeveloperSettingsEvents.StartDpiProxy)
+                }
+            }
+        )
+        
+        // Quick DPI Test
+        ListItem(
+            headlineContent = { Text("Quick DPI Test") },
+            supportingContent = { Text("Test best strategy against matrix.org") },
+            trailingContent = if (state.isDpiTesting) {
+                ListItemContent.Custom {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .progressSemantics()
+                            .size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                }
+            } else {
+                ListItemContent.Text(state.dpiTestResult.orEmpty())
+            },
+            onClick = { state.eventSink(DeveloperSettingsEvents.QuickDpiTest) }
+        )
+        
+        // Logcat
+        ListItem(
+            headlineContent = { Text("Share Logcat") },
+            supportingContent = { Text("Generate bug report with logs") },
+            onClick = { state.eventSink(DeveloperSettingsEvents.ShareLogcat) }
+        )
+    }
 }

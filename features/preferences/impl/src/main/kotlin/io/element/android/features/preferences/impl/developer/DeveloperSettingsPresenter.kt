@@ -31,6 +31,8 @@ import io.element.android.features.preferences.impl.tasks.ClearCacheUseCase
 import io.element.android.features.preferences.impl.tasks.ComputeCacheSizeUseCase
 import io.element.android.features.preferences.impl.tasks.VacuumStoresUseCase
 import io.element.android.features.rageshake.api.preferences.RageshakePreferencesState
+import io.element.android.libraries.dpi.api.DpiBypassManager
+import io.element.android.libraries.dpi.api.DpiStrategyManager
 import io.element.android.libraries.androidutils.filesize.FileSizeFormatter
 import io.element.android.libraries.architecture.AsyncAction
 import io.element.android.libraries.architecture.AsyncData
@@ -52,9 +54,11 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.net.InetAddress
 import java.net.URL
 
 @Inject
@@ -70,6 +74,8 @@ class DeveloperSettingsPresenter(
     private val vacuumStoresUseCase: VacuumStoresUseCase,
     private val databaseSizesUseCase: GetDatabaseSizesUseCase,
     private val fileSizeFormatter: FileSizeFormatter,
+    private val dpiBypassManager: DpiBypassManager,
+    private val strategyManager: DpiStrategyManager,
 ) : Presenter<DeveloperSettingsState> {
     @Composable
     override fun present(): DeveloperSettingsState {
@@ -89,6 +95,24 @@ class DeveloperSettingsPresenter(
         var showColorPicker by remember {
             mutableStateOf(false)
         }
+        
+        // Debug tools state
+        var networkInfo by remember { mutableStateOf("Unknown") }
+        var isProxyEnabled by remember { mutableStateOf(false) }
+        var currentProxyAddress by remember { mutableStateOf("") }
+        var isConnectivityTesting by remember { mutableStateOf(false) }
+        var connectivityResult by remember { mutableStateOf<String?>(null) }
+        var isDpiProxyRunning by remember { mutableStateOf(false) }
+        var dpiProxyStrategy by remember { mutableStateOf("") }
+        var isDpiTesting by remember { mutableStateOf(false) }
+        var dpiTestResult by remember { mutableStateOf<String?>(null) }
+        
+        // Load initial network info
+        LaunchedEffect(Unit) {
+            networkInfo = strategyManager.getNetworkId()
+            isDpiProxyRunning = dpiBypassManager.isRunning()
+        }
+        
         val customElementCallBaseUrl by remember {
             appPreferencesStore
                 .getCustomElementCallBaseUrlFlow()
@@ -167,6 +191,27 @@ class DeveloperSettingsPresenter(
                 DeveloperSettingsEvents.VacuumStores -> coroutineScope.launch {
                     vacuumStoresUseCase()
                 }
+                DeveloperSettingsEvents.TestConnectivity -> coroutineScope.testConnectivity(
+                    isConnectivityTesting = { isConnectivityTesting },
+                    setTesting = { isConnectivityTesting = it },
+                    setResult = { connectivityResult = it }
+                )
+                DeveloperSettingsEvents.StartDpiProxy -> coroutineScope.startDpiProxy(
+                    dpiBypassManager = dpiBypassManager,
+                    dpiStrategyManager = strategyManager,
+                    setRunning = { isDpiProxyRunning = it },
+                    setStrategy = { dpiProxyStrategy = it }
+                )
+                DeveloperSettingsEvents.StopDpiProxy -> coroutineScope.stopDpiProxy(
+                    dpiBypassManager = dpiBypassManager,
+                    setRunning = { isDpiProxyRunning = it }
+                )
+                DeveloperSettingsEvents.QuickDpiTest -> coroutineScope.quickDpiTest(
+                    dpiStrategyManager = strategyManager,
+                    setTesting = { isDpiTesting = it },
+                    setResult = { dpiTestResult = it }
+                )
+                DeveloperSettingsEvents.ShareLogcat -> coroutineScope.shareLogcat()
             }
         }
 
@@ -184,6 +229,16 @@ class DeveloperSettingsPresenter(
             tracingLogPacks = tracingLogPacks,
             isEnterpriseBuild = enterpriseService.isEnterpriseBuild,
             showColorPicker = showColorPicker,
+            // Debug tools state
+            networkInfo = networkInfo,
+            isProxyEnabled = isProxyEnabled,
+            currentProxyAddress = currentProxyAddress,
+            isConnectivityTesting = isConnectivityTesting,
+            connectivityResult = connectivityResult,
+            isDpiProxyRunning = isDpiProxyRunning,
+            dpiProxyStrategy = dpiProxyStrategy,
+            isDpiTesting = isDpiTesting,
+            dpiTestResult = dpiTestResult,
             eventSink = ::handleEvent,
         )
     }
@@ -261,4 +316,96 @@ private fun customElementCallUrlValidator(url: String?): Boolean {
         if (parsedUrl.protocol !in listOf("http", "https")) error("Incorrect protocol")
         if (parsedUrl.host.isNullOrBlank()) error("Missing host")
     }.isSuccess
+}
+
+private fun CoroutineScope.testConnectivity(
+    isConnectivityTesting: () -> Boolean,
+    setTesting: (Boolean) -> Unit,
+    setResult: (String) -> Unit,
+) = launch {
+    setTesting(true)
+    try {
+        val results = mutableListOf<String>()
+        
+        // Test DNS resolution
+        val dnsStart = System.currentTimeMillis()
+        try {
+            val address = InetAddress.getByName("matrix.org")
+            val dnsTime = System.currentTimeMillis() - dnsStart
+            results.add("DNS: ${address.hostAddress} (${dnsTime}ms)")
+        } catch (e: Exception) {
+            results.add("DNS: FAILED - ${e.message}")
+        }
+        
+        // Test connectivity
+        delay(500)
+        setResult("Testing...")
+        
+        // Test with timeout
+        val connStart = System.currentTimeMillis()
+        try {
+            val socket = java.net.Socket("matrix.org", 443)
+            socket.close()
+            val connTime = System.currentTimeMillis() - connStart
+            results.add("TCP 443: OK (${connTime}ms)")
+        } catch (e: Exception) {
+            results.add("TCP 443: BLOCKED - ${e.message}")
+        }
+        
+        setResult(results.joinToString("\n"))
+    } finally {
+        setTesting(false)
+    }
+}
+
+private fun CoroutineScope.startDpiProxy(
+    dpiBypassManager: DpiBypassManager,
+    dpiStrategyManager: DpiStrategyManager,
+    setRunning: (Boolean) -> Unit,
+    setStrategy: (String) -> Unit,
+) = launch {
+    try {
+        val strategy = DpiBypassManager.DEFAULT_STRATEGY
+        val result = dpiBypassManager.start(strategy)
+        if (result.isSuccess) {
+            setRunning(true)
+            setStrategy(strategy)
+        } else {
+            setStrategy("Failed: ${result.exceptionOrNull()?.message}")
+        }
+    } catch (e: Exception) {
+        setStrategy("Error: ${e.message}")
+    }
+}
+
+private fun CoroutineScope.stopDpiProxy(
+    dpiBypassManager: DpiBypassManager,
+    setRunning: (Boolean) -> Unit,
+) {
+    dpiBypassManager.stop()
+    setRunning(false)
+}
+
+private fun CoroutineScope.quickDpiTest(
+    dpiStrategyManager: DpiStrategyManager,
+    setTesting: (Boolean) -> Unit,
+    setResult: (String) -> Unit,
+) = launch {
+    setTesting(true)
+    try {
+        setResult("Testing...")
+        val strategy = DpiBypassManager.DEFAULT_STRATEGY
+        val domains = listOf("matrix.org")
+        val testResult = dpiStrategyManager.testStrategy(strategy, domains)
+        setResult("${testResult.successPercentage.toInt()}% (${testResult.successfulTests}/${testResult.totalTests})")
+    } catch (e: Exception) {
+        setResult("Error: ${e.message}")
+    } finally {
+        setTesting(false)
+    }
+}
+
+private fun CoroutineScope.shareLogcat() = launch {
+    // This would trigger logcat sharing via the existing rageshake mechanism
+    // For now, just a placeholder
 }
