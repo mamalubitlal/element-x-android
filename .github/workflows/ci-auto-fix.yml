@@ -85,7 +85,7 @@ jobs:
       # Run opencode to fix the issue
       - name: Run opencode - Auto-Fix
         run: |
-          opencode run --model opencode/big-pickle --no-input < /tmp/ci-prompt.txt
+          opencode run --model opencode/big-pickle --no-input --dangerously-skip-permissions < /tmp/ci-prompt.txt
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
