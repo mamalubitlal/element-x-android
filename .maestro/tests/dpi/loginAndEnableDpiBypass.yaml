@@ -87,7 +87,7 @@ appId: ${MAESTRO_APP_ID}
 - takeScreenshot: build/maestro/300-HomeScreen
 
 # 16. Navigate to Settings via avatar (tap on Profile button)
-- tapOn: "Profile"
+- tapOn: "Профиль"
 
 # 17. Open Settings
 - extendedWaitUntil:
