@@ -44,4 +44,4 @@ APK появится в `app/build/outputs/apk/gplay/debug/`.
 
 ## Лицензия
 
-[AGPL-3.0](LICENSE) — Copyright (c) 2025 uggan
+[AGPL-3.0](LICENSE) — Copyright (c) 2025 uggantest
