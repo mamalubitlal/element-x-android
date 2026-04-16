@@ -45,40 +45,50 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
       
+      # Install opencode CLI
+      - name: Install opencode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+      
+      # Write prompt to file
+      - name: Create fix prompt
+        run: |
+          cat > /tmp/ci-prompt.txt << 'EOF'
+          Fix the failing DPI Bypass Test CI workflow.
+
+          Workflow URL: ${{ github.event.workflow_run.html_url }}
+
+          1. Read .github/workflows/dpi-bypass-test.yml to understand the test setup
+          2. Read .maestro/tests/dpi/loginAndEnableDpiBypass.yaml to understand the test flow
+          3. Identify why the test is failing by analyzing the workflow logs (fetch from GitHub API)
+          4. Apply a minimal fix to make the test pass
+          5. Commit and push the fix:
+             git config user.name "CI Auto-Fix"
+             git config user.email "ci@github.actions"
+             git add -A
+             git commit -m "fix(CI): auto-fix DPI test"
+             git push origin develop
+
+          Common issues to check:
+          - Emulator boot timeout (increase timeout, check hardware requirements)
+          - ADB connection failure (check emulator startup sequence)
+          - Maestro element not found (verify UI selectors match Russian UI)
+          - Missing secrets (TESTUSR, TESTPSW, TESTUSR_RECOVERY_KEY)
+
+          Rules:
+          - Only modify test-related files (.github/workflows/*.yml, .maestro/**/*.yaml)
+          - Keep fix minimal - don't refactor unrelated code
+          - Push directly to develop branch
+          EOF
+      
       # Run opencode to fix the issue
       - name: Run opencode - Auto-Fix
-        uses: anomalyco/opencode/github@latest
+        run: |
+          opencode run --model opencode/big-pickle --no-input < /tmp/ci-prompt.txt
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          model: opencode/big-pickle
-          prompt: |
-            Fix the failing DPI Bypass Test CI workflow.
-
-            Workflow URL: ${{ github.event.workflow_run.html_url }}
-
-            1. Read .github/workflows/dpi-bypass-test.yml to understand the test setup
-            2. Read .maestro/tests/dpi/loginAndEnableDpiBypass.yaml to understand the test flow
-            3. Identify why the test is failing by analyzing the workflow logs
-            4. Apply a minimal fix to make the test pass
-            5. Commit and push the fix:
-               git config user.name "CI Auto-Fix"
-               git config user.email "ci@github.actions"
-               git add -A
-               git commit -m "fix(CI): auto-fix DPI test"
-               git push origin develop
-
-            Common issues to check:
-            - Emulator boot timeout (increase timeout, check hardware requirements)
-            - ADB connection failure (check emulator startup sequence)
-            - Maestro element not found (verify UI selectors match Russian UI)
-            - Missing secrets (TESTUSR, TESTPSW, TESTUSR_RECOVERY_KEY)
-
-            Rules:
-            - Only modify test-related files (.github/workflows/*.yml, .maestro/**/*.yaml)
-            - Keep fix minimal - don't refactor unrelated code
-            - Push directly to develop branch
         continue-on-error: true
       
       # Report results
