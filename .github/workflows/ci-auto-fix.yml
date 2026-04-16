@@ -1,7 +1,5 @@
-# Claude Code GitHub Action with OpenAI-Compatible Backend (opencode.ai)
-#
-# This workflow runs when DPI bypass test fails and auto-fixes the issue.
-# Uses Claude Code to analyze errors and push fixes directly to develop.
+# CI Auto-Fix Workflow
+# Runs when DPI Bypass Test fails, analyzes errors, and pushes fixes
 
 name: CI Auto-Fix
 
@@ -46,21 +44,52 @@ jobs:
           --health-retries 5
     
     steps:
-      # Download the failed workflow logs
-      - name: Download workflow logs
-        uses: actions/download-artifact@v4
-        with:
-          name: dpi-test-results
-          run_id: ${{ github.event.workflow_run.id }}
-        continue-on-error: true
-      
-      # Get the workflow run details
-      - name: Get workflow run info
+      # Get workflow run info
+      - name: Get workflow info
         id: workflow-info
         run: |
-          echo "workflow_name=${{ github.event.workflow_run.name }}" >> $GITHUB_OUTPUT
-          echo "workflow_id=${{ github.event.workflow_run.id }}" >> $GITHUB_OUTPUT
-          echo "workflow_url=${{ github.event.workflow_run.html_url }}" >> $GITHUB_OUTPUT
+          RUN_ID=${{ github.event.workflow_run.id }}
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+          echo "run_url=${{ github.event.workflow_run.html_url }}" >> $GITHUB_OUTPUT
+          
+          # Check how many auto-fix attempts have been made
+          COMMIT_MSG=$(git log --oneline -1 --format="%s" HEAD 2>/dev/null || echo "")
+          if echo "$COMMIT_MSG" | grep -q "fix(CI):"; then
+            # Count consecutive auto-fix commits
+            AUTO_FIX_COUNT=$(git log --oneline | grep -c "fix(CI):" || echo "0")
+            echo "auto_fix_count=$AUTO_FIX_COUNT" >> $GITHUB_OUTPUT
+          else
+            echo "auto_fix_count=0" >> $GITHUB_OUTPUT
+          fi
+      
+      # Download workflow logs directly from GitHub API
+      - name: Download workflow logs
+        run: |
+          mkdir -p build/ci-logs
+          
+          # Try to download logs archive
+          curl -sL -o build/ci-logs/logs.zip \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ steps.workflow-info.outputs.run_id }}/logs"
+          
+          # If it's a zip file, unzip it
+          if file build/ci-logs/logs.zip | grep -q "Zip archive"; then
+            unzip -o build/ci-logs/logs.zip -d build/ci-logs/ 2>/dev/null || true
+            rm build/ci-logs/logs.zip
+          fi
+          
+          # Find and combine job logs
+          find build/ci-logs -name "*.txt" -o -name "*.log" 2>/dev/null | while read f; do
+            echo "=== $f ===" >> build/ci-logs/combined.log
+            cat "$f" >> build/ci-logs/combined.log 2>/dev/null || true
+            echo "" >> build/ci-logs/combined.log
+          done
+          
+          # Show last 100 lines for debugging
+          if [ -f build/ci-logs/combined.log ]; then
+            echo "=== LAST 100 LINES OF LOG ==="
+            tail -100 build/ci-logs/combined.log
+          fi
       
       # Checkout with full history
       - name: Checkout repository
@@ -70,87 +99,110 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
       
-      # Create prompt file with error context
+      # Create detailed prompt with actual logs
       - name: Create fix prompt
         run: |
-          cat > /tmp/ci-fix-prompt.txt << 'EOF'
-          ## CI Failure: DPI Bypass Test on develop branch
+          # Get error context from logs
+          ERROR_CONTEXT=""
+          if [ -f build/ci-logs/combined.log ]; then
+            # Extract error lines
+            ERROR_CONTEXT=$(grep -i -E "error|failed|exception" build/ci-logs/combined.log | tail -50 | head -30 || echo "")
+          fi
           
-          The DPI Bypass Test workflow just failed.
-          View the failure: ${{ github.event.workflow_run.html_url }}
+          cat > /tmp/ci-fix-prompt.md << EOF
+          ## CI Failure: DPI Bypass Test Failed
+          
+          **Workflow Run:** ${{ steps.workflow-info.outputs.run_url }}
+          **Auto-fix attempts so far:** ${{ steps.workflow-info.outputs.auto_fix_count }}
+          
+          ### Error Context from Logs
+          \`\`\`
+          $ERROR_CONTEXT
+          \`\`\`
+          
+          ### Files to Analyze
+          - `.github/workflows/dpi-bypass-test.yml` - The test workflow
+          - `.maestro/tests/dpi/loginAndEnableDpiBypass.yaml` - The test flow
           
           ### Your Task
-          1. Check the workflow logs to understand the error
-          2. Look at the test file: `.maestro/tests/dpi/loginAndEnableDpiBypass.yaml`
-          3. Look at the workflow file: `.github/workflows/dpi-bypass-test.yml`
-          4. Fix the issue causing the test to fail
-          5. Push the fix directly to develop branch
+          1. Read the workflow file and test file to understand the setup
+          2. Based on the error context above, identify the root cause
+          3. Fix the issue - keep it minimal and targeted
+          4. Push fix directly: \`git push origin develop\`
           
-          ### Common Issues to Look For
-          - Emulator startup failures (ADB connection issues)
-          - Maestro test flow issues (wrong element IDs or text)
-          - Environment variable problems
-          - Timeout issues
+          ### Common Fixes
+          - ADB/emulator issues: Check emulator options, timeouts, boot sequence
+          - Maestro test issues: Verify element IDs, wait times, flow steps
+          - Environment issues: Check secrets, paths, permissions
           
-          ### Important
-          - Only modify test-related files, NOT the app build
-          - Push fix directly: `git push origin develop`
-          - Keep the fix minimal - don't over-engineer
+          ### Rules
+          - Only modify test files, NOT the app build
+          - Push fix directly to develop branch
+          - Keep fix minimal - one issue at a time
+          - Use GH_TOKEN env var for git operations
           EOF
+          
+          echo "=== FIX PROMPT ==="
+          cat /tmp/ci-fix-prompt.md
       
-      # Start the proxy
+      # Wait for proxy
       - name: Wait for proxy service
         run: |
-          echo "Waiting for claude-code-proxy to be ready..."
+          echo "Waiting for claude-code-proxy..."
           for i in {1..30}; do
             if curl -f http://localhost:8082/ 2>/dev/null; then
-              echo "Proxy is ready!"
+              echo "Proxy ready!"
               exit 0
             fi
             echo "Waiting... ($i/30)"
             sleep 2
           done
-          echo "Proxy failed to start"
-          exit 1
+          echo "Proxy failed - continuing anyway"
         continue-on-error: true
       
-      # Run Claude Code to fix the issue
-      - name: Run Claude Code - Auto-Fix CI
+      # Run Claude Code
+      - name: Run Claude Code - Auto-Fix
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: sk-placeholder
           claude_args: >-
-            --max-turns 5
+            --max-turns 8
             --model claude-sonnet-4-6
             --dangerously-skip-permissions
+            --output-format stream-json
         env:
           ANTHROPIC_BASE_URL: http://localhost:8082
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
       
-      # Push the fix if changes exist
+      # Push if changes exist
       - name: Push fix
         run: |
-          if git diff --quiet; then
-            echo "No changes made by agent"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No changes to push"
           else
-            echo "Pushing fixes..."
+            echo "Changes detected - committing and pushing..."
             git config user.name "CI Auto-Fix"
             git config user.email "ci@github.actions"
             git add -A
-            git commit -m "fix(CI): auto-fix DPI test failure" || true
+            git commit -m "fix(CI): auto-fix DPI test failure" || echo "Nothing to commit"
             git push origin develop || echo "Push failed or nothing to push"
           fi
       
-      # Report results
+      # Report
       - name: Report results
         run: |
           echo "## CI Auto-Fix Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if git diff --quiet; then
-            echo "⚠️ No fixes were applied" >> $GITHUB_STEP_SUMMARY
-            echo "The agent was unable to identify a solution." >> $GITHUB_STEP_SUMMARY
+          
+          if git log --oneline -1 | grep -q "fix(CI):"; then
+            echo "✅ Fix pushed to develop" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "CI will re-run automatically." >> $GITHUB_STEP_SUMMARY
+            echo "If it fails again, this workflow will trigger again." >> $GITHUB_STEP_SUMMARY
           else
-            echo "✅ Fixes have been pushed to develop" >> $GITHUB_STEP_SUMMARY
-            echo "CI will automatically re-run with the fixes." >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ No fix was applied" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The agent couldn't identify a solution." >> $GITHUB_STEP_SUMMARY
+            echo "Manual intervention may be needed." >> $GITHUB_STEP_SUMMARY
           fi
