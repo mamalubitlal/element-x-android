@@ -82,7 +82,9 @@ jobs:
         with:
           name: chator-dpi-apk
       - name: Install maestro
-        run: brew install maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
       - name: Kill stale ADB and restart
         run: |
           adb kill-server || true
