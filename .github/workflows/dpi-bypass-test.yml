@@ -69,11 +69,13 @@ jobs:
     name: DPI Bypass Test
     runs-on: macos-latest
     needs: [ build-apk ]
+    if: |
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     concurrency:
       group: dpi-bypass-test
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        if: (github.event_name == 'pull_request' && github.event.pull_request.fork == null) || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
         with:
           ref: ${{ github.ref }}
           persist-credentials: false
@@ -122,6 +124,7 @@ jobs:
           adb pull /sdcard/maestro/ build/maestro/ 2>/dev/null || true
           adb pull /sdcard/screenshots/ build/maestro/ 2>/dev/null || true
       - name: Upload test results
+        if: failure() || steps.maestro_test.outcome == 'failure'
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: dpi-test-results
@@ -130,7 +133,7 @@ jobs:
             ~/.maestro/tests/**
           retention-days: 5
           overwrite: true
-          if-no-files-found: error
+          if-no-files-found: warn
       - name: Update summary (success)
         if: steps.maestro_test.outcome == 'success'
         run: |
