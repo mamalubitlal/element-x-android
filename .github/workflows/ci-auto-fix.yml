@@ -24,32 +24,18 @@ jobs:
       github.event.workflow_run.name == 'DPI Bypass Test'
     runs-on: ubuntu-latest
     
-    services:
-      proxy:
-        image: ghcr.io/1rgs/claude-code-proxy:main
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_BASE_URL: https://opencode.ai/zen/v1
-          PREFERRED_PROVIDER: openai
-          BIG_MODEL: nemotron-3-super-free
-          SMALL_MODEL: big-pickle
-          ANTHROPIC_API_KEY: sk-placeholder
-          GEMINI_API_KEY: sk-placeholder
-        ports:
-          - 8082:8082
-        options: >-
-          --health-cmd "curl -f http://localhost:8082/ || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    
     steps:
       # Get workflow run info
       - name: Get workflow info
         id: workflow-info
         run: |
           echo "run_id=${{ github.event.workflow_run.id }}" >> $GITHUB_OUTPUT
-          echo "run_url=${{ github.event.workflow_run.html_url }}" >> $GITHUB_OUTPUT
+          echo "run_url=${{ github.event.workflow_run.html_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## CI Auto-Fix Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "Workflow: DPI Bypass Test" >> $GITHUB_STEP_SUMMARY
+          echo "Status: Failed" >> $GITHUB_STEP_SUMMARY
+          echo "URL: ${{ github.event.workflow_run.html_url }}" >> $GITHUB_STEP_SUMMARY
       
       # Checkout with full history
       - name: Checkout repository
@@ -59,77 +45,50 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
       
-      # Wait for proxy
-      - name: Wait for proxy service
-        run: |
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:8082/ > /dev/null 2>&1; then
-              echo "Proxy ready!"
-              exit 0
-            fi
-            echo "Waiting... ($i/30)"
-            sleep 2
-          done
-          echo "Proxy not ready, continuing anyway"
-        continue-on-error: true
-      
-      # Run Claude Code
-      - name: Run Claude Code - Auto-Fix
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: sk-placeholder
-          claude_args: >-
-            --max-turns 10
-            --model claude-sonnet-4-6
-            --dangerously-skip-permissions
+      # Run opencode to fix the issue
+      - name: Run opencode - Auto-Fix
+        uses: anomalyco/opencode/github@latest
         env:
-          ANTHROPIC_BASE_URL: http://localhost:8082
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROMPT: |
-            ## CI Failure: DPI Bypass Test
-            
-            The DPI Bypass Test workflow failed.
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          model: opencode/big-pickle
+          prompt: |
+            Fix the failing DPI Bypass Test CI workflow.
+
             Workflow URL: ${{ github.event.workflow_run.html_url }}
-            
-            ### Your Task
-            1. Read .github/workflows/dpi-bypass-test.yml
-            2. Read .maestro/tests/dpi/loginAndEnableDpiBypass.yaml
-            3. Identify why the test is failing
-            4. Fix the issue
-            5. Push fix: git push origin develop
-            
-            ### Common Issues
-            - Emulator boot timeout or ADB connection failure
-            - Maestro test element not found
-            - Environment/secrets problems
-            
-            ### Rules
-            - Only modify test files
-            - Push directly to develop
-            - Keep fix minimal
+
+            1. Read .github/workflows/dpi-bypass-test.yml to understand the test setup
+            2. Read .maestro/tests/dpi/loginAndEnableDpiBypass.yaml to understand the test flow
+            3. Identify why the test is failing by analyzing the workflow logs
+            4. Apply a minimal fix to make the test pass
+            5. Commit and push the fix:
+               git config user.name "CI Auto-Fix"
+               git config user.email "ci@github.actions"
+               git add -A
+               git commit -m "fix(CI): auto-fix DPI test"
+               git push origin develop
+
+            Common issues to check:
+            - Emulator boot timeout (increase timeout, check hardware requirements)
+            - ADB connection failure (check emulator startup sequence)
+            - Maestro element not found (verify UI selectors match Russian UI)
+            - Missing secrets (TESTUSR, TESTPSW, TESTUSR_RECOVERY_KEY)
+
+            Rules:
+            - Only modify test-related files (.github/workflows/*.yml, .maestro/**/*.yaml)
+            - Keep fix minimal - don't refactor unrelated code
+            - Push directly to develop branch
         continue-on-error: true
       
-      # Push if changes exist
-      - name: Push fix
-        run: |
-          if git diff --quiet; then
-            echo "No changes to push"
-          else
-            echo "Changes detected - committing..."
-            git config user.name "CI Auto-Fix"
-            git config user.email "ci@github.actions"
-            git add -A
-            git commit -m "fix(CI): auto-fix DPI test" || echo "Nothing to commit"
-            git push origin develop || echo "Push failed"
-          fi
-      
-      # Report
+      # Report results
       - name: Report results
         run: |
-          echo "## CI Auto-Fix Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## CI Auto-Fix Results" >> $GITHUB_STEP_SUMMARY
           if git log --oneline -1 | grep -q "fix(CI):"; then
-            echo "✅ Fix pushed - CI will re-run" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Fix committed and pushed - CI will re-run" >> $GITHUB_STEP_SUMMARY
           else
-            echo "⚠️ No fix applied" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ No fix was needed or push failed" >> $GITHUB_STEP_SUMMARY
+            echo "Check opencode output above for details" >> $GITHUB_STEP_SUMMARY
           fi
