@@ -106,9 +106,7 @@ jobs:
           target: ${{ env.TARGET }}
           emulator-options: -no-snapshot -no-window -no-audio -no-boot-anim -camera-back none
           disable-animations: true
-          wait-for-boot: true
-          boot-timeout: 5m
-          headless: false
+          emulator-boot-timeout: 5m
           script: |
             adb install -r app-gplay-x86_64-debug.apk
             ~/.maestro/bin/maestro test \
