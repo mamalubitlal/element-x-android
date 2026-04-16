@@ -67,7 +67,7 @@ jobs:
 
   dpi-bypass-test:
     name: DPI Bypass Test
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     needs: [ build-apk ]
     concurrency:
       group: dpi-bypass-test
@@ -81,13 +81,8 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: chator-dpi-apk
-      - name: Enable KVM group perms
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
       - name: Install maestro
-        run: curl -fsSL "https://get.maestro.mobile.dev" | bash
+        run: brew install maestro
       - name: Kill stale ADB and restart
         run: |
           adb kill-server || true
@@ -107,11 +102,11 @@ jobs:
           arch: ${{ env.ARCH }}
           profile: ${{ env.DEVICE }}
           target: ${{ env.TARGET }}
-          emulator-options: -no-snapshot -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -wipe-data
+          emulator-options: -no-snapshot -no-window -no-audio -no-boot-anim -camera-back none
           disable-animations: true
           wait-for-boot: true
-          boot-timeout: 10m
-          disk-size: 3G
+          boot-timeout: 5m
+          headless: false
           script: |
             adb install -r app-gplay-x86_64-debug.apk
             ~/.maestro/bin/maestro test \
