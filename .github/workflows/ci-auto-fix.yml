@@ -67,28 +67,36 @@ jobs:
         run: |
           mkdir -p build/ci-logs
           
-          # Try to download logs archive
-          curl -sL -o build/ci-logs/logs.zip \
-            -H "Authorization: token $GH_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ steps.workflow-info.outputs.run_id }}/logs"
+          # Download logs using gh CLI
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "repos/${{ github.repository }}/actions/runs/${{ steps.workflow-info.outputs.run_id }}/logs" \
+            --output build/ci-logs/logs.zip \
+            || echo "gh api failed, trying curl..."
           
           # If it's a zip file, unzip it
-          if file build/ci-logs/logs.zip | grep -q "Zip archive"; then
+          if file build/ci-logs/logs.zip 2>/dev/null | grep -q "Zip archive"; then
             unzip -o build/ci-logs/logs.zip -d build/ci-logs/ 2>/dev/null || true
-            rm build/ci-logs/logs.zip
+            rm -f build/ci-logs/logs.zip
           fi
           
-          # Find and combine job logs
-          find build/ci-logs -name "*.txt" -o -name "*.log" 2>/dev/null | while read f; do
+          # Find and combine all log files
+          find build/ci-logs -type f \( -name "*.txt" -o -name "*.log" \) 2>/dev/null | while read f; do
+            echo "" >> build/ci-logs/combined.log
             echo "=== $f ===" >> build/ci-logs/combined.log
             cat "$f" >> build/ci-logs/combined.log 2>/dev/null || true
-            echo "" >> build/ci-logs/combined.log
           done
           
-          # Show last 100 lines for debugging
-          if [ -f build/ci-logs/combined.log ]; then
-            echo "=== LAST 100 LINES OF LOG ==="
-            tail -100 build/ci-logs/combined.log
+          # Show what we got
+          echo "=== LOG FILES FOUND ==="
+          find build/ci-logs -type f | head -20
+          
+          # Show last 50 lines for debugging
+          if [ -f build/ci-logs/combined.log ] && [ -s build/ci-logs/combined.log ]; then
+            echo "=== LAST 50 LINES OF LOG ==="
+            tail -50 build/ci-logs/combined.log
+          else
+            echo "No combined log found or empty"
           fi
       
       # Checkout with full history
@@ -102,23 +110,29 @@ jobs:
       # Create detailed prompt with actual logs
       - name: Create fix prompt
         run: |
+          cd "$GITHUB_WORKSPACE" || cd /home/runner/work/element-x-android/element-x-android || true
+          pwd
+          
           # Get error context from logs
           ERROR_CONTEXT=""
           if [ -f build/ci-logs/combined.log ]; then
-            # Extract error lines
-            ERROR_CONTEXT=$(grep -i -E "error|failed|exception" build/ci-logs/combined.log | tail -50 | head -30 || echo "")
+            # Extract error lines - be more permissive
+            ERROR_CONTEXT=$(grep -iE "(error|failed|exception|Failed|Error|FAIL)" build/ci-logs/combined.log 2>/dev/null | tail -30 || echo "No errors found in logs")
+          else
+            ERROR_CONTEXT="No log file found - logs may not have been uploaded"
           fi
           
-          cat > /tmp/ci-fix-prompt.md << EOF
+          # Create prompt file
+          tee /tmp/ci-fix-prompt.md > /dev/null << 'PROMPT_EOF'
           ## CI Failure: DPI Bypass Test Failed
           
           **Workflow Run:** ${{ steps.workflow-info.outputs.run_url }}
           **Auto-fix attempts so far:** ${{ steps.workflow-info.outputs.auto_fix_count }}
           
           ### Error Context from Logs
-          \`\`\`
+          ```
           $ERROR_CONTEXT
-          \`\`\`
+          ```
           
           ### Files to Analyze
           - `.github/workflows/dpi-bypass-test.yml` - The test workflow
@@ -128,7 +142,7 @@ jobs:
           1. Read the workflow file and test file to understand the setup
           2. Based on the error context above, identify the root cause
           3. Fix the issue - keep it minimal and targeted
-          4. Push fix directly: \`git push origin develop\`
+          4. Push fix directly: `git push origin develop`
           
           ### Common Fixes
           - ADB/emulator issues: Check emulator options, timeouts, boot sequence
@@ -140,9 +154,9 @@ jobs:
           - Push fix directly to develop branch
           - Keep fix minimal - one issue at a time
           - Use GH_TOKEN env var for git operations
-          EOF
+          PROMPT_EOF
           
-          echo "=== FIX PROMPT ==="
+          echo "=== FIX PROMPT CREATED ==="
           cat /tmp/ci-fix-prompt.md
       
       # Wait for proxy
@@ -160,16 +174,17 @@ jobs:
           echo "Proxy failed - continuing anyway"
         continue-on-error: true
       
-      # Run Claude Code
+      # Run Claude Code with prompt
       - name: Run Claude Code - Auto-Fix
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: sk-placeholder
+          prompt: |
+            $(cat /tmp/ci-fix-prompt.md)
           claude_args: >-
-            --max-turns 8
+            --max-turns 10
             --model claude-sonnet-4-6
             --dangerously-skip-permissions
-            --output-format stream-json
         env:
           ANTHROPIC_BASE_URL: http://localhost:8082
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
