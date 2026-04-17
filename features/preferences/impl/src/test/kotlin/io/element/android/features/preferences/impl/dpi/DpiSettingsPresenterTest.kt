@@ -10,8 +10,10 @@
 package io.element.android.features.preferences.impl.dpi
 
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.SharedPreferences
 import com.google.common.truth.Truth.assertThat
+import org.robolectric.RuntimeEnvironment
 import io.element.android.libraries.dpi.api.DpiBypassManager
 import io.element.android.libraries.dpi.api.StrategyTestResult
 import io.element.android.services.toolbox.api.strings.StringProvider
@@ -356,7 +358,7 @@ class DpiSettingsPresenterTest {
         dpiBypassManager: FakeDpiBypassManager = FakeDpiBypassManager(),
         strategyManager: FakeDpiStrategyManager = FakeDpiStrategyManager(),
     ): DpiSettingsPresenter {
-        val context = FakeContext()
+        val context = FakeContext(RuntimeEnvironment.getApplication())
         return DpiSettingsPresenter(
             context = context,
             stringProvider = FakeStringProvider(),
@@ -369,26 +371,12 @@ class DpiSettingsPresenterTest {
 /**
  * Fake context for testing that provides in-memory SharedPreferences.
  */
-class FakeContext : Context() {
+class FakeContext(baseContext: Context) : ContextWrapper(baseContext) {
     private val prefs = mutableMapOf<String, Any?>()
-    private val fakeAssets = android.content.res.AssetManager::class.java.getDeclaredMethod("getAssets").let { 
-        android.content.res.AssetManager() 
-    }
     
     override fun getSharedPreferences(name: String, mode: Int): SharedPreferences {
         return FakeSharedPreferences(prefs)
     }
-    
-    // Stub all other methods - not needed for tests
-    override fun getString(resId: Int): String = "test"
-    override fun getString(resId: Int, vararg defs: Any): String = "test"
-    override fun getPackageName(): String = "test.package"
-    override fun getApplicationInfo(): android.content.pm.ApplicationInfo = android.content.pm.ApplicationInfo()
-    override fun getPackageResourcePath(): String = ""
-    override fun getAssets(): android.content.res.AssetManager = fakeAssets
-    override fun createPackageContext(packageName: String, flags: Int): Context = this
-    override fun bindService(service: android.content.Intent, conn: android.content.ServiceConnection, flags: Int): Boolean = false
-    override fun unregisterReceiver(receiver: android.content.BroadcastReceiver) {}
 }
 
 /**
