@@ -57,7 +57,7 @@ jobs:
           opencode run \
             --model opencode/big-pickle \
             --dangerously-skip-permissions \
-            -- "Fix the failing DPI Bypass Test CI workflow. Workflow URL: ${{ github.event.workflow_run.html_url }}. Tasks: 1) Read .github/workflows/dpi-bypass-test.yml 2) Read .maestro/tests/dpi/loginAndEnableDpiBypass.yaml 3) Identify why test is failing 4) Apply minimal fix 5) Commit and push with message 'fix(CI): auto-fix DPI test'. Common issues: emulator boot timeout, ADB connection failure, Maestro element not found, missing secrets. Only modify test files."
+            -- "Fix the failing CI workflow. Workflow URL: ${{ github.event.workflow_run.html_url }}. Tasks: 1) Read the failing workflow file from .github/workflows/ 2) Read related source/test files 3) Identify the root cause of the failure 4) Apply minimal fix 5) Commit and push with message 'fix(CI): auto-fix'. The failing workflow is: ${{ github.event.workflow_run.name }}. Analyze test failures, build errors, or other CI issues and fix them."
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
