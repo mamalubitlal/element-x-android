@@ -91,7 +91,7 @@ appId: ${MAESTRO_APP_ID}
 
 # 17. Open Settings
 - extendedWaitUntil:
-    visible: "Settings"
+    visible: "Настройки"
     timeout: 10000
 - takeScreenshot: build/maestro/400-SettingsOpened
 
