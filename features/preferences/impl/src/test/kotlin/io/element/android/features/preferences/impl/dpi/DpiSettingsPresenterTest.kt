@@ -32,7 +32,7 @@ class DpiSettingsPresenterTest {
 
     @Test
     fun `present - initial state has correct defaults`() = runTest {
-        val presenter = createDpiSettingsPresenter()
+        val presenter = createDpiSettingsPresenterUnderTest()
         presenter.test {
             val state = awaitItem()
             assertThat(state.isDpiBypassEnabled).isFalse()
@@ -53,7 +53,7 @@ class DpiSettingsPresenterTest {
         val fakeBypassManager = FakeDpiBypassManager()
         val fakeStrategyManager = FakeDpiStrategyManager()
         
-        val presenter = createDpiSettingsPresenter(
+        val presenter = createDpiSettingsPresenterUnderTest(
             dpiBypassManager = fakeBypassManager,
             strategyManager = fakeStrategyManager
         )
@@ -76,7 +76,7 @@ class DpiSettingsPresenterTest {
         val fakeBypassManager = FakeDpiBypassManager()
         fakeBypassManager.isRunningValue = true
         
-        val presenter = createDpiSettingsPresenter(
+        val presenter = createDpiSettingsPresenterUnderTest(
             dpiBypassManager = fakeBypassManager
         )
         
@@ -97,7 +97,7 @@ class DpiSettingsPresenterTest {
             isNativeAvailableValue = false
         }
         
-        val presenter = createDpiSettingsPresenter(
+        val presenter = createDpiSettingsPresenterUnderTest(
             dpiBypassManager = fakeBypassManager
         )
         
@@ -117,7 +117,7 @@ class DpiSettingsPresenterTest {
     fun `present - StartAutoTest loads strategies and tests them`() = runTest {
         val fakeStrategyManager = FakeDpiStrategyManager()
         
-        val presenter = createDpiSettingsPresenter(
+        val presenter = createDpiSettingsPresenterUnderTest(
             strategyManager = fakeStrategyManager
         )
         
@@ -143,7 +143,7 @@ class DpiSettingsPresenterTest {
             configureStrategiesEmpty()
         }
         
-        val presenter = createDpiSettingsPresenter(
+        val presenter = createDpiSettingsPresenterUnderTest(
             strategyManager = fakeStrategyManager
         )
         
@@ -184,7 +184,7 @@ class DpiSettingsPresenterTest {
         )
         fakeStrategyManager.addSavedResults("test-network-id", testResults)
         
-        val presenter = createDpiSettingsPresenter(
+        val presenter = createDpiSettingsPresenterUnderTest(
             strategyManager = fakeStrategyManager
         )
         
@@ -219,7 +219,7 @@ class DpiSettingsPresenterTest {
         )
         fakeStrategyManager.addSavedResults("test-network-id", testResults)
         
-        val presenter = createDpiSettingsPresenter(
+        val presenter = createDpiSettingsPresenterUnderTest(
             strategyManager = fakeStrategyManager
         )
         
@@ -261,7 +261,7 @@ class DpiSettingsPresenterTest {
         )
         fakeStrategyManager.addSavedResults("test-network-id", testResults)
         
-        val presenter = createDpiSettingsPresenter(
+        val presenter = createDpiSettingsPresenterUnderTest(
             dpiBypassManager = fakeBypassManager,
             strategyManager = fakeStrategyManager
         )
@@ -286,7 +286,7 @@ class DpiSettingsPresenterTest {
         val fakeStrategyManager = FakeDpiStrategyManager()
         // Don't add any saved results
         
-        val presenter = createDpiSettingsPresenter(
+        val presenter = createDpiSettingsPresenterUnderTest(
             dpiBypassManager = fakeBypassManager,
             strategyManager = fakeStrategyManager
         )
@@ -308,7 +308,7 @@ class DpiSettingsPresenterTest {
             networkIdValue = "my-network"
         }
         
-        val presenter = createDpiSettingsPresenter(
+        val presenter = createDpiSettingsPresenterUnderTest(
             strategyManager = fakeStrategyManager
         )
         
@@ -328,7 +328,7 @@ class DpiSettingsPresenterTest {
         }
     }
 
-    private fun createDpiSettingsPresenter(
+    private fun createDpiSettingsPresenterUnderTest(
         dpiBypassManager: FakeDpiBypassManager = FakeDpiBypassManager(),
         strategyManager: FakeDpiStrategyManager = FakeDpiStrategyManager(),
     ): DpiSettingsPresenter {
