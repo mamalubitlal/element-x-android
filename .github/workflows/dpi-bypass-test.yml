@@ -41,10 +41,12 @@ jobs:
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/develop' }}
 
-      - name: Clean and Run DPI unit tests
+      - name: Clean all caches and Run DPI unit tests
         run: |
-          rm -rf ~/.gradle/caches/transforms-*
+          rm -rf ~/.gradle/caches/
+          rm -rf ~/.gradle/wrapper/
           rm -rf features/preferences/impl/build
+          rm -rf .gradle/
           ./gradlew :features:preferences:impl:testDebugUnitTest --tests "io.element.android.features.preferences.impl.dpi.*" $CI_GRADLE_ARG_PROPERTIES
         env:
           ELEMENT_ANDROID_MAPTILER_API_KEY: ${{ secrets.MAPTILER_KEY }}
