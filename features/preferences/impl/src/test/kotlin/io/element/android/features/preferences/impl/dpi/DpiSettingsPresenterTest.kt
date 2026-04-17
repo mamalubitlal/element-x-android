@@ -9,13 +9,14 @@
 
 package io.element.android.features.preferences.impl.dpi
 
-import androidx.test.platform.app.ContextInstrumentationRegistry
+import android.content.Context
+import android.content.SharedPreferences
 import com.google.common.truth.Truth.assertThat
+import io.element.android.libraries.dpi.api.DpiBypassManager
 import io.element.android.libraries.dpi.api.StrategyTestResult
-import io.element.android.libraries.dpi.api.DomainResult
+import io.element.android.services.toolbox.api.strings.StringProvider
 import io.element.android.tests.testutils.WarmUpRule
 import io.element.android.tests.testutils.test
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -355,10 +356,10 @@ class DpiSettingsPresenterTest {
         dpiBypassManager: FakeDpiBypassManager = FakeDpiBypassManager(),
         strategyManager: FakeDpiStrategyManager = FakeDpiStrategyManager(),
     ): DpiSettingsPresenter {
-        val context = ContextInstrumentationRegistry.getInstrumentation().targetContext
+        val context = FakeContext()
         return DpiSettingsPresenter(
             context = context,
-            stringProvider = TestStringProvider(),
+            stringProvider = FakeStringProvider(),
             dpiBypassManager = dpiBypassManager,
             strategyManager = strategyManager,
         )
@@ -366,9 +367,60 @@ class DpiSettingsPresenterTest {
 }
 
 /**
+ * Fake context for testing that provides in-memory SharedPreferences.
+ */
+class FakeContext : Context() {
+    private val prefs = mutableMapOf<String, Any?>()
+    
+    override fun getSharedPreferences(name: String, mode: Int): SharedPreferences {
+        return FakeSharedPreferences(prefs)
+    }
+    
+    // Stub all other methods - not needed for tests
+    override fun getString(resId: Int): String = "test"
+    override fun getString(resId: Int, defs: Any?): String = "test"
+    override fun getPackageName(): String = "test.package"
+    override fun getApplicationInfo(): android.content.pm.ApplicationInfo = android.content.pm.ApplicationInfo()
+    override fun getPackageResourcePath(): String = ""
+    override fun getAssets(): android.content.res.AssetManager = createPackageContext("", 0)!!.createPackageContext("", 0)!!.assets
+    override fun createPackageContext(packageName: String, flags: Int): Context? = null
+}
+
+/**
+ * Fake SharedPreferences for testing.
+ */
+class FakeSharedPreferences(private val map: MutableMap<String, Any?>) : SharedPreferences {
+    override fun getAll(): Map<String, *> = map
+    override fun getString(key: String, defValue: String?): String? = map[key] as? String ?: defValue
+    override fun getStringSet(key: String, defValues: Set<String>?): Set<String>? = map[key] as? Set<String> ?: defValues
+    override fun getInt(key: String, defValue: Int): Int = map[key] as? Int ?: defValue
+    override fun getLong(key: String, defValue: Long): Long = map[key] as? Long ?: defValue
+    override fun getFloat(key: String, defValue: Float): Float = map[key] as? Float ?: defValue
+    override fun getBoolean(key: String, defValue: Boolean): Boolean = map[key] as? Boolean ?: defValue
+    override fun contains(key: String): Boolean = map.containsKey(key)
+    override fun edit(): SharedPreferences.Editor = FakeEditor(map)
+    override fun registerOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {}
+    override fun unregisterOnSharedPreferenceChangeListener(listener: SharedPreferences.OnSharedPreferenceChangeListener) {}
+}
+
+class FakeEditor(private val map: MutableMap<String, Any?>) : SharedPreferences.Editor {
+    override fun putString(key: String, value: String?): SharedPreferences.Editor { map[key] = value; return this }
+    override fun putStringSet(key: String, values: Set<String>?): SharedPreferences.Editor { map[key] = values; return this }
+    override fun putInt(key: String, value: Int): SharedPreferences.Editor { map[key] = value; return this }
+    override fun putLong(key: String, value: Long): SharedPreferences.Editor { map[key] = value; return this }
+    override fun putFloat(key: String, value: Float): SharedPreferences.Editor { map[key] = value; return this }
+    override fun putBoolean(key: String, value: Boolean): SharedPreferences.Editor { map[key] = value; return this }
+    override fun remove(key: String): SharedPreferences.Editor { map.remove(key); return this }
+    override fun clear(): SharedPreferences.Editor { map.clear(); return this }
+    override fun commit(): Boolean = true
+    override fun apply() {}
+}
+
+/**
  * Simple string provider for testing that returns keys as strings.
  */
-class TestStringProvider : io.element.android.services.toolbox.api.strings.StringProvider {
+class FakeStringProvider : StringProvider {
     override fun getString(resId: Int): String = "test_string_$resId"
     override fun getString(resId: Int, vararg formatArgs: Any?): String = "test_string_$resId"
+    override fun getQuantityString(resId: Int, quantity: Int, vararg formatArgs: Any?): String = "test_string_$resId"
 }
