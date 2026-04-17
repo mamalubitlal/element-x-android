@@ -19,6 +19,8 @@ import io.element.android.features.preferences.impl.tasks.FakeClearCacheUseCase
 import io.element.android.features.preferences.impl.tasks.FakeComputeCacheSizeUseCase
 import io.element.android.features.preferences.impl.tasks.VacuumStoresUseCase
 import io.element.android.features.rageshake.api.preferences.aRageshakePreferencesState
+import io.element.android.features.preferences.impl.dpi.FakeDpiBypassManager
+import io.element.android.features.preferences.impl.dpi.FakeDpiStrategyManager
 import io.element.android.libraries.androidutils.filesize.FakeFileSizeFormatter
 import io.element.android.libraries.architecture.AsyncAction
 import io.element.android.libraries.architecture.AsyncData
@@ -268,6 +270,8 @@ class DeveloperSettingsPresenterTest {
         enterpriseService: EnterpriseService = FakeEnterpriseService(),
         vacuumStoresUseCase: VacuumStoresUseCase = VacuumStoresUseCase {},
         databaseSizesUseCase: GetDatabaseSizesUseCase = GetDatabaseSizesUseCase { Result.success(SdkStoreSizes(null, null, null, null)) },
+        dpiBypassManager: FakeDpiBypassManager = FakeDpiBypassManager(),
+        strategyManager: FakeDpiStrategyManager = FakeDpiStrategyManager(),
     ): DeveloperSettingsPresenter {
         return DeveloperSettingsPresenter(
             sessionId = sessionId,
@@ -281,6 +285,8 @@ class DeveloperSettingsPresenterTest {
             vacuumStoresUseCase = vacuumStoresUseCase,
             databaseSizesUseCase = databaseSizesUseCase,
             fileSizeFormatter = FakeFileSizeFormatter(),
+            dpiBypassManager = dpiBypassManager,
+            strategyManager = strategyManager,
         )
     }
 }
