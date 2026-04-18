@@ -1,14 +1,3 @@
-# Claude Code GitHub Action with OpenAI-Compatible Backend (opencode.ai)
-#
-# This workflow runs the claude-code-proxy to translate Anthropic API requests
-# to OpenAI-compatible format, enabling Claude Code to use Qwen3.6-Plus-Free
-# via opencode.ai Zen API.
-#
-# Setup:
-# 1. Get your opencode.ai API key from https://opencode.ai
-# 2. Add it as a GitHub secret: OPENAI_API_KEY
-# 3. This workflow will automatically start the proxy and route requests
-
 name: Claude Code (opencode.ai)
 
 on:
@@ -18,23 +7,71 @@ on:
     types: [created]
   issues:
     types: [opened, assigned]
-  pull_request:
-    types: [opened, synchronize]
-
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
-  id-token: write
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+
     services:
-      # Start the Anthropic→OpenAI translation proxy
-      # This allows Claude Code (Anthropic API) to work with opencode.ai (OpenAI-compatible)
       proxy:
+        image: ghcr.io/1rgs/claude-code-proxy:main
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: https://opencode.ai/zen/v1
+          PREFERRED_PROVIDER: openai
+          BIG_MODEL: nemotron-3-super-free
+          SMALL_MODEL: big-pickle
+          ANTHROPIC_API_KEY: sk-placeholder
+          GEMINI_API_KEY: sk-placeholder
+        ports:
+          - 8082:8082
+        options: >-
+          --health-cmd "curl -f http://localhost:8082/ || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Wait for proxy service
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:8082/ 2>/dev/null; then
+              echo "Proxy ready!"
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        uses: anthropics/claude-code-action@v1
+        with:
+          # Use placeholder key; proxy handles real auth
+          anthropic_api_key: sk-placeholder
+          # Optional: Add any model or turn limits
+          claude_args: |
+            --max-turns 10
+        env:
+          # Override API endpoint to use local proxy
+          ANTHROPIC_BASE_URL: http://localhost:8082      proxy:
         image: ghcr.io/1rgs/claude-code-proxy:main
         env:
           # Use opencode.ai as the OpenAI-compatible backend
