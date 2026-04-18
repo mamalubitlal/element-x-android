@@ -25,50 +25,16 @@ jobs:
       id-token: write
       actions: read
 
-    services:
-      proxy:
-        image: ghcr.io/1rgs/claude-code-proxy:main
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          OPENAI_BASE_URL: https://opencode.ai/zen/v1
-          PREFERRED_PROVIDER: openai
-          BIG_MODEL: nemotron-3-super-free
-          SMALL_MODEL: big-pickle
-          ANTHROPIC_API_KEY: sk-placeholder
-          GEMINI_API_KEY: sk-placeholder
-        ports:
-          - 8082:8082
-        options: >-
-          --health-cmd "curl -f http://localhost:8082/ || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
-      - name: Wait for proxy service
-        run: |
-          for i in {1..30}; do
-            if curl -f http://localhost:8082/ 2>/dev/null; then
-              echo "Proxy ready!"
-              exit 0
-            fi
-            sleep 2
-          done
-          exit 1
-
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 1
 
       - name: Run Claude Code
+        id: claude
         uses: anthropics/claude-code-action@v1
         with:
-          # Use placeholder key; proxy handles real auth
-          anthropic_api_key: sk-placeholder
-          # Optional: Add any model or turn limits
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: |
             --max-turns 50
-        env:
-          # Override API endpoint to use local proxy
-          ANTHROPIC_BASE_URL: http://localhost:8082
