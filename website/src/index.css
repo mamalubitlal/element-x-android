@@ -1012,6 +1012,17 @@ img { max-width: 100%; }
   font-size: .75rem;
   color: var(--text-dim);
 }
+.footer__thanks {
+  font-size: .75rem;
+  color: var(--text-dim);
+}
+.footer__thanks a {
+  color: var(--primary-light);
+  text-decoration: none;
+}
+.footer__thanks a:hover {
+  text-decoration: underline;
+}
 
 /* ───────── REVEAL ANIMATIONS ───────── */
 .reveal {
