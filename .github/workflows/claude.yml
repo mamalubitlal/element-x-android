@@ -68,7 +68,7 @@ jobs:
           anthropic_api_key: sk-placeholder
           # Optional: Add any model or turn limits
           claude_args: |
-            --max-turns 10
+            --max-turns 50
         env:
           # Override API endpoint to use local proxy
           ANTHROPIC_BASE_URL: http://localhost:8082
