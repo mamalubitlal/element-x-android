@@ -348,6 +348,11 @@ function Footer({ t }) {
             <span>{t.footer_name}</span>
           </div>
           <p className="footer__license">{t.footer_legal}</p>
+          <p className="footer__thanks">
+            {t.footer_thanks}
+            <a href="https://freedns.afraid.org/" target="_blank" rel="noopener">{t.footer_thanks_freedns}</a>
+            {t.footer_thanks_desc}
+          </p>
         </div>
       </div>
     </footer>
