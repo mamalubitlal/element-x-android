@@ -12,7 +12,7 @@ import android.content.Context
 import android.content.SharedPreferences
 
 object AuthenticationConfig {
-    const val DEFAULT_MATRIX_URL = "https://chator-server.onrender.com"
+    const val DEFAULT_MATRIX_URL = "http://178.166.147.174:8008"
 
     @Volatile
     private var customMatrixUrl: String? = null
