@@ -301,6 +301,9 @@ setupDependencyInjection()
         isTransitive = true
     }
 
+    // Bitchat BLE Mesh networking library
+    implementation(projects.libraries.bitchatMesh)
+
     testCommonDependencies(libs)
     testImplementation(projects.libraries.matrix.test)
     testImplementation(projects.services.toolbox.test)

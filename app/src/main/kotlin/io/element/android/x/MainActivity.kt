@@ -21,7 +21,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,6 +41,8 @@ import io.element.android.libraries.designsystem.utils.snackbar.LocalSnackbarDis
 import io.element.android.services.analytics.compose.LocalAnalyticsService
 import io.element.android.x.di.AppBindings
 import io.element.android.x.intent.SafeUriHandler
+import io.element.android.x.mesh.MeshMessageService
+import io.element.android.x.mesh.NetworkConnectivityManager
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -50,6 +51,15 @@ private val loggerTag = LoggerTag("MainActivity")
 class MainActivity : NodeActivity() {
     private lateinit var mainNode: MainNode
     private lateinit var appBindings: AppBindings
+    
+    // Mesh networking components
+    private lateinit var connectivityManager: NetworkConnectivityManager
+    private lateinit var meshService: MeshMessageService
+    private var isMeshActive = false
+    
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.tag(loggerTag.value).w("onCreate, with savedInstanceState: ${savedInstanceState != null}")
@@ -58,8 +68,38 @@ class MainActivity : NodeActivity() {
         appBindings = bindings()
         setupLockManagement(appBindings.lockScreenService(), appBindings.lockScreenEntryPoint())
         enableEdgeToEdge()
+        
+        // Initialize mesh networking
+        initMeshNetworking()
+        
         setContent {
             MainContent(appBindings)
+        }
+    }
+    
+    private fun initMeshNetworking() {
+        connectivityManager = NetworkConnectivityManager(this)
+        meshService = MeshMessageService(this)
+        
+        // Monitor network connectivity and toggle mesh
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                connectivityManager.isOnline.collect { isOnline ->
+                    if (isOnline) {
+                        if (isMeshActive) {
+                            Timber.tag(TAG).d("Going online, stopping mesh")
+                            meshService.stopMesh()
+                            isMeshActive = false
+                        }
+                    } else {
+                        if (!isMeshActive) {
+                            Timber.tag(TAG).d("Going offline, starting mesh")
+                            meshService.startMesh()
+                            isMeshActive = true
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -168,5 +208,9 @@ class MainActivity : NodeActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Timber.tag(loggerTag.value).w("onDestroy")
+        // Clean up mesh service
+        if (::meshService.isInitialized) {
+            meshService.destroy()
+        }
     }
 }
