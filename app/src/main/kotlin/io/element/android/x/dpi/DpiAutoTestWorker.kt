@@ -15,35 +15,36 @@ class DpiAutoTestWorker(
     private val context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
-    
+
     companion object {
         const val WORK_NAME = "dpi_auto_test"
         const val CHANNEL_ID = "dpi_test_channel"
         const val NOTIFICATION_ID = 1001
     }
-    
+
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             val strategyManager = DpiStrategyManager(context)
             val networkId = strategyManager.getNetworkId()
-            
+
+            // Check if strategy needs refresh using interface method
             if (!strategyManager.isStrategyExpired(networkId)) {
                 return@withContext Result.success()
             }
-            
+
             val strategies = strategyManager.loadStrategies()
             val domains = strategyManager.loadTestDomains()
-            
+
             if (strategies.isEmpty()) {
                 return@withContext Result.failure()
             }
-            
+
             val results = mutableListOf<StrategyTestResult>()
-            
+
             for (strategy in strategies) {
                 val result = strategyManager.testStrategy(strategy, domains)
                 results.add(result)
-                
+
                 if (result.successPercentage >= 90f) {
                     strategyManager.saveStrategyForNetwork(networkId, result.strategy, result.command)
                     strategyManager.saveTestResults(results, networkId)
@@ -51,14 +52,14 @@ class DpiAutoTestWorker(
                     return@withContext Result.success()
                 }
             }
-            
+
             val bestResult = results.maxByOrNull { it.successPercentage }
             if (bestResult != null && bestResult.successPercentage > 0) {
                 strategyManager.saveStrategyForNetwork(networkId, bestResult.strategy, bestResult.command)
                 strategyManager.saveTestResults(results, networkId)
                 showPartialSuccessNotification(bestResult.successPercentage)
             }
-            
+
             Result.success()
         } catch (e: Exception) {
             Result.retry()

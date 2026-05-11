@@ -26,37 +26,55 @@ import java.io.File
 import timber.log.Timber
 
 /**
+ * Singleton holder for ByeDpiLibrary to avoid multiple instances.
+ */
+object ByeDpiLibraryHolder {
+    val library: ByeDpiLibrary by lazy {
+        ByeDpiLibrary()
+    }
+}
+
+/**
  * Implementation of DpiStrategyManager using ByeDpiLibrary
  */
 class DpiStrategyManagerImpl(
     private val context: Context
 ) : DpiStrategyManager {
-    
+
     companion object {
         private const val TAG = "DpiStrategyManager"
         private const val SOCKS_PORT = 1080
+        private const val STRATEGY_EXPIRY_HOURS = 24L
     }
-    
+
     private val json = Json { ignoreUnknownKeys = true }
-    private val library = ByeDpiLibrary()
+    private val library = ByeDpiLibraryHolder.library
     private val strategyPicker = StrategyPicker()
-    
+
+    // Cache for strategy save times
+    private val strategySaveTimes = mutableMapOf<String, Long>()
+
     @Suppress("DEPRECATION")
     override suspend fun getNetworkId(): String = withContext(Dispatchers.IO) {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork ?: return@withContext "unknown"
-        
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return@withContext "unknown"
-        
-        when {
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
-                val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-                @Suppress("DEPRECATION")
-                val wifiInfo = wifiManager.connectionInfo
-                "wifi_${wifiInfo.ssid ?: "unknown"}"
+        try {
+            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val network = connectivityManager.activeNetwork ?: return@withContext "unknown"
+
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return@withContext "unknown"
+
+            when {
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
+                    val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+                    @Suppress("DEPRECATION")
+                    val wifiInfo = wifiManager.connectionInfo
+                    "wifi_${wifiInfo.ssid ?: "unknown"}"
+                }
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "mobile_cellular"
+                else -> "unknown"
             }
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "mobile_cellular"
-            else -> "unknown"
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e, "Failed to get network ID")
+            "unknown"
         }
     }
     
@@ -153,6 +171,38 @@ class DpiStrategyManagerImpl(
             trimmed.take(22) + "..."
         } else {
             trimmed
+        }
+    }
+
+    override suspend fun isStrategyExpired(networkId: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val file = File(context.filesDir, "strategy_$networkId.json")
+            if (!file.exists()) return@withContext true
+
+            val savedTime = strategySaveTimes[networkId] ?: file.lastModified()
+            strategySaveTimes[networkId] = savedTime
+
+            val hoursSinceSave = (System.currentTimeMillis() - savedTime) / (1000 * 60 * 60)
+            hoursSinceSave >= STRATEGY_EXPIRY_HOURS
+        } catch (e: Exception) {
+            Timber.tag(TAG).w(e, "Failed to check strategy expiry")
+            true
+        }
+    }
+
+    override suspend fun saveStrategyForNetwork(networkId: String, name: String, command: String) = withContext(Dispatchers.IO) {
+        try {
+            val file = File(context.filesDir, "strategy_$networkId.json")
+            val data = mapOf(
+                "name" to name,
+                "command" to command,
+                "savedAt" to System.currentTimeMillis()
+            )
+            file.writeText(json.encodeToString(data))
+            strategySaveTimes[networkId] = System.currentTimeMillis()
+            Timber.tag(TAG).d("Saved strategy for network $networkId: $name")
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e, "Failed to save strategy: ${e.message}")
         }
     }
 }

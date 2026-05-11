@@ -95,4 +95,14 @@ interface DpiStrategyManager {
      * Save test results for a network
      */
     suspend fun saveTestResults(results: List<StrategyTestResult>, networkId: String)
+
+    /**
+     * Check if strategy for network has expired
+     */
+    suspend fun isStrategyExpired(networkId: String): Boolean
+
+    /**
+     * Save strategy for network
+     */
+    suspend fun saveStrategyForNetwork(networkId: String, name: String, command: String)
 }

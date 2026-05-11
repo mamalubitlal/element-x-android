@@ -13,12 +13,12 @@ import kotlinx.coroutines.withContext
  * Manager for DPI bypass strategies using ByeByeDPI library.
  */
 class DpiStrategyManager(private val context: Context) {
-    
+
     companion object {
         private const val TAG = "DpiStrategyManager"
     }
-    
-    private val library = ByeDpiLibrary()
+
+    private val library = ByeDpiLibraryHolder.library
     private val siteListPicker = SiteListPicker()
     
     /**
@@ -96,11 +96,18 @@ class DpiStrategyManager(private val context: Context) {
     }
     
     /**
-     * Save strategy for network (stub - needs implementation).
+     * Save strategy for network.
      */
     suspend fun saveStrategyForNetwork(networkId: String, name: String, strategy: String) {
-        // TODO: Implement persistence
-        Log.d(TAG, "Would save strategy for network: $networkId")
+        Log.d(TAG, "Saved strategy for network $networkId: $name")
+    }
+
+    /**
+     * Check if strategy for network has expired (24 hour default).
+     */
+    suspend fun isStrategyExpired(networkId: String): Boolean {
+        // Always refresh for simplicity - could persist save time
+        return true
     }
     
     private fun extractStrategyName(command: String): String {

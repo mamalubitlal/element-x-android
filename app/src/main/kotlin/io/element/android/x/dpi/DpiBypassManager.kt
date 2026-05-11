@@ -7,21 +7,30 @@ import io.github.romanvht.byedpi.library.server.ProxyConfig
 import io.github.romanvht.byedpi.library.server.ServerStatus
 
 /**
+ * Singleton holder for ByeDpiLibrary to avoid multiple instances.
+ */
+object ByeDpiLibraryHolder {
+    val library: ByeDpiLibrary by lazy {
+        ByeDpiLibrary()
+    }
+}
+
+/**
  * Main manager for DPI bypass functionality using ByeByeDPI library.
  */
 class DpiBypassManager(private val context: Context) {
-    
+
     companion object {
         private const val TAG = "DpiBypassManager"
         const val DEFAULT_SOCKS_PORT = 1080
         const val DEFAULT_STRATEGY = "-p -r -s"
     }
-    
-    private val library = ByeDpiLibrary()
+
+    private val library = ByeDpiLibraryHolder.library
     private var currentStrategy = DEFAULT_STRATEGY
     private var currentSocksPort = DEFAULT_SOCKS_PORT
     private var isProxyRunning = false
-    
+
     data class BypassStatus(
         val isEnabled: Boolean,
         val isProxyRunning: Boolean,
@@ -29,7 +38,7 @@ class DpiBypassManager(private val context: Context) {
         val socksPort: Int,
         val lastError: String?
     )
-    
+
     /**
      * Start DPI bypass proxy.
      * @param strategy ByeDPI command-line arguments.
@@ -39,22 +48,22 @@ class DpiBypassManager(private val context: Context) {
         strategy: String = DEFAULT_STRATEGY,
         socksPort: Int = DEFAULT_SOCKS_PORT
     ): Result<Unit> {
-        if (!library.isNativeLibraryAvailable()) {
-            Log.e(TAG, "Native library not available")
-            return Result.failure(Exception("Native library not available"))
-        }
-        
         try {
+            if (!library.isNativeLibraryAvailable()) {
+                Log.e(TAG, "Native library not available")
+                return Result.failure(Exception("Native library not available"))
+            }
+
             currentStrategy = strategy
             currentSocksPort = socksPort
-            
+
             Log.i(TAG, "Starting DPI bypass with strategy: $strategy, port: $socksPort")
-            
+
             // Stop any running server first
             if (library.isServerRunning) {
                 library.stopServer()
             }
-            
+
             // Create config with strategy
             val config = ProxyConfig(
                 ip = "127.0.0.1",
@@ -62,9 +71,9 @@ class DpiBypassManager(private val context: Context) {
                 httpConnect = true,
                 customArgs = strategy
             )
-            
+
             val result = library.startServer(config)
-            
+
             when (library.serverStatus) {
                 ServerStatus.RUNNING -> {
                     isProxyRunning = true
@@ -85,7 +94,7 @@ class DpiBypassManager(private val context: Context) {
             Result.failure(e)
         }
     }
-    
+
     /**
      * Stop DPI bypass proxy.
      */
@@ -99,7 +108,7 @@ class DpiBypassManager(private val context: Context) {
             Log.e(TAG, "Error stopping proxy: ${e.message}")
         }
     }
-    
+
     /**
      * Get current bypass status.
      */
@@ -112,14 +121,14 @@ class DpiBypassManager(private val context: Context) {
             lastError = null
         )
     }
-    
+
     /**
      * Check if proxy is currently running.
      */
     fun isRunning(): Boolean {
         return library.isServerRunning
     }
-    
+
     /**
      * Get SOCKS proxy address for network configuration.
      */
