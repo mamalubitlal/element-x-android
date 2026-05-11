@@ -10,9 +10,11 @@ package io.element.android.appconfig
 
 import android.content.Context
 import android.content.SharedPreferences
+import io.element.android.appconfig.BuildConfig
 
 object AuthenticationConfig {
-    const val DEFAULT_MATRIX_URL = "http://192.168.0.15:8008"
+    // Use BuildConfig for configurable default URL
+    const val DEFAULT_MATRIX_URL = BuildConfig.DEFAULT_MATRIX_URL
 
     @Volatile
     private var customMatrixUrl: String? = null

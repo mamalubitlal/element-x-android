@@ -32,6 +32,10 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://github.com/jitsi/jitsi-maven-repository/raw/master/releases")
         }
+        // ByeByeDPI library from GitHub Packages (public)
+        maven {
+            url = uri("https://maven.pkg.github.com/mamalubitlal/ByeByeDPI")
+        }
         flatDir {
             dirs("libraries/matrix/libs")
         }
@@ -73,7 +77,6 @@ includeProjects(File(rootDir, "enterprise"), ":enterprise", maxDepth = 2)
 includeProjects(File(rootDir, "features"), ":features")
 includeProjects(File(rootDir, "libraries"), ":libraries")
 includeProjects(File(rootDir, "services"), ":services")
-include(":libraries:byedpi")
 include(":libraries:bitchat-mesh")
 
 // Uncomment to include the compound-android module as a local dependency so you can work on it locally.
