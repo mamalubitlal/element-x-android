@@ -31,8 +31,8 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.serialization.json)
     // ByeByeDPI library for advanced DPI bypass (from JitPack Maven)
-    implementation("com.github.mamalubitlal.ByeByeDPI:library:v1.0.410") {
-    because("Using release v1.0.410 with v-prefix")
+    implementation("com.github.RomanV155.ByeByeDPI:library:5fd6ee3bf15cd47660d74f3682e1538903cef80f") {
+    because("Using commit hash for JitPack")
 }
 
     testCommonDependencies(libs)
