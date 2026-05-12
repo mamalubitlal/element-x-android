@@ -47,7 +47,7 @@ android {
             name = "SERVER_NAME",
             value = "\"$defaultServerName\"",
         )
-        buildConfigField(
+        buildConfigFieldBoolean(
             name = "DEBUG_MODE",
             value = defaultDebug,
         )
