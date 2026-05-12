@@ -24,7 +24,7 @@ class DefaultEnterpriseService : EnterpriseService {
 
     override suspend fun isEnterpriseUser(sessionId: SessionId) = false
 
-    override fun defaultHomeserverList(): List<String> = listOf("https://chator-server.onrender.com")
+    override fun defaultHomeserverList(): List<String> = listOf("https://matrix-client.matrix.org", "https://vector.im")
     override suspend fun isAllowedToConnectToHomeserver(homeserverUrl: String) = true
 
     override suspend fun overrideBrandColor(sessionId: SessionId?, brandColor: String?) = Unit
