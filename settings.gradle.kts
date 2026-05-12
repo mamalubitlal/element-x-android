@@ -32,9 +32,9 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://github.com/jitsi/jitsi-maven-repository/raw/master/releases")
         }
-        // ByeByeDPI library from GitHub Packages (public)
+        // JitPack for ByeByeDPI library (public, no auth needed)
         maven {
-            url = uri("https://maven.pkg.github.com/mamalubitlal/ByeByeDPI")
+            url = uri("https://jitpack.io")
         }
         flatDir {
             dirs("libraries/matrix/libs")
