@@ -30,9 +30,7 @@ dependencies {
     implementation(projects.libraries.core)
     implementation(libs.coroutines.core)
     implementation(libs.serialization.json)
-    // ByeByeDPI library for advanced DPI bypass (local AAR from workflow artifact)
     implementation("io.github.romanvht.byedpi:library:1.0.411")
-}
 
     testCommonDependencies(libs)
 }
