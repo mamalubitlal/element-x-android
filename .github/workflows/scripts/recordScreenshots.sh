@@ -75,10 +75,10 @@ fi
 if [[ -z ${INPUT_AUTHOR_EMAIL} ]]; then
   git config user.email "android@element.io"
 else
-  git config --local user.name "${INPUT_AUTHOR_EMAIL}"
+  git config --local user.email "${INPUT_AUTHOR_EMAIL}"
 fi
 git add -A
-git commit -m "Update screenshots"
+git diff --cached --quiet && echo "No changes to commit" || git commit -m "Update screenshots"
 
 GITHUB_REPO="https://$GITHUB_ACTOR:$TOKEN@github.com/$REPO.git"
 echo "Pushing changes"

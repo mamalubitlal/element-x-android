@@ -1,0 +1,76 @@
+# CI Auto-Fix Workflow
+# Runs when DPI Bypass Test fails, analyzes errors, and pushes fixes
+
+name: CI Auto-Fix
+
+on:
+  workflow_run:
+    workflows: ["DPI Bypass Test"]
+    types: [completed]
+    branches: [develop]
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  auto-fix:
+    if: |
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.name == 'DPI Bypass Test'
+    runs-on: ubuntu-latest
+
+    steps:
+      # Get workflow run info
+      - name: Get workflow info
+        id: workflow-info
+        run: |
+          echo "run_id=${{ github.event.workflow_run.id }}" >> $GITHUB_OUTPUT
+          echo "run_url=${{ github.event.workflow_run.html_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## CI Auto-Fix Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "Workflow: DPI Bypass Test" >> $GITHUB_STEP_SUMMARY
+          echo "Status: Failed" >> $GITHUB_STEP_SUMMARY
+          echo "URL: ${{ github.event.workflow_run.html_url }}" >> $GITHUB_STEP_SUMMARY
+
+      # Checkout with full history
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Install opencode CLI
+      - name: Install opencode
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          echo "$HOME/.opencode/bin" >> $GITHUB_PATH
+
+      # Run opencode to fix the issue
+      - name: Run opencode - Auto-Fix
+        run: |
+          opencode run \
+            --model opencode/big-pickle \
+            --dangerously-skip-permissions \
+            -- "Fix the failing CI workflow. Workflow URL: ${{ github.event.workflow_run.html_url }}. Tasks: 1) Read the failing workflow file from .github/workflows/ 2) Read related source/test files 3) Identify the root cause of the failure 4) Apply minimal fix 5) Commit and push with message 'fix(CI): auto-fix'. The failing workflow is: ${{ github.event.workflow_run.name }}. Analyze test failures, build errors, or other CI issues and fix them."
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      # Report results
+      - name: Report results
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## CI Auto-Fix Results" >> $GITHUB_STEP_SUMMARY
+          if git log --oneline -1 | grep -q "fix(CI):"; then
+            echo "✅ Fix committed and pushed - CI will re-run" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No fix was needed or push failed" >> $GITHUB_STEP_SUMMARY
+            echo "Check opencode output above for details" >> $GITHUB_STEP_SUMMARY
+          fi

@@ -10,4 +10,10 @@
     <color name="splashscreen_bg_dark">#FF101317</color>
     <!-- Must be equal to LightColorTokens.colorThemeBg -->
     <color name="splashscreen_bg_light">#FFFFFFFF</color>
+    
+    <!-- чатор Blue Accent Colors -->
+    <color name="chator_blue_primary">#FF389CFF</color>
+    <color name="chator_blue_dark">#FF1E6FD9</color>
+    <color name="chator_blue_light">#FF6BB3FF</color>
+    <color name="chator_accent">#FF389CFF</color>
 </resources>

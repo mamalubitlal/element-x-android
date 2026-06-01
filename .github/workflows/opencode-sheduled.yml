@@ -1,0 +1,52 @@
+name: Scheduled OpenCode Task
+
+on:
+  schedule:
+    - cron: "0 9 * * *" # Every day at 9am UTC
+
+jobs:
+  check-runs:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read          # to list workflow runs
+      issues: write          # to create an issue if failures found
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Download and install GitHub CLI
+        run: |
+          curl -L https://github.com/cli/cli/releases/download/v2.89.0/gh_2.89.0_linux_amd64.tar.gz -o gh.tar.gz
+          tar -xzf gh.tar.gz
+          echo "$PWD/gh_2.89.0_linux_amd64/bin" >> $GITHUB_PATH
+
+      - name: Authenticate with GH_TOKEN
+        run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Check recent workflow runs
+        id: check
+        run: |
+          # Get the last 10 workflow runs (adjust limit as needed)
+          RUNS=$(gh run list --limit 10 --json conclusion,status,displayTitle,url)
+          # Look for any run that is not successful (conclusion != "success")
+          FAILURES=$(echo "$RUNS" | jq '.[] | select(.conclusion != "success" and .conclusion != null)')
+          if [ -z "$FAILURES" ]; then
+            echo "status=ok" >> $GITHUB_OUTPUT
+          else
+            echo "status=failures" >> $GITHUB_OUTPUT
+            echo "failures=$FAILURES" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create issue for failures
+        if: steps.check.outputs.status == 'failures'
+        run: |
+          FAILURES="${{ steps.check.outputs.failures }}"
+          BODY="The following workflow runs have non-successful conclusions:\n\n\`\`\`json\n$FAILURES\n\`\`\`\n\nPlease investigate and fix the underlying issues."
+          gh issue create --title "Daily workflow check found failures" --body "$BODY"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Report success
+        if: steps.check.outputs.status == 'ok'
+        run: echo "DAILYCHECK_OK"

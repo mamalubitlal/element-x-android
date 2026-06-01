@@ -75,6 +75,9 @@ val SemanticColors.pinnedMessageBannerIndicator
 val SemanticColors.pinnedMessageBannerBorder
     get() = if (isLight) LightColorTokens.colorAlphaGray400 else DarkColorTokens.colorAlphaGray400
 
+// чатор Blue Accent Colors - Override default accent colors with blue
+// Note: iconAccentPrimary is shadowed by member in SemanticColors, use ElementTheme.colors directly
+
 val SemanticColors.floatingDateBadgeBackground
     get() = if (isLight) bgCanvasDefault else bgSubtlePrimary
 

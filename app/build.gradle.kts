@@ -41,6 +41,10 @@ plugins {
 android {
     namespace = "io.element.android.x"
 
+    lint {
+        disable += "ExtraTranslation"
+    }
+
     defaultConfig {
         applicationId = BuildTimeConfig.APPLICATION_ID
         targetSdk = Versions.TARGET_SDK
@@ -212,6 +216,7 @@ android {
 
         jniLibs {
             useLegacyPackaging = project.findProperty("useLegacyPackaging")?.toString()?.toBoolean()
+            pickFirsts += "**/libc++_shared.so"
         }
     }
 }

@@ -1,0 +1,17 @@
+# чатор Configuration
+# Edit this file to customize your homeserver and app settings
+
+# Default Matrix homeserver URL
+CHATOR_HOMESERVER_URL=https://matrix.org
+
+# App name displayed in UI
+CHATOR_APP_NAME=чатор
+
+# Server display name
+CHATOR_SERVER_NAME=192.168.0.15
+
+# Enable debug logging (true/false)
+CHATOR_DEBUG=false
+
+# Default theme (light/dark/system)
+CHATOR_DEFAULT_THEME=system

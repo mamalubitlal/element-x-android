@@ -1,5 +1,7 @@
 import config.BuildTimeConfig
 import extension.buildConfigFieldStr
+import extension.buildConfigFieldBoolean
+import java.util.Properties
 
 /*
  * Copyright (c) 2025 Element Creations Ltd.
@@ -12,6 +14,20 @@ plugins {
     id("io.element.android-library")
 }
 
+// Load chator config from properties file
+val chatorConfigFile = rootProject.file("chator-config.properties")
+val chatorConfig = Properties()
+if (chatorConfigFile.exists()) {
+    chatorConfig.load(chatorConfigFile.inputStream())
+}
+
+// Default values
+val defaultHomeServer = chatorConfig.getProperty("CHATOR_HOMESERVER_URL", "https://matrix.org")
+val defaultAppName = chatorConfig.getProperty("CHATOR_APP_NAME", "чатор")
+val defaultServerName = chatorConfig.getProperty("CHATOR_SERVER_NAME", "matrix.org")
+val defaultDebug = chatorConfig.getProperty("CHATOR_DEBUG", "false").toBoolean()
+val defaultTheme = chatorConfig.getProperty("CHATOR_DEFAULT_THEME", "system")
+
 android {
     namespace = "io.element.android.appconfig"
 
@@ -20,6 +36,26 @@ android {
     }
 
     defaultConfig {
+        buildConfigFieldStr(
+            name = "DEFAULT_MATRIX_URL",
+            value = defaultHomeServer,
+        )
+        buildConfigFieldStr(
+            name = "APP_NAME",
+            value = defaultAppName,
+        )
+        buildConfigFieldStr(
+            name = "SERVER_NAME",
+            value = defaultServerName,
+        )
+        buildConfigFieldBoolean(
+            name = "DEBUG_MODE",
+            value = defaultDebug,
+        )
+        buildConfigFieldStr(
+            name = "DEFAULT_THEME",
+            value = defaultTheme,
+        )
         buildConfigFieldStr(
             name = "URL_POLICY",
             value = if (isEnterpriseBuild) {

@@ -30,7 +30,10 @@ class DefaultUserAgentProvider(
      * Ex: Element X/1.5.0 (Xiaomi Mi 9T; Android 11; RKQ1.200826.002; Sdk c344b155c)
      */
     private fun buildUserAgent(): String {
-        val appName = buildMeta.applicationName
+        val appNameForHttp = buildMeta.applicationName
+            .replace("чатор", "Chator")
+            .replace("ч", "ch")
+            .take(50)
         val appVersion = buildMeta.versionName
         val deviceManufacturer = Build.MANUFACTURER
         val deviceModel = Build.MODEL
@@ -39,7 +42,7 @@ class DefaultUserAgentProvider(
         val matrixSdkVersion = sdkMeta.sdkGitSha
 
         return buildString {
-            append(appName)
+            append(appNameForHttp)
             append("/")
             append(appVersion)
             append(" (")
