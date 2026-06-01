@@ -1,0 +1,35 @@
+name: Snake Evolution
+
+on:
+  push:
+    branches: [main, master, develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Snake Evolution
+        uses: miccy/snake-evolution@v1.3.0
+        with:
+          github_user_name: mamalubitlal
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          outputs: dist/snake.svg
+          theme: github-dark
+
+      - name: Commit and Push
+        run: |
+          if [ ! -f dist/snake.svg ]; then
+            echo "snake.svg not generated, skipping commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/snake.svg
+          git diff --cached --exit-code && echo "No changes to commit" && exit 0
+          git commit -m "Update snake animation"
+          git push
