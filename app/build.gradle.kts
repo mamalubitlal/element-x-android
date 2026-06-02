@@ -260,7 +260,7 @@ dependencies {
         implementation(projects.appicon.enterprise)
     } else {
         implementation(projects.features.enterprise.implFoss)
-        implementation(projects.appicon.element)
+        implementation(projects.appicon.chator)
     }
     allFeaturesImpl(project)
     implementation(projects.features.migration.api)
