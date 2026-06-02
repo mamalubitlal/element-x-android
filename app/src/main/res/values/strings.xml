@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Override for Element X branding; see localazy.xml for the original -->
+    <!-- Override Element X branding on the onboarding/welcome screen -->
     <string name="screen_onboarding_welcome_title">"Chat freely."</string>
 </resources>
