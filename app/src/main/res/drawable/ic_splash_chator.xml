@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2025 Element Creations Ltd.
+  ~
+  ~ SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial.
+  ~ Please see LICENSE files in the repository root for full details.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Ч letterform in Chator blue (#389CFF) at 2x scale for splash -->
+    <path
+        android:fillColor="#FF389CFF"
+        android:pathData="M8,4 L40,4 L40,32 L34,32 L34,12 L14,12 L14,44 L8,44 Z" />
+</vector>

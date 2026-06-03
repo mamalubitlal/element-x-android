@@ -1,110 +1,74 @@
-# Sessions
+## 2026-06-03 — Wire Chator colors into theme + README
 
-## 2026-05-30 — Strip DPI bypass
-
-**Goal:** Remove all DPI bypass code (ByeDpiLibrary, native libs, DPI settings UI)
-**Context:** Чатор fork of Element X Android. DPI bypass was a custom addition using `io.github.romanvht.byedpi:library:1.0.411`. No tokens to spare — caveman + cove active.
+**Goal:** Complete P2 branding items: global theme colors + README.md
+**Context:** After rollback + P0/P1 fixes, BRANDING.md showed 2 P2 items still ❌/⚠️. Colors existed in `ChatorColors.kt` but only `OnBoardingView` used them. README was still upstream Element.
 **Approach:**
-- Removed `libraries/dpi/` (api + impl modules, native .so, AAR dep)
-- Removed `features/preferences/impl/.../dpi/` UI package (Node, Presenter, View, State, Events)
-- Removed `app/src/main/.../x/dpi/` app-level code
-- Strip DPI from `DeveloperSettingsPresenter/State/Events/View` (injection, state, event handlers, private helpers)
-- Strip DPI nav from `PreferencesFlowNode` (import, NavTarget, callback, resolver) + `PreferencesRootNode` (Callback, View)
-- Strip `onOpenDpiSettings` from `PreferencesRootView`
-- Remove DPI deps from `app/build.gradle.kts`, `features/preferences/impl/build.gradle.kts`
-- Remove `flatDir` for `libraries/dpi/libs` from `settings.gradle.kts`
-- Remove `pickFirsts += "**/libbyedpi.so"` from `app/build.gradle.kts`
-- Remove `screen_dpi_*` strings from `localazy.xml` + `translations.xml`
-- Remove DPI test files + Maestro DPI tests
-- Fix `DeveloperSettingsPresenterTest.kt` references
-**Files created/modified:** ~20 edited, ~40 deleted
-**Key decisions:** Kept `connection_helper_strings.xml` (references ByeByeDPI as 3rd party app recommendation — zero code refs, dead UI copy only)
+- Extended `ChatorColors.kt` with `SemanticColors.chatorColorOverride()` — top-level extension function that applies Chator accent palette over Compound defaults via `data class copy()`. Overrides: `bgAccentRest/Hovered/Pressed/Selected`, `borderAccentPrimary/Subtle`, `borderFocused`, `iconAccentPrimary/Tertiary`, `iconInfoPrimary`, `textActionAccent`, `textLinkExternal`, `textInfoPrimary`, `textBadgeAccent/Info`, `bgBadgeAccent/Info`, `bgInfoSubtle`, `gradientActionStop1-4`. Non-accent fields left at Compound defaults.
+- Wired in `MainActivity.kt`: `colors.light.chatorColorOverride()` and `colors.dark.chatorColorOverride()` passed as `compoundLight`/`compoundDark` to `ElementThemeApp`
+- Replaced `README.md` — stripped Element badges, Play Store/F-Droid, screenshots, translations, contributing. Added Chator header, description, fork credit, homeserver, CI badge.
+- Updated `BRANDING.md`: item 7 → ✅, priority table updated
+- Updated `CLAUDE.md`: branding section includes theme wiring details
+**Files modified:**
+- `libraries/designsystem/.../colors/ChatorColors.kt` — added `chatorColorOverride()` extension
+- `app/.../x/MainActivity.kt` — wired `chatorColorOverride()` into theme
+- `README.md` — full Chator replacement
+- `BRANDING.md` — status update
+- `CLAUDE.md` — updated branding section
+- `SESSIONS.md` — this entry
+**Key decisions:** Light touch — only accent fields overridden via `.copy()`, non-accent fields stay as Compound defaults. Extension function is top-level for clean import. Both light/dark themes get same Chator accent colors.
 **Status:** done
 
-## 2026-05-30 — Auto-pick fastest homeserver
+## 2026-06-03 — BRANDING.md cleanup + onboarding_logo + README TOC
 
-**Goal:** App checks `85.209.2.14:8008` vs `chator.duckdns.org`, picks fastest
-**Context:** Чатор fork — Russian users need fallback homeserver. Two server candidates: direct IP:port + DNS name.
+**Goal:** Close out remaining BRANDING.md items — fix statuses, create missing onboarding logo, clean up README.
+**Context:** Previous session wired Chator theme colors. BRANDING.md had stale statuses (item 8 said ❌ despite README done, item 5 said ✅ but file missing). README TOC referenced removed sections.
 **Approach:**
-- Added `CANDIDATE_HOMESERVERS` list to `AuthenticationConfig.kt` (`http://85.209.2.14:8008`, `https://chator.duckdns.org`)
-- Created `HomeserverResolver.kt` — pings both via `/_matrix/client/versions` with `HttpURLConnection`, sorts by latency, stores fastest URL in SharedPreferences via existing `AuthenticationConfig.setCustomMatrixUrl()`
-- Wired into `ElementXApplication.onCreate()` — calls `AuthenticationConfig.init(this)` then launches resolver in `applicationScope` coroutine
-- Resolver is idempotent: skips if custom URL already stored (from previous run or manual override)
-- First launch uses default `DEFAULT_MATRIX_URL` from `chator-config.properties` until resolver completes; subsequent launches load cached URL immediately
-**Files created/modified:**
-- `appconfig/.../AuthenticationConfig.kt` — added `CANDIDATE_HOMESERVERS`
-- `app/.../x/HomeserverResolver.kt` — new resolver
-- `app/.../x/ElementXApplication.kt` — wired init + resolver launch
-**Key decisions:** Used `java.net.HttpURLConnection` to avoid extra deps. Resolver in app module (has OkHttp already). 5s timeout per ping. First launch briefly uses default URL — acceptable tradeoff.
+- Updated BRANDING.md: item 5 → ⚠️→✅ (infra existed, PNG was missing), item 8 → ✅ (README already Chator), item 10 → ⚠️ (splash screen configured, no branded icon)
+- Updated priority table to match
+- Created `features/login/impl/src/main/res/drawable/onboarding_logo.png` — copied from xxxhdpi Chator launcher foreground (192×192)
+- Cleaned README.md TOC — removed stale entries (Screenshots, Translations, Status, Contributing), kept only existing sections
+**Files modified:**
+- `BRANDING.md` — status updates throughout
+- `README.md` — TOC cleaned up
+- `features/login/.../drawable/onboarding_logo.png` — NEW
+- `SESSIONS.md` — this entry
+**Key decisions:** Used existing PNG rather than vector — can be upgraded later. Onboarding will now show full-screen Chator logo (no animated background).
 **Status:** done
 
-## 2026-05-30 — Fix appconfig double-quoting + exclude bitchat-mesh
+## 2026-06-03 — Splash screen icon + BRANDING.md full cleanup
 
-**Goal:** Fix build failure caused by double-quoted buildConfig fields in appconfig; handle subsequent bitchat-mesh compilation errors
-
-**Context:** Чатор fork. First build failure: `appconfig` generated `""чатор""` and `""https://matrix.org""` (Java String concatenation from properties with quotes). Second failure (after fix): `bitchat-mesh` — never compiled from source before due to prior build failing at appconfig + Gradle cache.
-
+**Goal:** Close last remaining ⚠️ item (splash screen) — all BRANDING.md items now ✅.
+**Context:** Splash screen had correct backgrounds but no branded icon (used `@drawable/transparent`). All other branding items were already done.
 **Approach:**
-- Fixed appconfig double-quoting in previous session (commit `ada69de`)
-- Investigated new build failure: `bitchat-mesh` references packages `com.bitchat.lib.features.*`, `com.bitchat.lib.favorites.*`, `com.bitchat.lib.ui.*`, `com.bitchat.lib.sync.*` that don't exist in this repo
-- Module also missing `kotlin-parcelize` plugin and `androidx.lifecycle:lifecycle-process` dep
-- Excluded module from build (commented out `include` in settings.gradle.kts)
+- Replaced `@drawable/transparent` with `@mipmap/ic_launcher_foreground_chator` in both `values/themes.xml` (light) and `values-night/themes.xml` (dark)
+- Updated BRANDING.md item 10 → ✅ with final config table
+- Updated priority table
+**Files modified:**
+- `app/src/main/res/values/themes.xml` — splash icon light
+- `app/src/main/res/values-night/themes.xml` — splash icon dark
+- `BRANDING.md` — item 10 → ✅
+- `SESSIONS.md` — this entry
+**Key decisions:** Used existing launcher foreground PNG — consistent with other icon usage. Background colors kept as-is (white/dark) for smooth transition to app theme.
+**Status:** done — all BRANDING.md items complete
 
-**Files created/modified:**
-- `settings.gradle.kts` — commented out `include(":libraries:bitchat-mesh")`
+## 2026-06-03 — Understanding Element X Android Theme Structure for Chator Brand Integration
 
-**Key decisions:** Excluded rather than stubbed — module was written for full bitchat codebase, missing 4+ sibling modules. No other modules depend on it.
+**Goal:** Analyze the existing theme system to understand how to integrate Chator brand colors into Element X Android's Compose theme.
 
-**Status:** done
+**Context:** Need to wire custom Chator brand colors into the existing Compose theme system. The codebase uses Compound design system with Material 3 theming.
 
-## 2026-05-30 — Remove stale mesh files (fix CI build)
+**Approach:** 
+1. Located theme definition files (ElementTheme.kt, ElementThemeApp.kt)
+2. Found ChatorColors definition and matching XML resources
+3. Examined how colors flow from enterprise service through MainActivity to ElementThemeApp
+4. Identified that semantic colors from Compound are the foundation of the theme system
 
-**Goal:** Fix CI build failure after bitchat-mesh exclusion
-**Context:** Commit `c7d6e2bd` deleted `MeshMessageService.kt` but left `MeshScreen.kt` importing it, plus orphaned `NetworkConnectivityManager.kt`. CI builds failing consistently.
-**Approach:**
-- Deleted `app/.../features/mesh/MeshScreen.kt` (refs deleted `MeshMessageService`)
-- Deleted `app/.../mesh/NetworkConnectivityManager.kt` (dead code, orphaned)
-- Fixed two stale empty directories
+**Files created/modified:** None (analysis only)
 
-**Files created/modified:**
-- `app/.../features/mesh/MeshScreen.kt` — deleted
-- `app/.../mesh/NetworkConnectivityManager.kt` — deleted
+**Key decisions:** 
+- The theme system is built around Compound's SemanticColors
+- ChatorColors are already defined as Compose Color constants matching XML resources
+- Integration point is in ElementThemeApp where compoundLight/compoundDark parameters are passed to ElementTheme
+- Best approach would be to create Chator-specific semantic color schemes or override colors in ElementThemeApp
 
-**Key decisions:** Clean wipe of all mesh leftovers. bitchat-mesh integration fully abandoned — module disabled, all stale files removed.
-
-**Status:** fix pushed (93952964), CI build #361 in progress
-
-## 2026-05-30 — Force single homeserver + full chator branding
-
-**Goal:** Strip all homeserver choice from UI, force `chator.duckdns.com` only; full branding pass
-**Context:** CI builds failing from stale mesh files. Once fixed, needed to lock homeserver and finalize branding.
-**Approach:**
-- `DefaultEnterpriseService.kt`: `defaultHomeserverList()` → `["https://chator.duckdns.com"]` only
-- `DefaultEnterpriseServiceTest.kt`: updated expectations for single-item list
-- Removed `matrix-client.matrix.org` from all configs
-- Debug APK built and sitting at `chator-elementx-debug.zip` (240MB)
-**Files created/modified:**
-- `features/enterprise/impl-foss/.../DefaultEnterpriseService.kt`
-- `features/enterprise/impl-foss/.../DefaultEnterpriseServiceTest.kt`
-**Key decisions:** No UI changes to login screens — enterprise config alone forces single server. OnBoardingPresenter reads enterprise list and skips server selection automatically.
-**Status:** done
-
-## 2026-05-30 — Fix duckdns.org typo + delete stale .sites + CI build
-
-**Goal:** Fix homeserver domain typo (duckdns.com → duckdns.org), remove leftover DPI bypass `.sites` file, verify fresh APK
-**Context:** Commits `e6e08d2c` forced `duckdns.com` but config had `duckdns.org`. Also `proxytest_matrix.sites` was a DPI leftover still baked into old debug APK.
-**Approach:**
-- `DefaultEnterpriseService.kt`: `duckdns.com` → `duckdns.org`
-- `DefaultEnterpriseServiceTest.kt`: fixed assertion to match
-- `proxytest_matrix.sites`: deleted (was DPI bypass artifact, not needed for homeserver config)
-- `chator-config.properties`: added with `CHATOR_HOMESERVER_URL=https://chator.duckdns.org`
-- Verified old APK (`chator-elementx-debug.zip` 240MB) was stale — still had Element logos and old servers
-- Diagnosed local Gradle failure: system Java 26 incompatible w/ Gradle 9.2.1 (needs ≤21). Android Studio JBR 21 works but local build takes 30min+
-- **Decision: never run Gradle locally again** — use GitHub Actions CI only
-- Commits pushed to `origin/develop`, CI auto-triggers on push
-**Files created/modified:**
-- `DefaultEnterpriseService.kt` (fix duckdns.org)
-- `DefaultEnterpriseServiceTest.kt` (fix assertion)
-- `proxytest_matrix.sites` (deleted)
-- `chator-config.properties` (added)
-**Status:** waiting for CI build on GitHub Actions
+**Status:** Analysis complete. Ready to implement Chator color integration by modifying the semantic color flow.

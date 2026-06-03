@@ -103,6 +103,17 @@ Dependency rule: features should not depend on each other directly. Navigation i
 - Usage: `ByeDpiLibrary` → `ByeDpiServer` → `ProxyController` → `ByeDpiJni` → native `.so`
 - APK packaging: `jniLibs.pickFirsts += "**/libbyedpi.so"` handles duplicate .so conflicts (see `app/build.gradle.kts`)
 
+## Branding
+
+See `BRANDING.md` for the full Chator branding inventory and status.
+- **App launcher icons:** `appicon/chator/` — adaptive icons for all densities
+- **Notification icon:** `libraries/designsystem/src/main/res/drawable/ic_notification.xml` — Chator chat bubble
+- **Onboarding logo:** `features/login/impl/src/main/res/drawable/onboarding_logo.png` (full-screen)
+- **Fallback logo:** `libraries/designsystem/src/main/res/drawable/element_logo.png` (shadows Compound's Element logo)
+- **Color palette:** `libraries/designsystem/.../colors/ChatorColors.kt` — Compose `Color` constants (`bluePrimary`, `blueDark`, `blueLight`, `accent`). Includes `SemanticColors.chatorColorOverride()` extension that applies Chator accent palette over Compound defaults via `SemanticColors.copy()`. Used in `MainActivity.kt` for global theme: `colors.light.chatorColorOverride()` passed as `compoundLight` to `ElementThemeApp`. Also used directly in `OnBoardingView.kt` for the welcome title.
+- **Theme wiring:** `MainActivity.kt` (line ~75) applies `chatorColorOverride()` to both light/dark SemanticColors before passing to `ElementThemeApp`. Overrides: accent backgrounds, borders, focus, icons, text, links, badges, info colors, and send/super button gradients.
+- **XML colors:** `app/src/main/res/values/colors.xml` — `chator_blue_primary`, `chator_blue_dark`, `chator_blue_light`, `chator_accent` (unused from XML, only Kotlin palette is wired)
+
 ## Important Notes
 
 - **Gradle version catalog** — All dependencies in `gradle/libs.versions.toml`. Renovate auto-updates deps.

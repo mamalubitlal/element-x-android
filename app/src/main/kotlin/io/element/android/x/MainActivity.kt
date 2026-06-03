@@ -37,6 +37,7 @@ import io.element.android.features.lockscreen.api.handleSecureFlag
 import io.element.android.libraries.architecture.appyx.DebugNavStateNodeHost
 import io.element.android.libraries.architecture.bindings
 import io.element.android.libraries.core.log.logger.LoggerTag
+import io.element.android.libraries.designsystem.colors.chatorColorOverride
 import io.element.android.libraries.designsystem.theme.ElementThemeApp
 import io.element.android.libraries.designsystem.utils.snackbar.LocalSnackbarDispatcher
 import io.element.android.services.analytics.compose.LocalAnalyticsService
@@ -72,8 +73,8 @@ class MainActivity : NodeActivity() {
         ElementThemeApp(
             appPreferencesStore = appBindings.preferencesStore(),
             featureFlagService = appBindings.featureFlagService(),
-            compoundLight = colors.light,
-            compoundDark = colors.dark,
+            compoundLight = colors.light.chatorColorOverride(),
+            compoundDark = colors.dark.chatorColorOverride(),
             buildMeta = appBindings.buildMeta()
         ) {
             CompositionLocalProvider(
