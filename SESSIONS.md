@@ -51,6 +51,31 @@
 **Key decisions:** Used existing launcher foreground PNG — consistent with other icon usage. Background colors kept as-is (white/dark) for smooth transition to app theme.
 **Status:** done — all BRANDING.md items complete
 
+## 2026-06-04 — Replace simplified Ч vectors with real PSD-sourced PNG
+
+**Goal:** Use the actual Ч logo from the PSD for splash screen and onboarding instead of simplified vector approximations.
+
+**Context:** Previous session created simplified Ч vector drawables (onboarding_logo.xml, ic_splash_chator.xml) as geometric approximations. User supplied the real Ч logo as `chator-logo-newer.png` from Photoshop.
+
+**Approach:**
+- Deleted `ic_splash_chator.xml` and `onboarding_logo.xml` (simplified vectors)
+- Copied `chator-logo-newer.png` to `app/src/main/res/drawable/ic_splash_chator.png` (splash screen)
+- Copied `chator-logo-newer.png` to `features/login/impl/src/main/res/drawable/onboarding_logo.png` (onboarding)
+- Themes already reference `@drawable/ic_splash_chator` — now resolves to PNG
+- `OnBoardingLogoResIdProvider` already resolves `onboarding_logo` — now finds PNG
+- Also discovered PSD had Ч at #389CFF, 180×261px in 512×512 canvas with notch design
+
+**Files created/modified:**
+- `app/src/main/res/drawable/ic_splash_chator.png` — NEW (real Ч from PSD)
+- `app/src/main/res/drawable/ic_splash_chator.xml` — DELETED (simplified vector)
+- `features/login/impl/src/main/res/drawable/onboarding_logo.png` — NEW (real Ч from PSD)
+- `features/login/impl/src/main/res/drawable/onboarding_logo.xml` — DELETED (simplified vector)
+- `chator-logo-newer.png` — NEW (source asset in root)
+
+**Key decisions:** Used real PSD-sourced PNG instead of approximate vector. Both splash and onboarding show the same Ч design. Source PNG kept in root for future vector tracing.
+
+**Status:** pushed to GitHub, CI building.
+
 ## 2026-06-03 — Understanding Element X Android Theme Structure for Chator Brand Integration
 
 **Goal:** Analyze the existing theme system to understand how to integrate Chator brand colors into Element X Android's Compose theme.
