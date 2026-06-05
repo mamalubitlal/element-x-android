@@ -184,7 +184,7 @@ class LoginFlowNode(
                             if (mustChooseAccountProvider) {
                                 NavTarget.ChooseAccountProvider
                             } else {
-                                NavTarget.ConfirmAccountProvider(isAccountCreation = false)
+                                NavTarget.LoginPassword()
                             }
                         )
                     }

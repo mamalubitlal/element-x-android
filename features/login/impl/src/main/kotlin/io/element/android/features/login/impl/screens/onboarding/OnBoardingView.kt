@@ -10,6 +10,7 @@ package io.element.android.features.login.impl.screens.onboarding
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -136,6 +137,7 @@ private fun AddFirstAccountScaffold(
                 if (state.onBoardingLogoResId != null) {
                     OnBoardingLogo(
                         onBoardingLogoResId = state.onBoardingLogoResId,
+                        state = state,
                     )
                 } else {
                     OnBoardingContent(state = state)
@@ -241,17 +243,34 @@ private fun OnBoardingContent(state: OnBoardingState) {
 @Composable
 private fun OnBoardingLogo(
     onBoardingLogoResId: Int,
+    state: OnBoardingState,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center,
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         Image(
             painter = painterResource(id = onBoardingLogoResId),
-            contentDescription = null
+            contentDescription = null,
+            modifier = Modifier.height(100.dp)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = stringResource(id = R.string.screen_onboarding_welcome_title),
+            color = ChatorColors.bluePrimary,
+            style = ElementTheme.typography.fontHeadingLgBold,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = stringResource(id = R.string.screen_onboarding_welcome_message, state.productionApplicationName),
+            color = ElementTheme.colors.textSecondary,
+            style = ElementTheme.typography.fontBodyLgRegular.copy(fontSize = 17.sp),
+            textAlign = TextAlign.Center
         )
     }
 }
