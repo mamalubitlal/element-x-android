@@ -175,6 +175,10 @@ class PreferencesFlowNode(
                         backstack.push(NavTarget.BlockedUsers)
                     }
 
+                    override fun watchAd() {
+                        io.element.android.x.RewardedAdManagerHolder.instance?.showAd {}
+                    }
+
                     override fun startSignOutFlow() {
                         backstack.push(NavTarget.SignOut)
                     }

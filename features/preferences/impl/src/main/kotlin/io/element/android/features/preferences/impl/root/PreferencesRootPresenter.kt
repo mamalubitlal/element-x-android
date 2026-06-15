@@ -29,6 +29,7 @@ import io.element.android.libraries.designsystem.utils.snackbar.collectSnackbarM
 import io.element.android.libraries.featureflag.api.FeatureFlagService
 import io.element.android.libraries.featureflag.api.FeatureFlags
 import io.element.android.libraries.indicator.api.IndicatorService
+import io.element.android.libraries.core.data.WatchedAdsStoreHolder
 import io.element.android.libraries.matrix.api.MatrixClient
 import io.element.android.libraries.matrix.api.core.UserId
 import io.element.android.libraries.matrix.api.user.MatrixUser
@@ -115,6 +116,7 @@ class PreferencesRootPresenter(
         }
 
         val showLabsItem = remember { featureFlagService.getAvailableFeatures(isInLabs = true).isNotEmpty() }
+        val watchedAds = remember { WatchedAdsStoreHolder.instance?.watchedAds ?: 0 }
 
         val directLogoutState = directLogoutPresenter.present()
 
@@ -150,6 +152,7 @@ class PreferencesRootPresenter(
             showDeveloperSettings = showDeveloperSettings,
             canDeactivateAccount = canDeactivateAccount,
             nbOfBlockedUsers = nbOfBlockedUsers,
+            watchedAds = watchedAds,
             showLabsItem = showLabsItem,
             directLogoutState = directLogoutState,
             snackbarMessage = snackbarMessage,

@@ -44,18 +44,58 @@ import io.element.android.services.analytics.compose.LocalAnalyticsService
 import io.element.android.x.di.AppBindings
 import io.element.android.x.intent.SafeUriHandler
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import com.appodeal.ads.Appodeal
+import com.appodeal.ads.initialization.ApdInitializationCallback
+import io.element.android.libraries.core.data.WatchedAdsStore
+import io.element.android.libraries.core.data.WatchedAdsStoreHolder
+import com.appodeal.ads.initialization.ApdInitializationError
+import io.element.android.features.call.impl.utils.CallServiceHolder
+import io.element.android.features.call.impl.utils.DefaultCurrentCallService
+import io.element.android.x.RewardedAdManager
 
 private val loggerTag = LoggerTag("MainActivity")
 
 class MainActivity : NodeActivity() {
     private lateinit var mainNode: MainNode
     private lateinit var appBindings: AppBindings
+    lateinit var watchedAdsStore: WatchedAdsStore
+    private lateinit var rewardedAdManager: RewardedAdManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.tag(loggerTag.value).d("onCreate, with savedInstanceState: ${savedInstanceState != null}")
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        
+        watchedAdsStore = WatchedAdsStore(this)
+        WatchedAdsStoreHolder.instance = watchedAdsStore
+        rewardedAdManager = RewardedAdManager(this, watchedAdsStore)
+        RewardedAdManagerHolder.instance = rewardedAdManager
+        
+        // Initialize Appodeal
+        val adTypes = Appodeal.REWARDED_VIDEO
+        Appodeal.initialize(
+            this,
+            "YOUR_APP_KEY",
+            adTypes,
+            object : ApdInitializationCallback {
+                override fun onInitializationFinished(errors: List<ApdInitializationError>?) {
+                    Timber.tag(loggerTag.value).d("Appodeal initialization finished")
+                }
+            }
+        )
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                (CallServiceHolder.instance as? DefaultCurrentCallService)?.callEnded?.collect {
+                    if (watchedAdsStore.watchedAds > 0) {
+                        watchedAdsStore.watchedAds -= 1
+                    } else {
+                        rewardedAdManager.showAd { }
+                    }
+                }
+            }
+        }
+
         appBindings = bindings()
         setupLockManagement(appBindings.lockScreenService(), appBindings.lockScreenEntryPoint())
         enableEdgeToEdge()

@@ -13,12 +13,20 @@ import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.SingleIn
 import io.element.android.features.call.api.CurrentCall
 import io.element.android.features.call.api.CurrentCallService
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class)
 class DefaultCurrentCallService : CurrentCallService {
+    init {
+        CallServiceHolder.instance = this
+    }
     override val currentCall = MutableStateFlow<CurrentCall>(CurrentCall.None)
+    
+    private val _callEnded = MutableSharedFlow<Unit>()
+    val callEnded: SharedFlow<Unit> = _callEnded.asSharedFlow()
 
     fun onCallStarted(call: CurrentCall) {
         currentCall.value = call
@@ -26,5 +34,6 @@ class DefaultCurrentCallService : CurrentCallService {
 
     fun onCallEnded() {
         currentCall.value = CurrentCall.None
+        _callEnded.tryEmit(Unit)
     }
 }

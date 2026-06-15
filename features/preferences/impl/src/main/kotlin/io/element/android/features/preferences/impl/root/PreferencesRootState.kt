@@ -29,6 +29,7 @@ data class PreferencesRootState(
     val showDeveloperSettings: Boolean,
     val canDeactivateAccount: Boolean,
     val nbOfBlockedUsers: Int,
+    val watchedAds: Int,
     val showLabsItem: Boolean,
     val directLogoutState: DirectLogoutState,
     val snackbarMessage: SnackbarMessage?,

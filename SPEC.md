@@ -1,145 +1,231 @@
-# Чатор Website Specification
+# Чатор Landing Page — SPEC v2
 
-## Project Overview
-- **Project name**: Чатор Landing Page
-- **Type**: Marketing website (single page)
-- **Core functionality**: Landing page for Russian Matrix messenger Android app
-- **Target users**: Russian-speaking Android users looking for a private messenger
+## Project Identity
 
-## Tech Stack
-- **Framework**: Vite + React 19
-- **Styling**: Vanilla CSS (no Tailwind)
-- **Language**: Russian (primary), English (toggle)
+**Чатор** — приватный Matrix-мессенджер для Android. Форк Element X с русским интерфейсом и сквозным шифрованием.
 
-## UI/UX Specification
+- **Девиз:** Без слежки. Без компромиссов.
+- **ЦА:** Русскоязычные пользователи Android, которым нужен приватный мессенджер
+- **Homeserver:** `chator.duckdns.org`
 
-### Layout Structure
+## Brand Kit (из исходников приложения)
+
+### Цвета (ChatorColors.kt)
 ```
-[Nav: Logo | Links | Lang Toggle]
-[Hero: Headline | Subhead | CTA | Phone Mockup]
-[Features: 4-column grid]
-[About: Text + Matrix explanation]
-[Download: APK + Build instructions]
-[Team: Solo dev card]
-[Footer]
+--blue-primary:  #389CFF
+--blue-dark:     #1E6FD9
+--blue-light:    #6BB3FF
+--blue-deeper:   #1558A8
+--bg-canvas:     #FFFFFF       (светлая тема приложения)
+--bg-surface:    #F0F2F5       (блоки, карточки)
+--bg-me:         #E1E6EC       (мои сообщения)
+--text-primary:  #1A1C20
+--text-secondary:#6F7885
+--gradient:      1558A8 → 1E6FD9 → 389CFF → 6BB3FF (градиент кнопки Send)
+--onboarding-grad: #0DBDA8 → #0D5CBD (градиент с экрана онбординга)
+--border:        #E1E6EC
 ```
 
-### Visual Design
+### Шрифты
+- **Заголовки:** Unbounded (геометрический, выразительный)
+- **Текст:** Inter (чистый, технический)
 
-**Theme**: "Soft Brutalist" — Minimal but alive
-- Clean layouts with subtle depth
-- Monochromatic base with single accent
-- Hidden animations that reveal on scroll/interaction
+### Логотип
+- Буква **«Ч»** — кириллическая, синяя (#389CFF), шрифт Unbounded
+- Полный логотип: **«Ч»атор**
 
-**Colors**:
-- `--bg`: `#F5F5F0` (warm off-white)
-- `--surface`: `#FFFFFF`
-- `--text`: `#1A1A1A`
-- `--text-muted`: `#6B6B6B`
-- `--accent`: `#E63946` (bold red)
-- `--line`: `#E0E0E0`
+### Стиль приложения
+- Светлый фон (#FFFFFF), чистый минимализм
+- Акцент — синий (#389CFF), кнопки-пилюли (pill shape)
+- Сообщения: серые облачка (#F0F2F5 / #E1E6EC) с радиусом 12px
+- Скругления: pill (999px) для кнопок, 12px для сообщений, 16px для карточек
+- Без теней, без градиентов (кроме кнопки Send)
 
-**Typography**:
-- Headings: "Unbounded" (Google Fonts) — geometric, distinctive
-- Body: "IBM Plex Sans" — technical, readable
+## Layout
 
-**Spacing**:
-- Section padding: `clamp(4rem, 10vw, 8rem)`
-- Content max-width: `1100px`
-- Grid gap: `1.5rem`
+```
+[Nav: Ч Logo | Features · About · Download | RU/EN]
+[Hero: Badge | Headline | Subhead | 2 CTA buttons | 3D Phone mockup]
+[Features: 4 cards in grid]
+[About: 2 columns — Matrix + Tech]
+[Download: 2 cards — APK + Build]
+[Team: Dev card]
+[Footer: Ч · tagline · GitHub]
+```
 
-### Components
+---
 
-**Nav**:
-- Fixed top, transparent → white on scroll
-- Logo (Чаtor icon + text)
-- Links: Функции, О программе, Скачать
-- Lang toggle: RU ↔ EN
+## 3D & Animation Spec (ключевая фишка сайта)
 
-**Hero**:
-- Large headline with accent word
-- 2-sentence subhead
-- Two buttons: Скачать (primary), Исходный код (outline)
-- Phone mockup with chat UI (CSS only, no image needed)
+> ИИ-сервис умеет делать 3D и сложные анимации — используем это на полную.
 
-**Features Grid** (4 items):
-1. 🇷🇺 Russian interface
-2. 🔒 E2E encryption
-3. 📞 Jitsi calls
-4. 🔓 DPI bypass
+### 1. Hero — 3D Phone Mockup
+- Не CSS-телефон, а **3D-модель телефона** (Three.js или аналоги)
+- Телефон поворачивается на **3–5°** при движении мыши (tilt follow)
+- Внутри телефона — реалистичный чат: сообщения появляются последовательно
+- Лёгкая **парящая анимация** (float: -8px to +8px, медленно)
+- Фон героя: **анимированная mesh-сеть** (как матричная решётка, но мягкая, голубая, пульсирующая) — отсылка к Matrix-протоколу
+- При загрузке: элементы hero вылетают с разных сторон с затуханием
 
-**About Section**:
-- What is Matrix
-- Tech stack: Rust, Compose, Kotlin
-- Open source + AGPL
+### 2. 3D «Ч» Logo Mark
+- Буква **«Ч» из светящегося синего градиента**,略微 вращается в 3D
+- При скролле: меняет угол наклона относительно оси Z
+- При наведении: **маленький burst частиц** выбрасывается из буквы
+- Использовать в Nav (маленькая) и как декоративный элемент на фоне (огромная, полупрозрачная)
 
-**Download Section**:
-- Direct APK link (GitHub Releases)
-- Build from source instructions
-- Requirements: Android 8.0+
+### 3. Matrix Grid Background (сквозная)
+- Hero и секции: **анимированная grid-сетка** (как строчки кода Matrix, но стилизовано)
+- Линии сетки мягко переливаются голубым (#389CFF → transparent)
+- При скролле: сетка движется с parallax-эффектом (0.3x скорость)
+- Включать/выключать постепенно через секции
 
-**Team Section**:
-- Solo developer card
-- Name, role (creator)
-- Contact (GitHub link)
-- Brief bio
+### 4. Feature Cards — 3D Flip / Tilt
+- При наведении: карточка приподнимается и слегка поворачивается (3D tilt)
+- Иконки фич: маленькие 3D-объекты (замок для шифрования, флаг РФ, телефон, сообщение)
+- При скролле к секции: карточки вылетают веером с разных сторон
 
-**Footer**:
-- AGPL license
-- GitHub link
-- "Created by [name]"
+### 5. Scroll-Triggered Parallax & Depth
+- Разные слои движутся с разной скоростью (Z-depth layers)
+- Заголовки секций: при скролле смещаются с большей скоростью, чем контент
+- Фоновые элементы: медленно дрейфуют
 
-### Animations
-- Reveal on scroll (transform + opacity)
-- Link underlines on hover
-- Button fill on hover
-- Phone mockup subtle float
-- No jarring transitions
+### 6. Download Buttons — Particle Burst
+- При наведении на «Скачать APK»: **голубые частицы** вылетают из кнопки
+- При клике: **волна** (ripple) расходится по экрану
 
-## Functionality
+### 7. Micro-animations
+- Все ссылки: **голубое подчёркивание** с анимацией снизу
+- Кнопки: scale(1.02) + glow при наведении
+- Языковой переключатель: плавный flip
+- Скролл: кастомный smooth scroll + progress bar на краю
+- Счётчик скачиваний: анимированное число (если добавим)
 
-### Core Features
-- Language toggle ( RU ↔ EN, persists to localStorage )
-- Smooth scroll to sections
-- Responsive (mobile → desktop)
-- External links to GitHub/Releases
+### 8. Team Section — 3D Avatar
+- Аватар разработчика: **3D-геометрия** (куб или сфера с градиентом)
+- При наведении: вращается / раскрывается
 
-### Interactions
-- Nav links → smooth scroll
-- CTA buttons → open in new tab
-- Lang toggle → instant switch, no reload
+### 9. Loading Screen
+- При загрузке: **анимированная «Ч»** пульсирует + прогресс
+- Плавный переход к основному контенту (fade)
 
-## Content (Russian)
+### 10. Footer Particles
+- Мелкие частицы (звёзды) медленно двигаются в футере
 
-### Hero
-- **Headline**:「Чатор」— Matrix-мессенджер для Android
-- **Subhead**: Приватный чат с шифрованием, без сбора данных и с обходом DPI
+---
 
-### Features
-- Русский интерфейс
-- Сквозное шифрование
-- Звонки через Jitsi
-- Обход DPI-фильтрации
+## Технические требования
 
-### About
-- Что такое Matrix — открытый протокол для коммуникации
-- Технологии: Rust SDK, Jetpack Compose, Kotlin
+### Стек (предпочтительно)
+- **Three.js** или **React Three Fiber** для 3D
+- **Framer Motion** или **GSAP** для анимаций
+- Vite + React 19 (сборка)
+- CSS Modules или Vanilla Extract (не Tailwind)
 
-### Download
-- Скачать APK
-- Собрать из исходников
+### Производительность
+- 3D-сцена должна работать на **60fps на мобильных устройствах**
+- LOD (level of detail) для 3D-элементов: на мобильных упрощать
+- Все анимации — with `will-change` / `transform` (GPU-accelerated)
+- Ленивая загрузка 3D-элементов ниже fold
 
-### Team
-- Один разработчик (you)
+### Адаптивность
+- 3D-элементы на мобильных: отключать сложные эффекты, заменять на статику или 2D-анимации
+- Phone 3D mockup → плоское изображение на мобильных
+- Particle effects → отключать при `prefers-reduced-motion`
+
+### i18n
+- Два языка: русский (основной), английский
+- Переключение без перезагрузки страницы
+- Сохранение в localStorage
+- **3D-элементы не зависят от языка** (не содержат текста)
+
+---
+
+## Контент
+
+### Russian (RU)
+
+**Nav:** Возможности · О проекте · Скачать
+
+**Hero:**
+- Badge: Для Android 8.0+
+- Заголовок: «Чатор» — приватный мессенджер, которому можно доверять
+- Подзаголовок: Чатор — форк Element X на Matrix. Сквозное шифрование, русский интерфейс. Без компромиссов.
+- CTA: Скачать APK (ссылка на GitHub Releases)
+- Source: Исходный код (ссылка на GitHub)
+
+**Features:**
+1. 🔐 Сквозное шифрование — Только вы и собеседник видите сообщения
+2. 🇷🇺 Русский интерфейс — Полная локализация с первого запуска
+3. 📞 Аудио- и видеозвонки — Matrix VoIP с E2E-шифрованием
+4. 💬 Богатые сообщения — Реакции, опросы, голосовые, редактирование, спейсы
+
+**About:**
+- Matrix — децентрализованный протокол для коммуникации
+- Стек: Rust SDK, Jetpack Compose, Kotlin
+
+**Download:**
+- Скачать APK (GitHub Releases)
+- Собрать из исходников: `./gradlew :app:assembleGplayDebug`
+
+**Team:**
+- Один разработчик. Форкнул Element X, перевёл интерфейс.
+
+**Footer:**
+- Сделано с целью.
+- GitHub
+
+---
+
+### English (EN)
+
+Same content, minus open source / DPI mentions.
+
+---
+
+## Структура файлов
+
+```
+/landing/
+├── public/
+│   └── models/          # 3D модели (если нужны)
+├── src/
+│   ├── components/
+│   │   ├── Nav.jsx
+│   │   ├── Hero.jsx
+│   │   ├── Hero3D.jsx         # 3D сцена (телефон + частицы)
+│   │   ├── Features.jsx
+│   │   ├── FeatureCard3D.jsx  # 3D tilt карточка
+│   │   ├── About.jsx
+│   │   ├── Download.jsx
+│   │   ├── Team.jsx
+│   │   ├── Footer.jsx
+│   │   ├── MatrixGrid.jsx     # 3D сетка на фоне
+│   │   ├── ChLogo3D.jsx       # 3D буква Ч
+│   │   └── ParticleSystem.jsx # Частицы
+│   ├── hooks/
+│   │   └── useScrollParallax.js
+│   ├── i18n.jsx
+│   ├── App.jsx
+│   ├── App.css
+│   └── main.jsx
+├── index.html
+├── vite.config.js
+└── package.json
+```
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Page loads without errors
-- [ ] All sections visible and styled
-- [ ] Lang toggle works and persists
-- [ ] Smooth scroll works
-- [ ] Responsive at 375px, 768px, 1440px
-- [ ] No console errors
-- [ ] External links open correctly
+- [ ] 3D телефон работает и реагирует на мышь
+- [ ] 3D «Ч» анимирована, реагирует на скролл/ховер
+- [ ] Фоновая grid-сетка движется с parallax
+- [ ] Карточки фич имеют 3D tilt на hover
+- [ ] Particle burst на кнопке Download
+- [ ] Все hover/click анимации работают
+- [ ] Языковой переключатель работает + localStorage
+- [ ] 60fps на мобильных (LOD включён)
+- [ ] Отключается при `prefers-reduced-motion`
+- [ ] Адаптивно 375px · 768px · 1440px
+- [ ] Нет ошибок в консоли
+- [ ] Ссылки открываются в новой вкладке

@@ -253,6 +253,7 @@ androidComponents {
 setupDependencyInjection()
 
 dependencies {
+    implementation("com.appodeal.ads:sdk:3.4.0")
     allLibrariesImpl()
     allServicesImpl()
     if (isEnterpriseBuild) {

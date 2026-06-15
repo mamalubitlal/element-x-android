@@ -48,6 +48,7 @@ class PreferencesRootNode(
         fun navigateToLinkNewDevice()
         fun navigateToUserProfile(matrixUser: MatrixUser)
         fun navigateToBlockedUsers()
+        fun watchAd()
         fun startSignOutFlow()
         fun startAccountDeactivationFlow()
     }
@@ -90,6 +91,7 @@ class PreferencesRootNode(
             onOpenNotificationSettings = callback::navigateToNotificationSettings,
             onOpenLockScreenSettings = callback::navigateToLockScreenSettings,
             onOpenUserProfile = callback::navigateToUserProfile,
+            onWatchAdClick = callback::watchAd,
             onOpenBlockedUsers = callback::navigateToBlockedUsers,
             onSignOutClick = {
                 if (state.directLogoutState.canDoDirectSignOut) {
