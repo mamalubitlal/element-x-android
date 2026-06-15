@@ -8,6 +8,8 @@ class RewardedAdManager(
     private val activity: android.app.Activity,
     private val watchedAdsStore: WatchedAdsStore
 ) {
+    private var isEarningReward: Boolean = false
+
     init {
         Appodeal.setRewardedVideoCallbacks(object : RewardedVideoCallbacks {
             override fun onRewardedVideoLoaded(isPrecache: Boolean) {}
@@ -16,14 +18,17 @@ class RewardedAdManager(
             override fun onRewardedVideoShowFailed() {}
             override fun onRewardedVideoClicked() {}
             override fun onRewardedVideoFinished(amount: Double, name: String?) {
-                watchedAdsStore.watchedAds += 1
+                if (isEarningReward) {
+                    watchedAdsStore.watchedAds += 1
+                }
             }
             override fun onRewardedVideoClosed(finished: Boolean) {}
             override fun onRewardedVideoExpired() {}
         })
     }
 
-    fun showAd(onAdFinished: () -> Unit) {
+    fun showAd(isEarningReward: Boolean, onAdFinished: () -> Unit) {
+        this.isEarningReward = isEarningReward
         if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
             Appodeal.show(activity, Appodeal.REWARDED_VIDEO)
         }

@@ -90,7 +90,7 @@ class MainActivity : NodeActivity() {
                     if (watchedAdsStore.watchedAds > 0) {
                         watchedAdsStore.watchedAds -= 1
                     } else {
-                        rewardedAdManager.showAd { }
+                        rewardedAdManager.showAd(isEarningReward = false) { }
                     }
                 }
             }
