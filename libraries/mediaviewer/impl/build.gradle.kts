@@ -33,9 +33,7 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.exoplayer.midi)
     implementation(libs.androidx.media3.ui)
-    implementation(libs.telephoto.zoomableimage)
     implementation(libs.vanniktech.blurhash)
-    implementation(libs.telephoto.flick)
 
     implementation(projects.features.enterprise.api)
     implementation(projects.features.viewfolder.api)
