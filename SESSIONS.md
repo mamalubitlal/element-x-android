@@ -1,3 +1,33 @@
+## 2026-06-16 — Fix CI build: reorder repositories to resolve KMP metadata
+
+**Goal:** Fix Android build failure at `:app:checkGplayDebugAarMetadata` caused by `ui-uikit` and `skiko-android` resolution errors.
+
+**Context:** GitHub Actions run #387 (commit `715ae18ea1`) failed. Switching `haze` → `haze-android` wasn't enough — `haze-android:1.7.2` still transitively depends on `org.jetbrains.compose.foundation:foundation:1.10.3` (KMP module).
+
+**Root cause:** Repository order in `settings.gradle.kts` had `artifactory.appodeal.com` BEFORE `mavenCentral()`. Appodeal proxies JetBrains Compose artifacts but only serves POM files (no `.module` files). Gradle uses POM-only resolution → POM lists ALL transitive deps including iOS-only `ui-uikit:1.10.3` (no Android variant) and `skiko:0.9.37.4` (requires `skiko-android` not on any repo). Maven Central has the correct `.module` files with variant-aware dependency filtering.
+
+**Approach:** Moved `google()` and `mavenCentral()` before Appodeal repo. Removed redundant `repo1.maven.org` (alias for `mavenCentral()`).
+
+**Files modified:**
+- `settings.gradle.kts` — repo order: google, mavenCentral, Appodeal (was: Appodeal, google, mavenCentral, repo1)
+
+**Key decisions:** Reordering is safer than exclusion rules (which could mask runtime issues). Appodeal-specific artifacts still resolve correctly since they only exist on Appodeal.
+
+**Status:** done — committed and pushed (`a96fad7ef6`). CI run #388 pending.
+
+## 2026-06-16 — Fix build: switch haze to -android artifacts
+
+**Goal:** Fix Android build failure caused by KMP metadata resolution of `ui-uikit` and `skiko-android`.
+**Context:** haze:1.7.2 is a KMP library. Kotlin plugin resolves its `metadataApiElements` variant → transitively resolves `foundation:1.10.0`'s metadata → lists `ui-uikit:1.10.3` (iOS-only) and `skiko-android:0.9.37.4` (doesn't exist on Maven Central — confirmed 404).
+**Approach:** Changed `gradle/libs.versions.toml` to use `haze-android` and `haze-materials-android` — these are published as pure Android modules (no `metadataApiElements` variant), so the Kotlin plugin never triggers the transitive metadata chain.
+**Files created/modified:**
+- `gradle/libs.versions.toml` — `haze` → `haze-android`, `haze-materials` → `haze-materials-android`
+**Key decisions:**
+- Using `-android` suffix instead of adding exclusions or repos — cleaner, targets root cause
+- No `build.gradle.kts` changes needed — version catalog entry swap is sufficient, accessors (`libs.haze`, `libs.haze.materials`) remain the same
+- `haze-materials-android` transitively depends on `haze` (not `haze-android`), but since it resolves through `haze`'s Android variant (`available-at` redirect), it still avoids metadata resolution
+**Status:** done — committed and pushed (`715ae18ea1`). CI run #387 pending.
+
 ## 2026-06-15 — Built 3D landing page with Three.js/R3F + dark theme + icons
 
 **Goal:** Build the full 3D marketing landing page for Чатор with Three.js, dark theme, and vector icons.
@@ -256,3 +286,63 @@ Node CLI  (cli.js serve --port 38429)
 - Best approach would be to create Chator-specific semantic color schemes or override colors in ElementThemeApp
 
 **Status:** Analysis complete. Ready to implement Chator color integration by modifying the semantic color flow.
+
+## 2026-06-16 — Investigated failing CI build for PR #384
+
+**Goal:** Diagnose why `fix: remove remaining telephoto reference in messages module` PR build failed.
+
+**Context:** GitHub Actions run `27596431714` on `mamalubitlal/element-x-android` (fork), commit `4622fa9`. Build step `Build GPlay Debug APK` failed with `BUILD FAILED in 2m 13s`.
+
+**Approach:**
+- Initially tried browser automation (GitHub Actions UI) but log navigation was clunky
+- `gh run view --log` failed with cache corruption
+- Used `Invoke-WebRequest` to download logs zip from API, extracted with `System.IO.Compression`
+- Searched logs for error patterns via `Select-String`
+- Used GitHub API to check related commits and files
+
+**Findings:**
+- 2 failures found, neither caused by the Telephoto removal itself:
+  1. `WatchedAdsStore.kt` in `libraries:core` (JVM-only module) uses `android.content.Context`/`SharedPreferences` — added by prior Appodeal ads integration commit
+  2. Coil 3.4.0 pulls JetBrains Compose Multiplatform deps → `ui-uikit:1.10.3` has no `androidJvm` variant; `skiko-android:0.9.37.4` not found
+- Build eventually passed on re-run (`27596431742` → success) — likely transient dep resolution issue
+
+**Files examined:**
+- `features/messages/impl/build.gradle.kts` (PR change: removed `libs.telephoto.zoomableimage`)
+- `libraries/core/src/main/kotlin/.../WatchedAdsStore.kt` (uses Android API in JVM module)
+- `app/build.gradle.kts` (Appodeal SDK deps, Coil 3.4.0)
+- `gradle/libs.versions.toml` (coil = 3.4.0)
+
+**Status:** done — build passed on re-run.
+
+## 2026-06-16 — Offline PDF rendering in media viewer
+
+**Goal:** Replace placeholder "PDF preview not available" with real PDF rendering
+
+**Context:** Media viewer showed a dead placeholder for PDFs — no actual content visible
+
+**Approach:**
+- Added `nickolay-savchenko/pdf-renderer` dependency (v0.5.0) and Coil 3.0.4
+- Created PdfViewer composable with page-at-a-time rendering, zoom, swipe navigation, loading/error states
+- Added PdfViewerState (loading/success/error + page tracking)
+- Wired MediaPdfView to use PdfViewer for offline PDFs via file URI
+- Updated DefaultLocalMediaRenderer to return LocalMediaViewState.Pdf instead of Generic
+- Added Pdf to LocalMediaViewState sealed class
+- Updated MediaViewerView to handle Pdf state alongside Image/Video
+
+**Files modified:**
+- `gradle/libs.versions.toml` — added pdf-renderer 0.5.0, coil3 3.0.4
+- `libraries/matrixmedia/impl/build.gradle.kts` — added pdf-renderer-compose dep
+- `libraries/mediaviewer/impl/build.gradle.kts` — added pdf-renderer-compose, coil3-compose
+- `libraries/mediaviewer/impl/.../DefaultLocalMediaRenderer.kt` — emit Pdf state
+- `libraries/mediaviewer/impl/.../LocalMediaViewState.kt` — added Pdf variant
+- `libraries/mediaviewer/impl/.../image/MediaImageView.kt` — load from platformFile
+- `libraries/mediaviewer/impl/.../pdf/MediaPdfView.kt` — wire PdfViewer
+- `libraries/mediaviewer/impl/.../pdf/PdfViewer.kt` — NEW (PDF renderer)
+- `libraries/mediaviewer/impl/.../pdf/PdfViewerState.kt` — NEW (state holder)
+- `libraries/mediaviewer/impl/.../video/MediaVideoView.kt` — cleanup
+- `libraries/mediaviewer/impl/.../viewer/MediaViewerView.kt` — Pdf branch
+- `libraries/mediaviewer/impl/.../viewer/MediaViewerFlickToDismiss.kt` — suppress unused param
+
+**Key decisions:** Used pdf-renderer over AndroidPdfViewer for Compose-native API. Coil 3 over 2 for compose-multiplatform consistency.
+
+**Status:** done — committed as `22c3abacf8`
