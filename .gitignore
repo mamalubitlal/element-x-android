@@ -115,3 +115,9 @@ lint/tmp/
 .DS_Store
 
 checkouts/**
+
+# Landing page
+landing/node_modules/
+
+# OpenCode
+thoughts/

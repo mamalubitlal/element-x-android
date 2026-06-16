@@ -11,8 +11,6 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -49,14 +47,14 @@ fun BitmapAvatar(
                     .size(size)
                     .clip(avatarShape)
             ) {
-                val collectedState by painter.state.collectAsState()
-                when (val state = collectedState) {
+                val currentState = painter?.state?.value
+                when (currentState) {
                     is AsyncImagePainter.State.Success -> SubcomposeAsyncImageContent()
                     is AsyncImagePainter.State.Error -> {
                         SideEffect {
                             Timber.e(
-                                state.result.throwable,
-                                "Error loading avatar $state\n${state.result}"
+                                currentState.result.throwable,
+                                "Error loading avatar", currentState.result.throwable
                             )
                         }
                         InitialLetterAvatar(
