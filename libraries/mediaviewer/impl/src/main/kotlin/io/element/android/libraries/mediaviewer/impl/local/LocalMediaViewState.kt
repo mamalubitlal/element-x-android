@@ -15,13 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import me.saket.telephoto.zoomable.ZoomableState
-import me.saket.telephoto.zoomable.rememberZoomableState
 
 @Stable
-class LocalMediaViewState internal constructor(
-    val zoomableState: ZoomableState,
-) {
+class LocalMediaViewState internal constructor() {
     var isReady: Boolean by mutableStateOf(false)
     var playableState: PlayableState by mutableStateOf(PlayableState.NotPlayable)
 }
@@ -35,8 +31,8 @@ sealed interface PlayableState {
 }
 
 @Composable
-fun rememberLocalMediaViewState(zoomableState: ZoomableState = rememberZoomableState()): LocalMediaViewState {
-    return remember(zoomableState) {
-        LocalMediaViewState(zoomableState)
+fun rememberLocalMediaViewState(): LocalMediaViewState {
+    return remember {
+        LocalMediaViewState()
     }
 }

@@ -59,7 +59,6 @@ import io.element.android.libraries.mediaviewer.impl.local.player.togglePlay
 import io.element.android.libraries.mediaviewer.impl.local.rememberLocalMediaViewState
 import io.element.android.libraries.ui.utils.a11y.isTalkbackActive
 import kotlinx.coroutines.delay
-import me.saket.telephoto.zoomable.zoomable
 import timber.log.Timber
 import kotlin.time.Duration.Companion.seconds
 
@@ -204,16 +203,7 @@ private fun ExoPlayerMediaVideoView(
         } else {
             AndroidView(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .zoomable(
-                        state = localMediaViewState.zoomableState,
-                        onClick = {
-                            autoHideController++
-                            mediaPlayerControllerState = mediaPlayerControllerState.copy(
-                                isVisible = !mediaPlayerControllerState.isVisible,
-                            )
-                        }
-                    ),
+                    .fillMaxSize(),
                 factory = {
                     PlayerView(context).apply {
                         player = exoPlayer

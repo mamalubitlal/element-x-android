@@ -22,7 +22,6 @@ fun MediaPdfView(
 ) {
     val pdfViewerState = rememberPdfViewerState(
         model = localMedia?.uri,
-        zoomableState = localMediaViewState.zoomableState,
     )
     localMediaViewState.isReady = pdfViewerState.isLoaded
     PdfViewer(

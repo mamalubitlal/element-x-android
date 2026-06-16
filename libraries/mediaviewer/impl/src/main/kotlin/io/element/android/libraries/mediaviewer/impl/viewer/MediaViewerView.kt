@@ -102,9 +102,6 @@ import io.element.android.libraries.textcomposer.ElementRichTextEditorStyle
 import io.element.android.libraries.ui.strings.CommonStrings
 import io.element.android.wysiwyg.compose.EditorStyledText
 import kotlinx.coroutines.delay
-import me.saket.telephoto.zoomable.OverzoomEffect
-import me.saket.telephoto.zoomable.ZoomSpec
-import me.saket.telephoto.zoomable.rememberZoomableState
 
 val topAppBarHeight = 88.dp
 
@@ -360,10 +357,7 @@ private fun MediaViewerPage(
                 .navigationBarsPadding()
         ) {
             Box(contentAlignment = Alignment.Center) {
-                val zoomableState = rememberZoomableState(
-                    zoomSpec = ZoomSpec(maxZoomFactor = 4f, overzoomEffect = OverzoomEffect.NoLimits)
-                )
-                val localMediaViewState = rememberLocalMediaViewState(zoomableState)
+                val localMediaViewState = rememberLocalMediaViewState()
                 val showThumbnail = !localMediaViewState.isReady
                 val playableState = localMediaViewState.playableState
                 val showError = downloadedMedia.isFailure()

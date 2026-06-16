@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import coil.compose.AsyncImage
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.utils.CommonDrawables
@@ -23,8 +24,6 @@ import io.element.android.libraries.mediaviewer.api.local.LocalMedia
 import io.element.android.libraries.mediaviewer.impl.local.LocalMediaViewState
 import io.element.android.libraries.mediaviewer.impl.local.rememberLocalMediaViewState
 import io.element.android.libraries.ui.strings.CommonStrings
-import me.saket.telephoto.zoomable.coil.ZoomableAsyncImage
-import me.saket.telephoto.zoomable.rememberZoomableImageState
 
 @Composable
 fun MediaImageView(
@@ -40,15 +39,11 @@ fun MediaImageView(
             contentDescription = null,
         )
     } else {
-        val zoomableImageState = rememberZoomableImageState(localMediaViewState.zoomableState)
-        localMediaViewState.isReady = zoomableImageState.isImageDisplayed
-        ZoomableAsyncImage(
-            modifier = modifier,
-            state = zoomableImageState,
+        AsyncImage(
             model = localMedia?.uri,
             contentDescription = stringResource(id = CommonStrings.common_image),
             contentScale = ContentScale.Fit,
-            onClick = { onClick() }
+            modifier = modifier,
         )
     }
 }

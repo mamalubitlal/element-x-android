@@ -17,9 +17,6 @@ import io.element.android.features.viewfolder.api.TextFileViewer
 import io.element.android.libraries.audio.api.AudioFocus
 import io.element.android.libraries.mediaviewer.api.local.LocalMedia
 import io.element.android.libraries.mediaviewer.api.local.LocalMediaRenderer
-import me.saket.telephoto.zoomable.OverzoomEffect
-import me.saket.telephoto.zoomable.ZoomSpec
-import me.saket.telephoto.zoomable.rememberZoomableState
 
 @ContributesBinding(AppScope::class)
 class DefaultLocalMediaRenderer(
@@ -28,11 +25,7 @@ class DefaultLocalMediaRenderer(
 ) : LocalMediaRenderer {
     @Composable
     override fun Render(localMedia: LocalMedia) {
-        val localMediaViewState = rememberLocalMediaViewState(
-            zoomableState = rememberZoomableState(
-                zoomSpec = ZoomSpec(maxZoomFactor = 4f, overzoomEffect = OverzoomEffect.NoLimits)
-            )
-        )
+        val localMediaViewState = rememberLocalMediaViewState()
         LocalMediaView(
             modifier = Modifier.fillMaxSize(),
             bottomPaddingInPixels = 0,

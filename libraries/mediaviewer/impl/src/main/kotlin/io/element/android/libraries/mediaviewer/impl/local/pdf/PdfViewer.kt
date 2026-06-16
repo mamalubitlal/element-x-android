@@ -41,7 +41,6 @@ import io.element.android.libraries.designsystem.theme.components.Text
 import io.element.android.libraries.mediaviewer.impl.viewer.topAppBarHeight
 import io.element.android.libraries.ui.strings.CommonStrings
 import kotlinx.collections.immutable.ImmutableList
-import me.saket.telephoto.zoomable.zoomable
 import java.io.IOException
 
 @Composable
@@ -51,11 +50,7 @@ fun PdfViewer(
     modifier: Modifier = Modifier,
 ) {
     BoxWithConstraints(
-        modifier = modifier
-            .zoomable(
-                state = pdfViewerState.zoomableState,
-                onClick = { onClick() }
-            ),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         val maxWidthInPx = maxWidth.roundToPx()

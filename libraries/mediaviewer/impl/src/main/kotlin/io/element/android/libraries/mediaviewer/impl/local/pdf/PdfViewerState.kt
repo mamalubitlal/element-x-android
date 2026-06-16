@@ -23,15 +23,12 @@ import androidx.compose.ui.platform.LocalContext
 import io.element.android.libraries.architecture.AsyncData
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.CoroutineScope
-import me.saket.telephoto.zoomable.ZoomableState
-import me.saket.telephoto.zoomable.rememberZoomableState
 
 @Stable
 class PdfViewerState(
     private val model: Any?,
     private val coroutineScope: CoroutineScope,
     private val context: Context,
-    val zoomableState: ZoomableState,
     val lazyListState: LazyListState,
 ) {
     var isLoaded by mutableStateOf(false)
@@ -63,7 +60,6 @@ class PdfViewerState(
 @Composable
 fun rememberPdfViewerState(
     model: Any?,
-    zoomableState: ZoomableState = rememberZoomableState(),
     lazyListState: LazyListState = rememberLazyListState(),
     context: Context = LocalContext.current,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
@@ -73,7 +69,6 @@ fun rememberPdfViewerState(
             model = model,
             coroutineScope = coroutineScope,
             context = context,
-            zoomableState = zoomableState,
             lazyListState = lazyListState
         )
     }

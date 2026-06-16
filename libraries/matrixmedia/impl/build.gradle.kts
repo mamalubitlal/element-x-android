@@ -26,7 +26,7 @@ dependencies {
     implementation(projects.libraries.designsystem)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
-    implementation(libs.coil.network.okhttp)
+    implementation(libs.coil)
 
     testCommonDependencies(libs, true)
     testImplementation(projects.libraries.matrix.test)

@@ -42,7 +42,6 @@ serialization_json = "1.11.0"
 coil = "2.6.0"
 # Rollback to 1.0.4, 1.0.5 has this issue: https://github.com/airbnb/Showkase/issues/420
 showkase = "1.0.5"
-telephoto = "0.19.0"
 # There is some custom logic in `RootFlowNode` that may break because it reuses some Appyx internal APIs.
 # When upgrading this version, check state restoration still works fine.
 appyx = "1.7.1"
@@ -189,10 +188,7 @@ matrix_sdk = "org.matrix.rustcomponents:sdk-android:26.05.26"
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
 coil_compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 coil_gif = { module = "io.coil-kt:coil-gif", version.ref = "coil" }
-coil_network_okhttp = { module = "io.coil-kt:coil-network-okhttp", version.ref = "coil" }
 coil_test = { module = "io.coil-kt:coil-test", version.ref = "coil" }
-telephoto_zoomableimage = { module = "me.saket.telephoto:zoomable-image-coil", version.ref = "telephoto" }
-telephoto_flick = { module = "me.saket.telephoto:flick", version.ref = "telephoto" }
 datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 serialization_json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization_json" }
 kotlinx_collections_immutable = "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0"
