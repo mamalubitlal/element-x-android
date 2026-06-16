@@ -217,8 +217,8 @@ zxing_cpp = "io.github.zxing-cpp:android:3.0.2"
 google_zxing = "com.google.zxing:core:3.5.4"
 google_guava = "com.google.guava:guava:33.6.0-android"
 
-haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
-haze_materials = { module = "dev.chrisbanes.haze:haze-materials", version.ref = "haze" }
+haze = { module = "dev.chrisbanes.haze:haze-android", version.ref = "haze" }
+haze_materials = { module = "dev.chrisbanes.haze:haze-materials-android", version.ref = "haze" }
 color_picker = "io.mhssn:colorpicker:1.0.0"
 
 # Analytics
