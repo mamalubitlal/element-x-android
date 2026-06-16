@@ -75,7 +75,6 @@ dependencies {
     implementation(libs.androidx.media3.ui)
     implementation(libs.sigpwned.emoji4j)
     implementation(libs.vanniktech.blurhash)
-    implementation(libs.telephoto.zoomableimage)
     implementation(libs.matrix.emojibase.bindings)
     implementation(projects.features.knockrequests.api)
     implementation(projects.features.roommembermoderation.api)
