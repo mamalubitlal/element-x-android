@@ -14,10 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.res.ResourcesCompat
-import coil3.annotation.ExperimentalCoilApi
-import coil3.asImage
-import coil3.compose.AsyncImagePreviewHandler
-import coil3.compose.LocalAsyncImagePreviewHandler
+import coil.annotation.ExperimentalCoilApi
+import coil.asImage
+import coil.compose.AsyncImagePreviewHandler
+import coil.compose.LocalAsyncImagePreviewHandler
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.compound.theme.Theme
 import io.element.android.libraries.designsystem.theme.components.Surface

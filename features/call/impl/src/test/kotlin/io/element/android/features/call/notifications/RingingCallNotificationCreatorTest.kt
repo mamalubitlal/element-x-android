@@ -10,7 +10,7 @@ package io.element.android.features.call.notifications
 
 import androidx.core.graphics.drawable.IconCompat
 import androidx.test.platform.app.InstrumentationRegistry
-import coil3.ImageLoader
+import coil.ImageLoader
 import com.google.common.truth.Truth.assertThat
 import io.element.android.features.call.impl.notifications.RingingCallNotificationCreator
 import io.element.android.libraries.designsystem.components.avatar.AvatarData

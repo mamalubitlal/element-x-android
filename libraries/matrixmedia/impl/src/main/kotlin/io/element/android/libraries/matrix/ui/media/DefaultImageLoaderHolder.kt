@@ -8,7 +8,7 @@
 
 package io.element.android.libraries.matrix.ui.media
 
-import coil3.ImageLoader
+import coil.ImageLoader
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.SingleIn

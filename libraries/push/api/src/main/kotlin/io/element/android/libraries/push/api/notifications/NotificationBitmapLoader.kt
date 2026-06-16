@@ -10,7 +10,7 @@ package io.element.android.libraries.push.api.notifications
 
 import android.graphics.Bitmap
 import androidx.core.graphics.drawable.IconCompat
-import coil3.ImageLoader
+import coil.ImageLoader
 import io.element.android.libraries.designsystem.components.avatar.AvatarData
 import io.element.android.libraries.matrix.ui.media.AVATAR_THUMBNAIL_SIZE_IN_PIXEL
 

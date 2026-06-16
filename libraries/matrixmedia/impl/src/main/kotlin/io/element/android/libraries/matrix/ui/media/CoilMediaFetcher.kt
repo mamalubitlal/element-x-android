@@ -8,11 +8,11 @@
 
 package io.element.android.libraries.matrix.ui.media
 
-import coil3.decode.DataSource
-import coil3.decode.ImageSource
-import coil3.fetch.FetchResult
-import coil3.fetch.Fetcher
-import coil3.fetch.SourceFetchResult
+import coil.decode.DataSource
+import coil.decode.ImageSource
+import coil.fetch.FetchResult
+import coil.fetch.Fetcher
+import coil.fetch.SourceFetchResult
 import io.element.android.libraries.matrix.api.media.MatrixMediaLoader
 import io.element.android.libraries.matrix.api.media.MediaSource
 import io.element.android.libraries.matrix.api.media.toFile

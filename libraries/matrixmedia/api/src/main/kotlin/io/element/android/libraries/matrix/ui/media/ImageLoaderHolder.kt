@@ -7,7 +7,7 @@
 
 package io.element.android.libraries.matrix.ui.media
 
-import coil3.ImageLoader
+import coil.ImageLoader
 import io.element.android.libraries.matrix.api.MatrixClient
 import io.element.android.libraries.matrix.api.core.SessionId
 

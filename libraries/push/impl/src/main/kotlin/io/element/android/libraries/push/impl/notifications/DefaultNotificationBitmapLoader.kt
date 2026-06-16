@@ -13,11 +13,11 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.core.graphics.drawable.IconCompat
-import coil3.ImageLoader
-import coil3.request.ImageRequest
-import coil3.request.transformations
-import coil3.toBitmap
-import coil3.transform.CircleCropTransformation
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.transformations
+import coil.toBitmap
+import coil.transform.CircleCropTransformation
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import io.element.android.libraries.designsystem.components.avatar.AvatarData

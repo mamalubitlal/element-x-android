@@ -11,7 +11,7 @@ package io.element.android.libraries.push.impl.notifications.fake
 import android.app.Notification
 import android.graphics.Bitmap
 import androidx.annotation.ColorInt
-import coil3.ImageLoader
+import coil.ImageLoader
 import io.element.android.libraries.matrix.api.core.ThreadId
 import io.element.android.libraries.push.impl.notifications.RoomEventGroupInfo
 import io.element.android.libraries.push.impl.notifications.factories.NotificationAccountParams

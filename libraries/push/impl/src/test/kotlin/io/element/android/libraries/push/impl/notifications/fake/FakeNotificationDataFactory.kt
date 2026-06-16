@@ -8,7 +8,7 @@
 
 package io.element.android.libraries.push.impl.notifications.fake
 
-import coil3.ImageLoader
+import coil.ImageLoader
 import io.element.android.libraries.push.impl.notifications.NotificationDataFactory
 import io.element.android.libraries.push.impl.notifications.OneShotNotification
 import io.element.android.libraries.push.impl.notifications.RoomNotification

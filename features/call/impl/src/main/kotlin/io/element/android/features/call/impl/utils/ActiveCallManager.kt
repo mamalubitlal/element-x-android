@@ -14,8 +14,8 @@ import android.os.PowerManager
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
-import coil3.SingletonImageLoader
-import coil3.annotation.DelicateCoilApi
+import coil.SingletonImageLoader
+import coil.annotation.DelicateCoilApi
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.SingleIn

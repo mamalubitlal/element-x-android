@@ -7,7 +7,7 @@
 
 package io.element.android.libraries.matrix.ui.media
 
-import coil3.ImageLoader
+import coil.ImageLoader
 import io.element.android.libraries.matrix.api.media.MatrixMediaLoader
 import io.element.android.tests.testutils.lambda.lambdaError
 

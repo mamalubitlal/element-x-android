@@ -13,8 +13,8 @@ package io.element.android.appnav
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import coil3.SingletonImageLoader
-import coil3.annotation.DelicateCoilApi
+import coil.SingletonImageLoader
+import coil.annotation.DelicateCoilApi
 import com.bumble.appyx.core.lifecycle.subscribe
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node

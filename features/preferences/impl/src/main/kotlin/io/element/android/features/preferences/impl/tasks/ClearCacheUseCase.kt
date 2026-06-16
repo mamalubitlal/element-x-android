@@ -9,7 +9,7 @@
 package io.element.android.features.preferences.impl.tasks
 
 import android.content.Context
-import coil3.SingletonImageLoader
+import coil.SingletonImageLoader
 import dev.zacsweers.metro.ContributesBinding
 import io.element.android.features.invite.api.SeenInvitesStore
 import io.element.android.features.preferences.impl.DefaultCacheService

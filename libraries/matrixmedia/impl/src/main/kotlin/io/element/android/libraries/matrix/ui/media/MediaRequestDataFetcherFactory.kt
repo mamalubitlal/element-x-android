@@ -8,9 +8,9 @@
 
 package io.element.android.libraries.matrix.ui.media
 
-import coil3.ImageLoader
-import coil3.fetch.Fetcher
-import coil3.request.Options
+import coil.ImageLoader
+import coil.fetch.Fetcher
+import coil.request.Options
 import io.element.android.libraries.matrix.api.media.MatrixMediaLoader
 
 internal class MediaRequestDataFetcherFactory(

@@ -7,7 +7,7 @@
 
 package io.element.android.libraries.matrix.ui.media.test
 
-import coil3.Bitmap
+import coil.Bitmap
 import io.element.android.libraries.designsystem.components.avatar.AvatarData
 import io.element.android.libraries.matrix.ui.media.InitialsAvatarBitmapGenerator
 import io.element.android.tests.testutils.lambda.lambdaError

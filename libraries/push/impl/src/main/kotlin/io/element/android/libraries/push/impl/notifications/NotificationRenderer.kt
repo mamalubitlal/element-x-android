@@ -9,7 +9,7 @@
 package io.element.android.libraries.push.impl.notifications
 
 import androidx.compose.ui.graphics.toArgb
-import coil3.ImageLoader
+import coil.ImageLoader
 import dev.zacsweers.metro.Inject
 import io.element.android.appconfig.NotificationConfig
 import io.element.android.features.enterprise.api.EnterpriseService

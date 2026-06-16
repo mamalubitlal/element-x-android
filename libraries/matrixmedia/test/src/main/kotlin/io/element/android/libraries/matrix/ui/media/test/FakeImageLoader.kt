@@ -8,13 +8,13 @@
 
 package io.element.android.libraries.matrix.ui.media.test
 
-import coil3.ComponentRegistry
-import coil3.ImageLoader
-import coil3.disk.DiskCache
-import coil3.memory.MemoryCache
-import coil3.request.Disposable
-import coil3.request.ImageRequest
-import coil3.request.ImageResult
+import coil.ComponentRegistry
+import coil.ImageLoader
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
+import coil.request.Disposable
+import coil.request.ImageRequest
+import coil.request.ImageResult
 
 class FakeImageLoader : ImageLoader {
     private val executedRequests = mutableListOf<ImageRequest>()

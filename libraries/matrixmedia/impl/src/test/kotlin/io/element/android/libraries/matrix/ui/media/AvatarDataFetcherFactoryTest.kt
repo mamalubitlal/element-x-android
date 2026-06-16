@@ -8,16 +8,16 @@
 package io.element.android.libraries.matrix.ui.media
 
 import android.graphics.Bitmap
-import coil3.ComponentRegistry
-import coil3.ImageLoader
-import coil3.asImage
-import coil3.disk.DiskCache
-import coil3.memory.MemoryCache
-import coil3.request.Disposable
-import coil3.request.ImageRequest
-import coil3.request.ImageResult
-import coil3.request.Options
-import coil3.request.SuccessResult
+import coil.ComponentRegistry
+import coil.ImageLoader
+import coil.asImage
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
+import coil.request.Disposable
+import coil.request.ImageRequest
+import coil.request.ImageResult
+import coil.request.Options
+import coil.request.SuccessResult
 import com.google.common.truth.Truth.assertThat
 import io.element.android.libraries.designsystem.components.avatar.anAvatarData
 import io.element.android.libraries.matrix.test.media.FakeMatrixMediaLoader
