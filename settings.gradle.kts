@@ -25,12 +25,9 @@ dependencyResolutionManagement {
                 includeModule("com.github.philburk", "jsyn")
             }
         }
-        maven { url = uri("https://artifactory.appodeal.com/appodeal") }
         google()
         mavenCentral()
-        maven {
-            url = uri("https://repo1.maven.org/maven2/")
-        }
+        maven { url = uri("https://artifactory.appodeal.com/appodeal") }
         flatDir {
             dirs("libraries/matrix/libs")
         }
