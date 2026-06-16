@@ -39,7 +39,7 @@ datetime = "0.8.0"
 serialization_json = "1.11.0"
 
 #other
-coil = "2.6.0"
+coil = "3.4.0"
 # Rollback to 1.0.4, 1.0.5 has this issue: https://github.com/airbnb/Showkase/issues/420
 showkase = "1.0.5"
 # There is some custom logic in `RootFlowNode` that may break because it reuses some Appyx internal APIs.
@@ -185,8 +185,11 @@ test_detekt_test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version
 matrix_sdk = "org.matrix.rustcomponents:sdk-android:26.05.26"
 
 # Others
-coil = { module = "io.coil-kt:coil", version.ref = "coil" }
-coil_compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil = { module = "io.coil-kt.coil3:coil", version.ref = "coil" }
+coil_compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil_gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
+coil_network_okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+coil_test = { module = "io.coil-kt.coil3:coil-test", version.ref = "coil" }
 datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 serialization_json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization_json" }
 kotlinx_collections_immutable = "org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0"
