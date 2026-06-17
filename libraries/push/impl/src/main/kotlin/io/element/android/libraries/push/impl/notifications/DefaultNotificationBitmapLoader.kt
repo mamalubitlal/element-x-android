@@ -11,12 +11,14 @@ package io.element.android.libraries.push.impl.notifications
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.core.graphics.drawable.IconCompat
 import coil.ImageLoader
 import coil.request.ImageRequest
-import coil.request.transformations
-import coil.toBitmap
+import coil.request.SuccessResult
 import coil.transform.CircleCropTransformation
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
@@ -99,6 +101,23 @@ class DefaultNotificationBitmapLoader(
             .data(data)
             .transformations(CircleCropTransformation())
             .build()
-        return imageLoader.execute(imageRequest).image?.toBitmap()
+        val result = imageLoader.execute(imageRequest)
+        return when (result) {
+            is SuccessResult -> result.drawable.toBitmap()
+            else -> null
+        }
+    }
+
+    private fun Drawable.toBitmap(): Bitmap {
+        if (this is BitmapDrawable) return bitmap
+        val bitmap = Bitmap.createBitmap(
+            intrinsicWidth.coerceAtLeast(1),
+            intrinsicHeight.coerceAtLeast(1),
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        setBounds(0, 0, canvas.width, canvas.height)
+        draw(canvas)
+        return bitmap
     }
 }

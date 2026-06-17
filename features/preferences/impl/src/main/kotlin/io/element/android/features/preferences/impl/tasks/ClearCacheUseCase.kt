@@ -10,6 +10,7 @@ package io.element.android.features.preferences.impl.tasks
 
 import android.content.Context
 import coil.Coil
+import coil.annotation.ExperimentalCoilApi
 import dev.zacsweers.metro.ContributesBinding
 import io.element.android.features.invite.api.SeenInvitesStore
 import io.element.android.features.preferences.impl.DefaultCacheService
@@ -39,6 +40,7 @@ class DefaultClearCacheUseCase(
     private val activeRoomsHolder: ActiveRoomsHolder,
     private val cacheStore: CacheStore,
 ) : ClearCacheUseCase {
+    @OptIn(ExperimentalCoilApi::class)
     override suspend fun invoke() = withContext(coroutineDispatchers.io) {
         // Clear cache store
         cacheStore.deleteAll()
