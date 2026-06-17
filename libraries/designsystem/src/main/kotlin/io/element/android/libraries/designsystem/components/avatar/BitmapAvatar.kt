@@ -47,7 +47,7 @@ fun BitmapAvatar(
                     .size(size)
                     .clip(avatarShape)
             ) {
-                val currentState = painter.state.value
+                val currentState = painterState.value
                 when (currentState) {
                     is AsyncImagePainter.State.Success -> SubcomposeAsyncImageContent()
                     is AsyncImagePainter.State.Error -> {

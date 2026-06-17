@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Chator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0F80EC">
+  <link rel="icon" type="image/svg+xml" href="chator.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #0F80EC; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    #ComposeTarget { display: block; width: 100vw; height: 100vh; }
+  </style>
+</head>
+<body>
+  <canvas id="ComposeTarget"></canvas>
+  <!-- Kotlin/Wasm external object name declarations (must be global) -->
+  <script>var ChatorJs, JsStorage;</script>
+  <script>
+    // Chator JS bridge — single source of truth for what Kotlin can call.
+    window.chator = (function () {
+      function xhr(method, url, body, auth) {
+        return new Promise(function (resolve, reject) {
+          var x = new XMLHttpRequest();
+          x.open(method, url, false); // sync — Kotlin coroutines handle async, no need to duplicate here
+          x.setRequestHeader("Content-Type", "application/json");
+          if (auth) x.setRequestHeader("Authorization", "Bearer " + auth);
+          try { x.send(body || undefined); }
+          catch (err) { reject("network: " + err); return; }
+          if (x.status >= 200 && x.status < 300) resolve(x.responseText);
+          else reject("http " + x.status + ": " + (x.responseText || ""));
+        })().then(function (v) { return v; }, function (e) { throw e; });
+      }
+      var storage = {
+        get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+        set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+        del: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
+      };
+      function clipboardCopy(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).catch(function () { fallbackCopy(text); });
+          return;
+        }
+        fallbackCopy(text);
+        function fallbackCopy(t) {
+          try {
+            var ta = document.createElement("textarea");
+            ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+          } catch (e) {}
+        }
+      }
+      // ----- Web-push (matrix.org push gateway) -----
+      // Sync-to-async bridge: Kotlin kicks off registerPush(), it returns null
+      // immediately and writes the result into a global; Kotlin polls pollPush().
+      function urlBase64ToUint8Array(base64String) {
+        var padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+        var b64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+        var raw = atob(b64);
+        var out = new Uint8Array(raw.length);
+        for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+        return out;
+      }
+      function vapidPublicB64() {
+        // Element Web's published VAPID key — works with matrix.org's push gateway.
+        // Source: https://github.com/element-hq/element-web/blob/develop/src/utils/Pushers.ts
+        return "BPG7K2KRxJmSW6eDqW0NJNJmfXEU8ZNmTLWLm4tTs7E0fRe0e1zLgnJ7C7sEzC3QyXKBnJJwz3XuJ8sdfDgTCM";
+      }
+      function registerPush() {
+        if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+          window.chator._pushResult = JSON.stringify({ ok: false, reason: "unsupported" });
+          return null;
+        }
+        window.chator._pushResult = null;
+        navigator.serviceWorker.register("sw.js")
+          .then(function (reg) { return navigator.serviceWorker.ready; })
+          .then(function (reg) {
+            return reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(vapidPublicB64())
+            });
+          })
+          .then(function (sub) {
+            var j = sub.toJSON();
+            window.chator._pushResult = JSON.stringify({
+              ok: true,
+              endpoint: j.endpoint,
+              keys: j.keys
+            });
+          })
+          .catch(function (e) {
+            window.chator._pushResult = JSON.stringify({
+              ok: false,
+              err: (e && e.message) || String(e)
+            });
+          });
+        return null;
+      }
+      function pollPush() {
+        return window.chator._pushResult;
+      }
+      return {
+        xhr: function (m, u, b, a) {
+          // Convert sync-or-async into a sync-style for Kotlin/Wasm interop.
+          try { return xhr(m, u, b, a); } catch (e) { return "__ERR__:" + e; }
+        },
+        now: function () { return Date.now(); },
+        tzOffsetMin: function () { return new Date().getTimezoneOffset(); },
+        encodeURI: function (s) { return encodeURIComponent(s); },
+        clipboardCopy: clipboardCopy,
+        registerPush: registerPush,
+        pollPush: pollPush,
+        openUrl: function (url) { window.open(url, '_blank', 'noopener'); },
+        storage: storage
+      };
+    })();
+    // Init globals for Kotlin/Wasm external objects (ChatorJs, JsStorage).
+    ChatorJs = window.chator;
+    JsStorage = window.chator.storage.constructor;
+  </script>
+  <script src="chator-web.js"></script>
+</body>
+</html>

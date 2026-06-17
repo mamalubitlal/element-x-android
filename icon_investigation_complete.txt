@@ -1,0 +1,163 @@
+=== APP ICON SETUP INVESTIGATION ===
+
+1. appicon/chator/build.gradle.kts:
+------------------------------------
+/*
+ * Copyright (c) 2025 Element Creations Ltd.
+ * Copyright 2024, 2025 New Vector Ltd.
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial.
+ * Please see LICENSE files in the repository root for full details.
+ */
+plugins {
+    id("io.element.android-compose-library")
+}
+
+android {
+    namespace = "io.element.android.appicon.chator"
+
+    buildTypes {
+        register("nightly")
+    }
+}
+
+2. app/build.gradle.kts (lines 250-270):
+--------------------------------------
+240: 
+241:             // Stores the value of abiCodes that is associated with the ABI for this variant.
+242:             val abiCode = abiVersionCodes[name] ?: 0
+243:             // Assigns the new version code to output.versionCode, which changes the version code
+244:             // for only the output APK, not for the variant itself.
+245:             output.versionCode.set((output.versionCode.orNull ?: 0) * 10 + abiCode)
+246:         }
+247:     }
+248: 
+249:     val reportingExtension: ReportingExtension = project.extensions.getByType(ReportingExtension::class.java)
+250:     configureLicensesTasks(reportingExtension)
+251: }
+252: 
+253: setupDependencyInjection()
+254: 
+255: dependencies {
+256:     allLibrariesImpl()
+257:     allServicesImpl()
+258:     if (isEnterpriseBuild) {
+259:         allEnterpriseImpl(project)
+260:         implementation(projects.appicon.enterprise)
+261:     } else {
+262:         allEnterpriseImpl(project)
+263:         implementation(projects.appicon.chator)
+264:     }
+265:     allFeaturesImpl(project)
+266:     implementation(projects.features.migration.api)
+267:     implementation(projects.appnav)
+268:     implementation(projects.appconfig)
+269:     implementation(projects.libraries.uiStrings)
+270:     implementation(projects.services.analytics.compose)
+
+3. appicon/element/build.gradle.kts:
+------------------------------------
+/*
+ * Copyright (c) 2025 Element Creations Ltd.
+ * Copyright 2024, 2025 New Vector Ltd.
+ *
+ * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial.
+ * Please see LICENSE files in the repository root for full details.
+ */
+plugins {
+    id("io.element.android-compose-library")
+}
+
+android {
+    namespace = "io.element.android.appicon.element"
+
+    buildTypes {
+        register("nightly")
+    }
+}
+
+4. appicon/chator/src/main/res/mipmap-anydpi-v26/ic_launcher.xml:
+-----------------------------------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background_chator"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground_chator"/>
+    <monochrome android:drawable="@mipmap/ic_launcher_monochrome_chator"/>
+</adaptive-icon>
+
+5. appicon/chator/src/main/res/mipmap-anydpi-v26\ic_launcher_round.xml:
+---------------------------------------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background_chator"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground_chator"/>
+    <monochrome android:drawable="@mipmap/ic_launcher_monochrome_chator"/>
+</adaptive-icon>
+
+6. app/src/main/AndroidManifest.xml:
+------------------------------------
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2025 Element Creations Ltd.
+  ~ Copyright 2022 New Vector Ltd.
+  ~
+  ~ SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial.
+  ~ Please see LICENSE files in the repository root for full details.
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- To be able to install APK from the application -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <application
+        android:name=".ElementXApplication"
+        android:allowBackup="false"
+        android:appCategory="social"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:localeConfig="@xml/locales_config"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ElementX"
+        tools:targetApi="33">
+
+        <!-- ... rest of manifest ... -->
+
+    </application>
+
+</manifest>
+
+7. Other ic_launcher*.xml files found:
+-------------------------------------
+- C:\chtor\appicon\enterprise\src\main\res\mipmap-anydpi\ic_launcher.xml
+- C:\chtor\appicon\enterprise\src\main\res\mipmap-anydpi\ic_launcher_round.xml
+- C:\chtor\appicon\element\src\main\res\mipmap-anydpi-v26\ic_launcher.xml
+- C:\chtor\appicon\element\src\main\res\mipmap-anydpi-v26\ic_launcher_round.xml
+- C:\chtor\appicon\chator\src\main\res\mipmap-anydpi-v26\ic_launcher.xml
+- C:\chtor\appicon\chator\src\main\res\mipmap-anydpi-v26\ic_launcher_round.xml
+
+KEY FINDINGS:
+-------------
+1. The app uses dynamic icon modules based on build type:
+   - Enterprise builds: use appicon.enterprise module
+   - Non-enterprise (chator) builds: use appicon.chator module + enterprise foss features
+
+2. The chator icon module defines adaptive icons with:
+   - Background: @drawable/ic_launcher_background_chator
+   - Foreground: @mipmap/ic_launcher_foreground_chator
+   - Monochrome: @mipmap/ic_launcher_monochrome_chator (for Android 8.0+)
+
+3. The AndroidManifest.xml references:
+   - android:icon="@mipmap/ic_launcher" 
+   - android:roundIcon="@mipmap/ic_launcher_round"
+
+4. Both chator and element icon modules have v26 adaptive icons with monochrome support,
+   while the enterprise module uses legacy adaptive icons (no v26 qualifier) without monochrome.
+
+5. The chator and element icon modules are structurally identical except for resource names
+   (chator_* vs element_* vs no suffix for default element).
