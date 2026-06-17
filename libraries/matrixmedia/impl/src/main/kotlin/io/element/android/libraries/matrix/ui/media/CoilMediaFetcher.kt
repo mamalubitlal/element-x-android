@@ -18,6 +18,7 @@ import io.element.android.libraries.matrix.api.media.MatrixMediaLoader
 import io.element.android.libraries.matrix.api.media.MediaSource
 import io.element.android.libraries.matrix.api.media.toFile
 import okio.Buffer
+import okio.FileSystem
 import okio.Path.Companion.toOkioPath
 import timber.log.Timber
 import java.nio.ByteBuffer
