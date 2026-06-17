@@ -6,17 +6,12 @@
  * Please see LICENSE files in the repository root for full details.
  */
 
-@file:OptIn(DelicateCoilApi::class)
-
 package io.element.android.appnav
 
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import coil.SingletonImageLoader
-import coil.annotation.DelicateCoilApi
 import com.bumble.appyx.core.composable.Children
-import com.bumble.appyx.core.lifecycle.subscribe
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.navigation.model.permanent.PermanentNavModel
 import com.bumble.appyx.core.node.Node
@@ -72,15 +67,6 @@ class LoggedInAppScopeFlowNode(
 
     private val inputs: Inputs = inputs()
     override val graph = sessionGraphFactory.create(inputs.matrixClient)
-
-    override fun onBuilt() {
-        super.onBuilt()
-        lifecycle.subscribe(
-            onResume = {
-                SingletonImageLoader.setUnsafe(imageLoaderHolder.get(inputs.matrixClient))
-            },
-        )
-    }
 
     override fun resolve(navTarget: NavTarget, buildContext: BuildContext): Node {
         val callback = object : LoggedInFlowNode.Callback {

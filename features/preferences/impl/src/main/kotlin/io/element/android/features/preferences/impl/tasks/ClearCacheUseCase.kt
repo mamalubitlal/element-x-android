@@ -9,7 +9,7 @@
 package io.element.android.features.preferences.impl.tasks
 
 import android.content.Context
-import coil.SingletonImageLoader
+import coil.Coil
 import dev.zacsweers.metro.ContributesBinding
 import io.element.android.features.invite.api.SeenInvitesStore
 import io.element.android.features.preferences.impl.DefaultCacheService
@@ -47,7 +47,7 @@ class DefaultClearCacheUseCase(
         // Clear Matrix cache
         matrixClient.clearCache()
         // Clear Coil cache
-        SingletonImageLoader.get(context).let {
+        Coil.imageLoader(context).let {
             it.diskCache?.clear()
             it.memoryCache?.clear()
         }

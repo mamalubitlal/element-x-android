@@ -14,8 +14,7 @@ import android.os.PowerManager
 import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
-import coil.SingletonImageLoader
-import coil.annotation.DelicateCoilApi
+import coil.Coil
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.SingleIn
@@ -168,11 +167,10 @@ class DefaultActiveCallManager(
         }
     }
 
-    @OptIn(DelicateCoilApi::class)
     private suspend fun setUpCoil(sessionId: SessionId) {
         val matrixClient = matrixClientProvider.getOrRestore(sessionId).getOrNull() ?: return
         // Ensure that the image loader is set, else the IncomingCallActivity will not be able to render the caller avatar
-        SingletonImageLoader.setUnsafe(imageLoaderHolder.get(matrixClient))
+        Coil.setImageLoader(imageLoaderHolder.get(matrixClient))
     }
 
     /**

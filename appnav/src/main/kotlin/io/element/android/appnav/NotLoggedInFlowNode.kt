@@ -6,16 +6,11 @@
  * Please see LICENSE files in the repository root for full details.
  */
 
-@file:OptIn(DelicateCoilApi::class)
-
 package io.element.android.appnav
 
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import coil.SingletonImageLoader
-import coil.annotation.DelicateCoilApi
-import com.bumble.appyx.core.lifecycle.subscribe
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node
 import com.bumble.appyx.core.plugin.Plugin
@@ -68,11 +63,6 @@ class NotLoggedInFlowNode(
     override fun onBuilt() {
         super.onBuilt()
         analyticsColdStartWatcher.whenLoggingIn()
-        lifecycle.subscribe(
-            onResume = {
-                SingletonImageLoader.setUnsafe(imageLoaderHolder.get())
-            },
-        )
     }
 
     sealed interface NavTarget : Parcelable {

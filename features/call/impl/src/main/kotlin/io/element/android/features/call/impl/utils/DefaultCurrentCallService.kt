@@ -14,6 +14,7 @@ import dev.zacsweers.metro.SingleIn
 import io.element.android.features.call.api.CurrentCall
 import io.element.android.features.call.api.CurrentCallService
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
