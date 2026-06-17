@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.Extras
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -145,9 +144,7 @@ private fun BoxWithConstraintsScope.LoadableMapContent(
                     )
                 )
                 .size(width = constraints.maxWidth, height = constraints.maxHeight)
-                .apply {
-                    extras.set(Extras.Key("retry_hash"), retryHash).build()
-                }
+                .memoryCacheKey("static_map_$retryHash")
                 .build()
         }
     )
