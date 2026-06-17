@@ -8,10 +8,10 @@
 
 package io.element.android.libraries.matrix.ui.media
 
+import android.net.Uri
 import coil.ImageLoader
 import coil.fetch.Fetcher
 import coil.request.Options
-import coil.toUri
 import io.element.android.libraries.designsystem.components.avatar.AvatarData
 import io.element.android.libraries.matrix.api.media.MatrixMediaLoader
 
@@ -31,9 +31,8 @@ internal class AvatarDataFetcherFactory(
             )
             else -> {
                 // If the URL does not use the mxc scheme, it might be a local one using `content://`, try using a fallback fetcher
-                data.url?.toUri()?.let { uri ->
-                    imageLoader.components.newFetcher(uri, options, imageLoader)
-                }?.first
+                val uri = Uri.parse(data.url)
+                imageLoader.components.newFetcher(uri, options, imageLoader)
             }
         }
     }

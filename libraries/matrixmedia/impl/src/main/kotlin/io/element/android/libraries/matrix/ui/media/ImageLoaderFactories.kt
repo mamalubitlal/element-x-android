@@ -13,7 +13,7 @@ import android.os.Build
 import coil.ImageLoader
 import coil.gif.AnimatedImageDecoder
 import coil.gif.GifDecoder
-import coil.network.okhttp.OkHttpNetworkFetcherFactory
+import coil.network.OkHttpNetworkFetcherFactory
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import io.element.android.libraries.di.annotations.ApplicationContext

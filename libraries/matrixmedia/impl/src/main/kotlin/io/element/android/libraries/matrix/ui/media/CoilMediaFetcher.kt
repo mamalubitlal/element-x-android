@@ -12,7 +12,7 @@ import coil.decode.DataSource
 import coil.decode.ImageSource
 import coil.fetch.FetchResult
 import coil.fetch.Fetcher
-import coil.fetch.SourceFetchResult
+import coil.fetch.SourceResult
 import io.element.android.libraries.matrix.api.media.MatrixMediaLoader
 import io.element.android.libraries.matrix.api.media.MediaSource
 import io.element.android.libraries.matrix.api.media.toFile
@@ -48,7 +48,7 @@ internal class CoilMediaFetcher(
         return mediaLoader.downloadMediaFile(mediaSource, kind.mimeType, kind.fileName)
             .map { mediaFile ->
                 val file = mediaFile.toFile()
-                SourceFetchResult(
+                SourceResult(
                     source = ImageSource(
                         file = file.toOkioPath(),
                         fileSystem = FileSystem.SYSTEM,
@@ -86,14 +86,14 @@ internal class CoilMediaFetcher(
         }.getOrNull()
     }
 
-    private fun ByteArray.asSourceResult(): SourceFetchResult {
+    private fun ByteArray.asSourceResult(): SourceResult {
         val byteBuffer = ByteBuffer.wrap(this)
         val bufferedSource = try {
             Buffer().apply { write(byteBuffer) }
         } finally {
             byteBuffer.position(0)
         }
-        return SourceFetchResult(
+        return SourceResult(
             source = ImageSource(
                 source = bufferedSource,
                 fileSystem = FileSystem.SYSTEM,
