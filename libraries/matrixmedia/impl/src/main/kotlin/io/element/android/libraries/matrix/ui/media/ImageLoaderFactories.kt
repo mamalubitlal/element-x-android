@@ -11,9 +11,8 @@ package io.element.android.libraries.matrix.ui.media
 import android.content.Context
 import android.os.Build
 import coil.ImageLoader
-import coil.gif.AnimatedImageDecoder
-import coil.gif.GifDecoder
-import coil.network.OkHttpNetworkFetcherFactory
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import io.element.android.libraries.di.annotations.ApplicationContext
@@ -30,28 +29,23 @@ class DefaultImageLoaderFactory(
     @ApplicationContext private val context: Context,
     private val okHttpClient: () -> OkHttpClient,
 ) : ImageLoaderFactory {
-    private val okHttpNetworkFetcherFactory = OkHttpNetworkFetcherFactory(
-        callFactory = {
-            // Use newBuilder, see https://coil-kt.github.io/coil/network/#using-a-custom-okhttpclient
-            okHttpClient().newBuilder().build()
-        }
-    )
-
     override fun newImageLoader(): ImageLoader {
         return ImageLoader.Builder(context)
-            .components {
-                add(okHttpNetworkFetcherFactory)
+            .okHttpClient {
+                okHttpClient().newBuilder().build()
             }
             .build()
     }
 
     override fun newImageLoader(matrixMediaLoader: MatrixMediaLoader): ImageLoader {
         return ImageLoader.Builder(context)
+            .okHttpClient {
+                okHttpClient().newBuilder().build()
+            }
             .components {
-                add(okHttpNetworkFetcherFactory)
                 // Add gif support
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    add(AnimatedImageDecoder.Factory())
+                    add(ImageDecoderDecoder.Factory())
                 } else {
                     add(GifDecoder.Factory())
                 }

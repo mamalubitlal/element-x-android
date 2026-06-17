@@ -26,12 +26,13 @@ internal class AvatarDataFetcherFactory(
         return when {
             data.url == null -> null
             data.url?.startsWith("mxc") == true -> CoilMediaFetcher(
+                context = options.context,
                 mediaLoader = matrixMediaLoader,
                 mediaData = data.toMediaRequestData(),
             )
             else -> {
                 // If the URL does not use the mxc scheme, it might be a local one using `content://`, try using a fallback fetcher
-                val uri = Uri.parse(data.url)
+                val uri = Uri.parse(data.url!!)
                 imageLoader.components.newFetcher(uri, options, imageLoader)
             }
         }

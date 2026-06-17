@@ -22,6 +22,7 @@ internal class MediaRequestDataFetcherFactory(
         imageLoader: ImageLoader
     ): Fetcher {
         return CoilMediaFetcher(
+            context = options.context,
             mediaLoader = matrixMediaLoader,
             mediaData = data,
         )

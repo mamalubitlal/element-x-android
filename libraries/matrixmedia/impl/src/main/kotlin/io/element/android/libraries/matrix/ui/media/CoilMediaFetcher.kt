@@ -8,6 +8,7 @@
 
 package io.element.android.libraries.matrix.ui.media
 
+import android.content.Context
 import coil.decode.DataSource
 import coil.decode.ImageSource
 import coil.fetch.FetchResult
@@ -17,12 +18,12 @@ import io.element.android.libraries.matrix.api.media.MatrixMediaLoader
 import io.element.android.libraries.matrix.api.media.MediaSource
 import io.element.android.libraries.matrix.api.media.toFile
 import okio.Buffer
-import okio.FileSystem
 import okio.Path.Companion.toOkioPath
 import timber.log.Timber
 import java.nio.ByteBuffer
 
 internal class CoilMediaFetcher(
+    private val context: Context,
     private val mediaLoader: MatrixMediaLoader,
     private val mediaData: MediaRequestData,
 ) : Fetcher {
@@ -96,7 +97,7 @@ internal class CoilMediaFetcher(
         return SourceResult(
             source = ImageSource(
                 source = bufferedSource,
-                fileSystem = FileSystem.SYSTEM,
+                context = context,
             ),
             mimeType = null,
             dataSource = DataSource.MEMORY
