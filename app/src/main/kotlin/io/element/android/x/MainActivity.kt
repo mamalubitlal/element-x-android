@@ -47,7 +47,6 @@ import kotlinx.coroutines.launch
 import com.appodeal.ads.Appodeal
 import com.appodeal.ads.initialization.ApdInitializationCallback
 import io.element.android.libraries.core.data.AdProviderHolder
-import io.element.android.libraries.core.data.WatchedAdsStore
 import io.element.android.libraries.core.data.WatchedAdsStoreHolder
 import com.appodeal.ads.initialization.ApdInitializationError
 import io.element.android.features.call.impl.utils.CallServiceHolder
@@ -67,7 +66,7 @@ class MainActivity : NodeActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         
-        watchedAdsStore = WatchedAdsStore(this)
+        watchedAdsStore = AndroidWatchedAdsStore(this)
         WatchedAdsStoreHolder.instance = watchedAdsStore
         rewardedAdManager = RewardedAdManager(this, watchedAdsStore)
         RewardedAdManagerHolder.instance = rewardedAdManager
