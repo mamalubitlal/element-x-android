@@ -125,8 +125,11 @@ class RustMatrixAuthenticationService(
         withContext(coroutineDispatchers.io) {
             val emptySessionPath = rotateSessionPath()
             runCatchingExceptions {
+                // Strip protocol to pass as server name, so the Rust SDK fetches the
+                // .well-known/matrix/client and discovers the OIDC issuer (MSC2965).
+                val serverName = homeserver.removePrefix("https://").removePrefix("http://")
                 val client = makeClient(sessionPaths = emptySessionPath) {
-                    serverNameOrHomeserverUrl(homeserver)
+                    serverName(serverName)
                 }
 
                 currentClient = client

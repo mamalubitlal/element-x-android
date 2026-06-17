@@ -24,7 +24,7 @@ class RustHomeServerLoginCompatibilityChecker(
     override suspend fun check(url: String): Result<Boolean> = runCatchingExceptions {
         clientBuilderProvider.provide()
             .inMemoryStore()
-            .serverNameOrHomeserverUrl(url)
+            .serverName(url.removePrefix("https://").removePrefix("http://"))
             .addRootCertificates(userCertificatesProvider.provides())
             .build()
             .use {
