@@ -176,7 +176,7 @@ class PreferencesFlowNode(
                     }
 
                     override fun watchAd() {
-                        io.element.android.x.RewardedAdManagerHolder.instance?.showAd(isEarningReward = true) {}
+                        io.element.android.libraries.core.data.AdProviderHolder.instance?.showAd(isEarningReward = true) {}
                     }
 
                     override fun startSignOutFlow() {

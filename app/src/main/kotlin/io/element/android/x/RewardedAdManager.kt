@@ -2,12 +2,13 @@ package io.element.android.x
 
 import com.appodeal.ads.Appodeal
 import com.appodeal.ads.RewardedVideoCallbacks
+import io.element.android.libraries.core.data.AdProvider
 import io.element.android.libraries.core.data.WatchedAdsStore
 
 class RewardedAdManager(
     private val activity: android.app.Activity,
     private val watchedAdsStore: WatchedAdsStore
-) {
+) : AdProvider {
     private var isEarningReward: Boolean = false
 
     init {

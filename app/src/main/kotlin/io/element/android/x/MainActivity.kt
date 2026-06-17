@@ -46,6 +46,7 @@ import io.element.android.x.intent.SafeUriHandler
 import kotlinx.coroutines.launch
 import com.appodeal.ads.Appodeal
 import com.appodeal.ads.initialization.ApdInitializationCallback
+import io.element.android.libraries.core.data.AdProviderHolder
 import io.element.android.libraries.core.data.WatchedAdsStore
 import io.element.android.libraries.core.data.WatchedAdsStoreHolder
 import com.appodeal.ads.initialization.ApdInitializationError
@@ -70,6 +71,7 @@ class MainActivity : NodeActivity() {
         WatchedAdsStoreHolder.instance = watchedAdsStore
         rewardedAdManager = RewardedAdManager(this, watchedAdsStore)
         RewardedAdManagerHolder.instance = rewardedAdManager
+        AdProviderHolder.instance = rewardedAdManager
         
         // Initialize Appodeal
         val adTypes = Appodeal.REWARDED_VIDEO

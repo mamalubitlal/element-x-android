@@ -260,6 +260,7 @@ fun PreferencesRootView(
             onOpenAdvancedSettings = onOpenAdvancedSettings,
             onOpenDeveloperSettings = onOpenDeveloperSettings,
             onOpenLabs = onOpenLabs,
+            onWatchAdClick = onWatchAdClick,
             onSignOutClick = onSignOutClick,
             onDeactivateClick = onDeactivateClick,
         )
@@ -508,6 +509,7 @@ private fun ContentToPreview(state: PreferencesRootState) {
         onOpenLockScreenSettings = {},
         onOpenUserProfile = {},
         onOpenBlockedUsers = {},
+        onWatchAdClick = {},
         onSignOutClick = {},
         onDeactivateClick = {},
     )

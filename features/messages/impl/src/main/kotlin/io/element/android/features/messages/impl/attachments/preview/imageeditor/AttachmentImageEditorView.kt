@@ -271,8 +271,8 @@ private fun BoxScope.CropEditorCanvas(
                     onState = { painterState ->
                         if (painterState is AsyncImagePainter.State.Success) {
                             imageSize = IntSize(
-                                width = painterState.result.image.width,
-                                height = painterState.result.image.height,
+                                width = painterState.result.drawable.intrinsicWidth,
+                                height = painterState.result.drawable.intrinsicHeight,
                             )
                         }
                     }

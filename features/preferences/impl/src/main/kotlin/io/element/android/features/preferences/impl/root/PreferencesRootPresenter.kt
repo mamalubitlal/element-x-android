@@ -134,6 +134,9 @@ class PreferencesRootPresenter(
                 is PreferencesRootEvent.SwitchToSession -> coroutineScope.launch {
                     sessionStore.setLatestSession(event.sessionId.value)
                 }
+                is PreferencesRootEvent.WatchAd -> {
+                    io.element.android.libraries.core.data.AdProviderHolder.instance?.showAd(isEarningReward = true) {}
+                }
             }
         }
 
