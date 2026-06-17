@@ -44,8 +44,6 @@ import io.element.android.services.analytics.compose.LocalAnalyticsService
 import io.element.android.x.di.AppBindings
 import io.element.android.x.intent.SafeUriHandler
 import kotlinx.coroutines.launch
-import com.appodeal.ads.ApdInitializationCallback
-import com.appodeal.ads.ApdInitializationError
 import com.appodeal.ads.Appodeal
 import io.element.android.libraries.core.data.AdProviderHolder
 import io.element.android.libraries.core.data.WatchedAdsStore
@@ -76,16 +74,9 @@ class MainActivity : NodeActivity() {
         
         // Initialize Appodeal
         val adTypes = Appodeal.REWARDED_VIDEO
-        Appodeal.initialize(
-            this,
-            "YOUR_APP_KEY",
-            adTypes,
-            object : ApdInitializationCallback {
-                override fun onInitializationFinished(errors: List<ApdInitializationError>?) {
-                    Timber.tag(loggerTag.value).d("Appodeal initialization finished")
-                }
-            }
-        )
+        Appodeal.initialize(this, "YOUR_APP_KEY", adTypes) {
+            Timber.tag(loggerTag.value).d("Appodeal initialization finished")
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
