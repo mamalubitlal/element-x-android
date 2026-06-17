@@ -4,10 +4,10 @@
 
 **Context:** Two issues reported: (1) registration connects to IP:port instead of `chator.crabdance.com`, (2) server says doesn't support Matrix Auth Service (server-side issue).
 
-**Root cause:** `AuthenticationConfig.CANDIDATE_HOMESERVERS` had `"http://85.209.2.14:8008"` first — the server picker auto-selects index 0. Also `chator-config.properties` still pointed to `chator.duckdns.org`.
+**Root cause:** `AuthenticationConfig.CANDIDATE_HOMESERVERS` had `"http://85.209.2.14:8008"` first — the server picker auto-selects index 0. Also `chator-config.properties` still pointed to `chator.crabdance.com`.
 
 **Approach:**
-- Replaced `CANDIDATE_HOMESERVERS` entry: removed IP address, put `https://chator.crabdance.com` first, kept `https://chator.duckdns.org` as fallback
+- Replaced `CANDIDATE_HOMESERVERS` entry: removed IP address, put `https://chator.crabdance.com` first, kept `https://chator.crabdance.com` as fallback
 - Updated `chator-config.properties`: `CHATOR_HOMESERVER_URL` and `CHATOR_SERVER_NAME` → `chator.crabdance.com`
 
 **Files modified:**
@@ -212,7 +212,7 @@ Node CLI  (cli.js serve --port 38429)
 
 **Goal:** Recreate the Chator (Element X fork) Android app UI as a PWA for iOS, with Matrix messaging support.
 
-**Context:** Chator is a Kotlin/Jetpack Compose Android app. To run on iOS, we can't convert the APK — instead we built a web-based PWA that mirrors the Android UI exactly and connects to the same Matrix homeserver (chator.duckdns.org).
+**Context:** Chator is a Kotlin/Jetpack Compose Android app. To run on iOS, we can't convert the APK — instead we built a web-based PWA that mirrors the Android UI exactly and connects to the same Matrix homeserver (chator.crabdance.com).
 
 **Approach:**
 - Analyzed Android app's Compose UI (OnBoardingView, HomeView, MessagesView, RoomSummaryRow, HomeTopBar, MessagesViewTopBar) and design system (ChatorColors.kt)

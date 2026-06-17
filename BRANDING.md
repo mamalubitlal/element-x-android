@@ -136,7 +136,7 @@ Custom Chator colors in `app/src/main/res/values/colors.xml`:
 - `defaultHomeserverList()` → `emptyList()` (returns empty list, so no server pre-selected)
 - `isAllowedToConnectToHomeserver()` → `true` (allows manual entry of any server)
 
-This is okay for now — users can enter `chator.duckdns.org` manually. Server auto-pick logic exists in `HomeserverResolver.kt` (from earlier Chator work).
+This is okay for now — users can enter `chator.crabdance.com` manually. Server auto-pick logic exists in `HomeserverResolver.kt` (from earlier Chator work).
 
 ---
 

@@ -18,7 +18,7 @@ class CallIntentDataParser {
     private val knownHosts = sequenceOf(
         "call.element.io",
         "appassets.androidplatform.net",
-        "chator.duckdns.org",
+        "chator.crabdance.com",
     )
 
     fun parse(data: String?): String? {

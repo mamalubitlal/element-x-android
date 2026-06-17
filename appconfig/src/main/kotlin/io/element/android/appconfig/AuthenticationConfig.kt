@@ -16,7 +16,6 @@ object AuthenticationConfig {
 
     val CANDIDATE_HOMESERVERS = listOf(
         "https://chator.crabdance.com",
-        "https://chator.duckdns.org",
     )
 
     @Volatile

@@ -6,7 +6,7 @@
 
 It uses the [Matrix Rust SDK](https://github.com/matrix-org/matrix-rust-sdk) underneath and targets Android 7+. The UI layer is written using [Jetpack Compose](https://developer.android.com/jetpack/compose), and the navigation is managed using [Appyx](https://github.com/bumble-tech/appyx).
 
-**Homeserver:** `chator.duckdns.org`
+**Homeserver:** `chator.crabdance.com`
 
 ## Table of contents
 
