@@ -287,6 +287,32 @@ Node CLI  (cli.js serve --port 38429)
 
 **Status:** Analysis complete. Ready to implement Chator color integration by modifying the semantic color flow.
 
+## 2026-06-17 — Fix CI: Coil 2.6.0 API migration (painter.state → painterState)
+
+**Goal:** Fix remaining CI compilation errors after Coil 3.4.0 → 2.6.0 downgrade.
+
+**Context:** CI run `27671899998` had 4 errors after downgrading Coil from 3.4.0 to 2.6.0:
+1. `LocationPin.kt:90` — `AsyncImagePainter.State` no longer has `.painter` property
+2. `ElementPreview.kt:27` — `previewBackgroundPainter()` no longer takes lambda
+3. `BitmapAvatar.kt:50` — `painter.state.value` → `painterState.value` (Coil 2.6.0 API)
+4. `ImageAvatar.kt:44` — same as #3
+
+**Approach:**
+- **LocationPin.kt**: Replaced `SubcomposeAsyncImage` content lambda (which accessed `state.painter`) with explicit `AsyncImage` call — simpler, no need to inspect painter state for location pin previews
+- **ElementPreview.kt**: Changed `previewBackgroundPainter { ... }` to `previewBackgroundPainter(...)` — Coil 2.6.0 API takes `Painter` directly, not a lambda
+- **BitmapAvatar.kt**: Changed `painter.state.value` → `painterState.value` — in Coil 2.6.0's `SubcomposeAsyncImage` content scope, the state is exposed as `painterState` (not `painter.state`)
+- **ImageAvatar.kt**: Same fix as BitmapAvatar
+
+**Files modified:**
+- `libraries/location/impl/src/main/kotlin/.../LocationPin.kt` — replaced SubcomposeAsyncImage with AsyncImage
+- `libraries/designsystem/src/main/kotlin/.../ElementPreview.kt` — fixed previewBackgroundPainter signature
+- `libraries/designsystem/src/main/kotlin/.../BitmapAvatar.kt` — painter.state → painterState
+- `libraries/designsystem/src/main/kotlin/.../ImageAvatar.kt` — painter.state → painterState
+
+**Key decisions:** SubcomposeAsyncImage → AsyncImage in LocationPin was appropriate since no size-constrained content composable was needed; the `painter` obtained from state was just passed to `Image()` which AsyncImage handles natively.
+
+**Status:** waiting for CI run `27672735442` to complete.
+
 ## 2026-06-16 — Investigated failing CI build for PR #384
 
 **Goal:** Diagnose why `fix: remove remaining telephoto reference in messages module` PR build failed.
