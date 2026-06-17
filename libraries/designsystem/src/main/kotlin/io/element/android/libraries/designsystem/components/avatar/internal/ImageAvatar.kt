@@ -41,7 +41,7 @@ internal fun ImageAvatar(
             .size(size)
             .clip(avatarShape)
     ) {
-        val collectedState by painter.state.collectAsState()
+        val collectedState = painter.state.value
         when (val state = collectedState) {
             is AsyncImagePainter.State.Success -> SubcomposeAsyncImageContent()
             is AsyncImagePainter.State.Error -> {
