@@ -33,7 +33,7 @@ internal class AvatarDataFetcherFactory(
             else -> {
                 // If the URL does not use the mxc scheme, it might be a local one using `content://`, try using a fallback fetcher
                 val uri = Uri.parse(data.url!!)
-                imageLoader.components.newFetcher(uri, options, imageLoader) as? Fetcher<*>
+                imageLoader.components.newFetcher(uri, options, imageLoader) as? Fetcher
             }
         }
     }
