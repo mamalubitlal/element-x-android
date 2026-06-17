@@ -44,14 +44,16 @@ import io.element.android.services.analytics.compose.LocalAnalyticsService
 import io.element.android.x.di.AppBindings
 import io.element.android.x.intent.SafeUriHandler
 import kotlinx.coroutines.launch
+import com.appodeal.ads.ApdInitializationCallback
+import com.appodeal.ads.ApdInitializationError
 import com.appodeal.ads.Appodeal
-import com.appodeal.ads.initialization.ApdInitializationCallback
 import io.element.android.libraries.core.data.AdProviderHolder
+import io.element.android.libraries.core.data.WatchedAdsStore
 import io.element.android.libraries.core.data.WatchedAdsStoreHolder
-import com.appodeal.ads.initialization.ApdInitializationError
 import io.element.android.features.call.impl.utils.CallServiceHolder
 import io.element.android.features.call.impl.utils.DefaultCurrentCallService
 import io.element.android.x.RewardedAdManager
+import timber.log.Timber
 
 private val loggerTag = LoggerTag("MainActivity")
 

@@ -18,7 +18,7 @@ class RewardedAdManager(
             override fun onRewardedVideoShown() {}
             override fun onRewardedVideoShowFailed() {}
             override fun onRewardedVideoClicked() {}
-            override fun onRewardedVideoFinished(amount: Double, name: String?) {
+            override fun onRewardedVideoFinished(amount: Double, currency: String) {
                 if (isEarningReward) {
                     watchedAdsStore.watchedAds += 1
                 }
@@ -28,7 +28,7 @@ class RewardedAdManager(
         })
     }
 
-    fun showAd(isEarningReward: Boolean, onAdFinished: () -> Unit) {
+    override fun showAd(isEarningReward: Boolean, onAdFinished: () -> Unit) {
         this.isEarningReward = isEarningReward
         if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
             Appodeal.show(activity, Appodeal.REWARDED_VIDEO)
