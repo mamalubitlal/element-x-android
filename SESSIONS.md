@@ -1,3 +1,39 @@
+## 2026-06-17 — Change default server from IP/duckdns to chator.crabdance.com
+
+**Goal:** Fix registration screen auto-selecting IP address (`http://85.209.2.14:8008`) instead of the canonical чатор domain.
+
+**Context:** Two issues reported: (1) registration connects to IP:port instead of `chator.crabdance.com`, (2) server says doesn't support Matrix Auth Service (server-side issue).
+
+**Root cause:** `AuthenticationConfig.CANDIDATE_HOMESERVERS` had `"http://85.209.2.14:8008"` first — the server picker auto-selects index 0. Also `chator-config.properties` still pointed to `chator.duckdns.org`.
+
+**Approach:**
+- Replaced `CANDIDATE_HOMESERVERS` entry: removed IP address, put `https://chator.crabdance.com` first, kept `https://chator.duckdns.org` as fallback
+- Updated `chator-config.properties`: `CHATOR_HOMESERVER_URL` and `CHATOR_SERVER_NAME` → `chator.crabdance.com`
+
+**Files modified:**
+- `appconfig/src/main/kotlin/.../AuthenticationConfig.kt` — reordered CANDIDATE_HOMESERVERS
+- `chator-config.properties` — updated home/server names
+
+**Key decisions:** The "doesn't support Matrix auth service" error is server-side (Synapse/Dendrite needs OIDC/MAS). Left `customMatrixUrl` in SharedPreferences alone — existing users' saved URLs untouched.
+
+**Status:** done — committed and pushed.
+
+## 2026-06-17 — Fix full чатор build, download APK, install and run on emulator
+
+**Goal:** Fix all compilation errors (Coil 2.6.0 downgrade + Appodeal 4.1.0 regressions), get чатор CI build #418 to pass, download the debug APK, install on emulator, and verify it launches.
+
+**Context:** Upstream element-x-android repo downgraded Coil from 3.4.0 to 2.6.0, breaking 4 files. чатор fork additionally has Appodeal ads SDK integration (4.1.0) with API breaking changes. Build uses `-Werror`. ~130MB+ artifact.
+
+**Files modified:**
+- `features/preferences/impl/src/.../ClearCacheUseCase.kt` — `@OptIn(ExperimentalCoilApi::class)`
+- `libraries/push/impl/src/.../DefaultNotificationBitmapLoader.kt` — Coil 3→2 API migration
+- `libraries/matrixmedia/impl/src/.../CoilMediaFetcher.kt` — `import okio.FileSystem`
+- `libraries/matrixmedia/impl/src/.../AvatarDataFetcherFactory.kt` — `as? Fetcher<*>` → `as? Fetcher`
+- `app/src/main/kotlin/.../MainActivity.kt` — Appodeal 4.1.0 init API fix
+- `app/src/main/kotlin/.../RewardedAdManager.kt` — `onRewardedVideoFinished` signature fix
+
+**Status:** DONE — чатор 0.1.0 (debug) built, downloaded, installed on emulator localhost:5555, and launched with MainActivity in focus.
+
 ## 2026-06-17 — Fix Coil 2.6.0 `painter.state` API compatibility in 3 files
 
 **Goal:** Resolve CI compilation errors caused by using Coil 3.x `collectAsState()` pattern on Coil 2.6.0's delegated `state` property.
@@ -395,3 +431,99 @@ Node CLI  (cli.js serve --port 38429)
 **Key decisions:** Used pdf-renderer over AndroidPdfViewer for Compose-native API. Coil 3 over 2 for compose-multiplatform consistency.
 
 **Status:** done — committed as `22c3abacf8`
+
+## 2026-06-17 — Fix Coil 2.6.0 API in push module + @ExperimentalCoilApi opt-in
+
+**Goal:** Fix remaining CI compilation failures for Coil 2.6.0 downgrade in `libraries/push/impl` and `features/preferences/impl`.
+
+**Context:** After fixing `libraries/matrixmedia/impl` (GifDecoder, ImageSource, ImageLoaderFactories), the APK build still failed:
+- `features/preferences/impl`: `ClearCacheUseCase.kt:51` — `diskCache?.clear()` / `memoryCache?.clear()` need `@OptIn(ExperimentalCoilApi)` because Coil 2 marks these as experimental.
+- `libraries/push/impl`: `DefaultNotificationBitmapLoader.kt` — uses Coil 3 imports (`coil.toBitmap`, `coil.request.transformations`) and `.image?.toBitmap()` which don't exist in Coil 2.
+
+**Approach:**
+- `ClearCacheUseCase.kt`: Added `import coil.annotation.ExperimentalCoilApi` + `@OptIn(ExperimentalCoilApi::class)` on `invoke()`.
+- `DefaultNotificationBitmapLoader.kt`: Replaced Coil 3 imports with `coil.request.SuccessResult`, added `Drawable.toBitmap()` private extension (handles `BitmapDrawable` fast-path + generic Canvas fallback). Used `SuccessResult.drawable` instead of `.image`.
+
+**Files modified:**
+- `features/preferences/impl/.../tasks/ClearCacheUseCase.kt` — +@OptIn annotation
+- `libraries/push/impl/.../notifications/DefaultNotificationBitmapLoader.kt` — Coil 2 API migration
+
+**Key decisions:**
+- `Drawable.toBitmap()` as private extension keeps the call site clean vs inlining Canvas boilerplate.
+- `@OptIn` at function level rather than file level to keep scope minimal.
+
+**Remaining:** "Test" and "Code Quality Checks" workflows may have pre-existing failures (not Coil-related). Nightly APK build fails with AAPT resource linking (pre-existing).
+
+**Status:** fired CI build #413 (чатор), #188 (APK). Both failed — чатор had one remaining error: missing `import okio.FileSystem` in `CoilMediaFetcher.kt:55`. Fixed and pushed as `b0b77b890d`.
+
+## 2026-06-17 — Fix missed okio.FileSystem import in CoilMediaFetcher
+
+**Goal:** Fix the last чатор Android build compilation error.
+
+**Context:** Build #413 (чатор Android) failed with a single error: `CoilMediaFetcher.kt:55:38 Unresolved reference 'FileSystem'`. The `ImageSource(file = path, fileSystem = ...)` overload in Coil 2.6.0 is valid — the `import okio.FileSystem` was simply missing after the downgrade.
+
+**Approach:** Added `import okio.FileSystem` to `CoilMediaFetcher.kt`.
+
+**Files modified:**
+- `libraries/matrixmedia/impl/.../CoilMediaFetcher.kt` — +1 import
+
+**Status:** committed as `b0b77b890d` — waiting for CI build
+
+## 2026-06-17 — Fix Coil 2 newFetcher return type mismatch in AvatarDataFetcherFactory
+
+**Goal:** Fix чатор Android build compilation error in AvatarDataFetcherFactory.
+
+**Context:** Build #414 (чатор Android) revealed a new error after fixing the `FileSystem` import: `AvatarDataFetcherFactory.kt:26` — "Return type mismatch: expected 'Fetcher?', actual 'Any?'". The `imageLoader.components.newFetcher(uri, options, imageLoader)` call in the fallback branch returns `Fetcher<Uri>?` (Coil 2 generic type), which differs from `Fetcher<MediaRequestData>` from the `CoilMediaFetcher` branch, causing Kotlin to infer `Any?` for the `when` expression.
+
+**Approach:** Added `as? Fetcher<*>` safe cast to normalize the fallback branch type.
+
+**Files modified:**
+- `libraries/matrixmedia/impl/.../AvatarDataFetcherFactory.kt` — +`as? Fetcher<*>` cast
+
+**Status:** committed as `d5b9854f8b` — CI build #415 failed with `Fetcher<*>` (Coil 2 Fetcher is non-generic)
+
+## 2026-06-17 — Fix Fetcher generic type for Coil 2 in AvatarDataFetcherFactory
+
+**Goal:** Fix "No type arguments expected for Fetcher" compilation error.
+
+**Context:** Build #415 revealed that Coil 2's `Fetcher` is a non-generic `fun interface`, not `Fetcher<T>` like Coil 3. Using `as? Fetcher<*>` caused "No type arguments expected".
+
+**Approach:** Changed `as? Fetcher<*>` → `as? Fetcher`.
+
+**Files modified:**
+- `libraries/matrixmedia/impl/.../AvatarDataFetcherFactory.kt` — removed `*` from Fetcher cast
+
+**Status:** committed as `7a30449132` — CI build #416 failed: 11 чатор-specific `:app` module errors (Appodeal SDK, Timber, WatchedAdsStore)
+
+## 2026-06-17 — Fix Appodeal 4.1.0 API + missing imports in чатор app module
+
+**Goal:** Fix all чатор-specific `:app` module compilation errors exposed after Coil 2.6.0 fixes unblocked matrixmedia/preferences/push modules.
+
+**Context:** Once Coil-related modules compiled, the build progressed to `:app` module which has чатор-specific code with 4 categories of errors:
+1. Appodeal `initialization` package removed in v4.1.0 — `ApdInitializationCallback`/`ApdInitializationError` moved from `com.appodeal.ads.initialization.*` to `com.appodeal.ads.*`
+2. `RewardedVideoCallbacks.onRewardedVideoFinished` signature changed: `name: String?` → `currency: String`
+3. Missing `override` on `showAd()` implementing `AdProvider` fun interface
+4. Missing imports: `timber.log.Timber` (8 usages), `WatchedAdsStore` (field type)
+
+**Approach:**
+- `MainActivity.kt`: Fixed 2 import package paths, added 2 missing imports
+- `RewardedAdManager.kt`: Fixed `onRewardedVideoFinished` signature, added `override`
+
+**Files modified:**
+- `app/.../x/MainActivity.kt` — imports only
+- `app/.../x/RewardedAdManager.kt` — 2 lines changed
+
+**Key decisions:** Confirmed Appodeal 4.x API via GitHub examples (react-native-appodeal fork). The `RewardedVideoCallbacks` interface gained no new required methods.
+
+**Status:** committed as `ff6e2cc7f5` — чатор CI build #417 failed (ApdInitializationCallback/Error not found at `com.appodeal.ads` either)
+
+## 2026-06-17 — Remove ApdInitializationCallback refs, use Appodeal 4.x lambda API
+
+**Goal:** Fix чатор build #417 where `ApdInitializationCallback`/`ApdInitializationError` were unresolvable at both `com.appodeal.ads.initialization` and `com.appodeal.ads.*`. In Appodeal 4.x, these classes were fully removed — initialization uses Kotlin SAM conversion directly.
+
+**Approach:** Replaced the anonymous `object : ApdInitializationCallback { ... }` with a trailing lambda `Appodeal.initialize(ctx, key, types) { ... }`. Removed both callback import lines.
+
+**Files modified:**
+- `app/.../x/MainActivity.kt` — removed 2 imports, simplified initialize call from 10 lines → 3 lines
+
+**Status:** ✅ **SUCCESS** — committed as `f2792b9c43`, чатор CI build #418 passed.

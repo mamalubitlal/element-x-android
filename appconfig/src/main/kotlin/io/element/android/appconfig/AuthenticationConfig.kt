@@ -15,7 +15,7 @@ object AuthenticationConfig {
     const val DEFAULT_MATRIX_URL = BuildConfig.DEFAULT_MATRIX_URL
 
     val CANDIDATE_HOMESERVERS = listOf(
-        "http://85.209.2.14:8008",
+        "https://chator.crabdance.com",
         "https://chator.duckdns.org",
     )
 
