@@ -11,8 +11,6 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -49,8 +47,7 @@ fun BitmapAvatar(
                     .size(size)
                     .clip(avatarShape)
             ) {
-                val currentState by painter.state.collectAsState()
-                when (currentState) {
+                when (val currentState = painter.state) {
                     is AsyncImagePainter.State.Success -> SubcomposeAsyncImageContent()
                     is AsyncImagePainter.State.Error -> {
                         SideEffect {

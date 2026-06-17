@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -153,7 +152,7 @@ private fun BoxWithConstraintsScope.LoadableMapContent(
         }
     )
 
-    val state by painter.state.collectAsState()
+    val state = painter.state
     when (state) {
         is AsyncImagePainter.State.Success -> {
             Image(

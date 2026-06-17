@@ -1,3 +1,26 @@
+## 2026-06-17 — Fix Coil 2.6.0 `painter.state` API compatibility in 3 files
+
+**Goal:** Resolve CI compilation errors caused by using Coil 3.x `collectAsState()` pattern on Coil 2.6.0's delegated `state` property.
+
+**Context:** Coil downgrade from 3.4.0 → 2.6.0 left `painter.state.collectAsState()` calls in 3 files. In Coil 2.x, `AsyncImagePainter.state` is a Compose delegated property (`var state: State by mutableStateOf(...)`) that returns `AsyncImagePainter.State` **directly** — not a `StateFlow`. Three previous CI attempts tried `.value`, `painterState`, and `.collectAsState()` — all failed.
+
+**Root cause:** `AsyncImagePainter.state` in Coil 2.6.0 (source: `coil-compose-base/src/main/java/coil/compose/AsyncImagePainter.kt`):
+```kotlin
+var state: State by mutableStateOf(State.Empty)  // private set
+```
+This delegation means `painter.state` returns the sealed class directly. Coil's own `contentOf()` helper uses `when (val state = painter.state)`. The `collectAsState()` pattern is Coil 3.x only where `state` returns `StateFlow`.
+
+**Approach:** Replace `val x by painter.state.collectAsState()` → `when (val x = painter.state)` in all 3 files.
+
+**Files modified:**
+- `libraries/designsystem/.../avatar/BitmapAvatar.kt` — removed `collectAsState`/`getValue` imports, inlined state
+- `libraries/designsystem/.../avatar/internal/ImageAvatar.kt` — same
+- `features/location/api/.../StaticMapView.kt` — removed `collectAsState` import, used `val state = painter.state`
+
+**Key decisions:** Confirmed correct API by reading Coil 2.6.0 source (tags/2.6.0 via GitHub API). The `SubcomposeAsyncImageScope` in 2.x has `painter: AsyncImagePainter` but no `state` property — state is read from the painter directly.
+
+**Status:** done. All instances fixed and verified. Ready for CI build.
+
 ## 2026-06-16 — Fix CI build: reorder repositories to resolve KMP metadata
 
 **Goal:** Fix Android build failure at `:app:checkGplayDebugAarMetadata` caused by `ui-uikit` and `skiko-android` resolution errors.
