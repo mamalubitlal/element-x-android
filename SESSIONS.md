@@ -1,3 +1,24 @@
+## 2026-06-17 — Build чатор CI #419 green, download APK, install on fast emulator via ADB
+
+**Goal:** Get чатор CI build green after Appodeal 4.x fixes, download the debug APK, and install on the fast emulator.
+
+**Context:** Previous session fixed `ApdInitializationCallback` removal for Appodeal 4.x and got build #418 green. This session triggered a new CI build (#419 / run 27708379097) with the same commits, waited for it to compile (~12 min), downloaded the artifact.
+
+**Approach:**
+- Triggered new CI build on the чатор fork
+- Watched via `gh run watch` PTY until completion (build: success)
+- Downloaded `chator-elementx-debug` artifact (450MB) via `gh run download`
+- Installed via ADB PTY on fast emulator at `localhost:5555`
+- Verified package `im.chator.android.debug` present and `MainActivity` in focus
+
+**Files created/modified:**
+- `C:\chtor\build-artifacts\app-gplay-universal-debug.apk` — downloaded artifact (450MB)
+- `SESSIONS.md` — this entry
+
+**Key decisions:** Used PTY for both watching and downloading (long-running operations). Connected to fast emulator at `localhost:5555` instead of the slow Android Studio emulator at `emulator-5554`.
+
+**Status:** done — чатор v0.1.0 (debug) installed and running on fast emulator.
+
 ## 2026-06-17 — Change default server from IP/duckdns to chator.crabdance.com
 
 **Goal:** Fix registration screen auto-selecting IP address (`http://85.209.2.14:8008`) instead of the canonical чатор domain.
