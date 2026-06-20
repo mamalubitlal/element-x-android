@@ -23,11 +23,12 @@ data class OnBoardingState(
     val canCreateAccount: Boolean,
     val canReportBug: Boolean,
     val version: String,
+    val accountProviderUrl: String,
     @DrawableRes
     val onBoardingLogoResId: Int?,
     val loginMode: AsyncData<LoginMode>,
     val eventSink: (OnBoardingEvents) -> Unit,
 ) {
     val submitEnabled: Boolean
-        get() = defaultAccountProvider != null && (loginMode is AsyncData.Uninitialized || loginMode is AsyncData.Loading)
+        get() = loginMode is AsyncData.Uninitialized || loginMode is AsyncData.Loading
 }

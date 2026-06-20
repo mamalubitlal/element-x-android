@@ -305,15 +305,34 @@ private fun OnBoardingButtons(
         }
         val defaultAccountProvider = state.defaultAccountProvider
         if (defaultAccountProvider == null) {
-            Button(
-                text = stringResource(id = signInButtonStringRes),
-                onClick = {
-                    onSignIn(state.mustChooseAccountProvider)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag(TestTags.onBoardingSignIn)
-            )
+            when {
+                state.mustChooseAccountProvider -> {
+                    // User must choose an account provider from the list
+                    Button(
+                        text = stringResource(id = signInButtonStringRes),
+                        onClick = {
+                            onSignIn(state.mustChooseAccountProvider)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(TestTags.onBoardingSignIn)
+                    )
+                }
+                else -> {
+                    // No forced provider and no choice needed, use the pre-configured homeserver
+                    Button(
+                        text = stringResource(id = signInButtonStringRes),
+                        showProgress = isLoading,
+                        onClick = {
+                            state.eventSink(OnBoardingEvents.OnSignIn(state.accountProviderUrl))
+                        },
+                        enabled = state.submitEnabled || isLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(TestTags.onBoardingSignIn)
+                    )
+                }
+            }
         } else {
             Button(
                 text = stringResource(id = R.string.screen_onboarding_sign_in_to, defaultAccountProvider),

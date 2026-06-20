@@ -50,6 +50,7 @@ fun anOnBoardingState(
     @DrawableRes
     customLogoResId: Int? = null,
     loginMode: AsyncData<LoginMode> = AsyncData.Uninitialized,
+    accountProviderUrl: String = "https://matrix.org",
     eventSink: (OnBoardingEvents) -> Unit = {},
 ) = OnBoardingState(
     isAddingAccount = isAddingAccount,
@@ -63,6 +64,7 @@ fun anOnBoardingState(
     canReportBug = canReportBug,
     version = version,
     loginMode = loginMode,
+    accountProviderUrl = accountProviderUrl,
     onBoardingLogoResId = customLogoResId,
     eventSink = eventSink,
 )

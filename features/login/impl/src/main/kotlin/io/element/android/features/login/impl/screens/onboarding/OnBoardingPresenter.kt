@@ -99,6 +99,7 @@ class OnBoardingPresenter(
         }
 
         val loginMode by loginHelper.collectLoginMode()
+        val accountProvider by accountProviderDataSource.flow.collectAsState()
 
         fun handleEvent(event: OnBoardingEvents) {
             when (event) {
@@ -135,6 +136,7 @@ class OnBoardingPresenter(
             canReportBug = canReportBug && showReportBug,
             loginMode = loginMode,
             version = buildMeta.versionName,
+            accountProviderUrl = accountProvider.url,
             onBoardingLogoResId = onBoardingLogoResId,
             eventSink = ::handleEvent,
         )
