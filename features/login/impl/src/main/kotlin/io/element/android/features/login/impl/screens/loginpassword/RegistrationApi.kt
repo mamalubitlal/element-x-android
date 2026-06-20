@@ -10,8 +10,9 @@ package io.element.android.features.login.impl.screens.loginpassword
 import dev.zacsweers.metro.Inject
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
