@@ -31,12 +31,15 @@ import kotlinx.coroutines.launch
 class LoginPasswordPresenter(
     @Assisted
     private val initialLogin: String,
+    @Assisted
+    private val isAccountCreation: Boolean,
     private val authenticationService: MatrixAuthenticationService,
     private val accountProviderDataSource: AccountProviderDataSource,
+    private val registrationApi: RegistrationApi,
 ) : Presenter<LoginPasswordState> {
     @AssistedFactory
     interface Factory {
-        fun create(initialLogin: String): LoginPasswordPresenter
+        fun create(initialLogin: String, isAccountCreation: Boolean): LoginPasswordPresenter
     }
 
     @Composable
@@ -75,19 +78,41 @@ class LoginPasswordPresenter(
             accountProvider = accountProvider,
             formState = formState.value,
             loginAction = loginAction.value,
+            isAccountCreation = isAccountCreation,
             eventSink = ::handleEvent,
         )
     }
 
     private fun CoroutineScope.submit(formState: LoginFormState, loggedInState: MutableState<AsyncData<SessionId>>) = launch {
         loggedInState.value = AsyncData.Loading()
-        authenticationService.login(formState.login.trim(), formState.password)
-            .onSuccess { sessionId ->
-                loggedInState.value = AsyncData.Success(sessionId)
-            }
-            .onFailure { failure ->
+        if (isAccountCreation) {
+            val baseUrl = accountProviderDataSource.flow.value.url
+            registrationApi.register(
+                baseUrl = baseUrl,
+                username = formState.login.trim(),
+                password = formState.password,
+                initialDeviceName = "chator-android",
+            ).onSuccess { result ->
+                // Registration succeeded, now log in with the same credentials
+                authenticationService.login(formState.login.trim(), formState.password)
+                    .onSuccess { sessionId ->
+                        loggedInState.value = AsyncData.Success(sessionId)
+                    }
+                    .onFailure { failure ->
+                        loggedInState.value = AsyncData.Failure(failure)
+                    }
+            }.onFailure { failure ->
                 loggedInState.value = AsyncData.Failure(failure)
             }
+        } else {
+            authenticationService.login(formState.login.trim(), formState.password)
+                .onSuccess { sessionId ->
+                    loggedInState.value = AsyncData.Success(sessionId)
+                }
+                .onFailure { failure ->
+                    loggedInState.value = AsyncData.Failure(failure)
+                }
+        }
     }
 
     private fun updateFormState(formState: MutableState<LoginFormState>, updateLambda: LoginFormState.() -> LoginFormState) {

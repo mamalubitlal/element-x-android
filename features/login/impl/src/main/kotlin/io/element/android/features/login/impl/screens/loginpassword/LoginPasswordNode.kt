@@ -29,10 +29,11 @@ class LoginPasswordNode(
 ) : Node(buildContext, plugins = plugins) {
     data class Inputs(
         val initialLogin: String,
+        val isAccountCreation: Boolean = false,
     ) : NodeInputs
 
     private val inputs: Inputs = inputs()
-    private val presenter = presenterFactory.create(inputs.initialLogin)
+    private val presenter = presenterFactory.create(inputs.initialLogin, inputs.isAccountCreation)
 
     @Composable
     override fun View(modifier: Modifier) {

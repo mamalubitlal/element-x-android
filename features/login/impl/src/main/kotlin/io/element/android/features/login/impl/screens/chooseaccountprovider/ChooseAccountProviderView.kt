@@ -51,7 +51,7 @@ fun ChooseAccountProviderView(
     state: ChooseAccountProviderState,
     onBackClick: () -> Unit,
     onOAuthDetails: (OAuthDetails) -> Unit,
-    onNeedLoginPassword: () -> Unit,
+    onNeedLoginPassword: (Boolean) -> Unit,
     onLearnMoreClick: () -> Unit,
     onCreateAccountContinue: (url: String) -> Unit,
     modifier: Modifier = Modifier,

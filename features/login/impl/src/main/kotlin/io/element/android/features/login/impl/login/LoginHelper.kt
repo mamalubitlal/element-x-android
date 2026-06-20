@@ -22,6 +22,7 @@ import io.element.android.features.login.impl.screens.onboarding.OnBoardingPrese
 import io.element.android.features.login.impl.web.WebClientUrlForAuthenticationRetriever
 import io.element.android.libraries.architecture.AsyncData
 import io.element.android.libraries.architecture.runCatchingUpdatingState
+import io.element.android.libraries.matrix.api.auth.AuthenticationException
 import io.element.android.libraries.matrix.api.auth.MatrixAuthenticationService
 import io.element.android.libraries.matrix.api.auth.OAuthPrompt
 import io.element.android.libraries.oauth.api.OAuthAction
@@ -76,14 +77,24 @@ class LoginHelper(
                 if (matrixHomeServerDetails.supportsOAuthLogin) {
                     // Retrieve the details right now
                     val oAuthPrompt = if (isAccountCreation) OAuthPrompt.Create else OAuthPrompt.Login
-                    LoginMode.OAuth(
-                        authenticationService.getOAuthUrl(prompt = oAuthPrompt, loginHint = loginHint).getOrThrow()
-                    )
+                    try {
+                        LoginMode.OAuth(
+                            authenticationService.getOAuthUrl(prompt = oAuthPrompt, loginHint = loginHint).getOrThrow()
+                        )
+                    } catch (e: AuthenticationException.OAuth) {
+                        // OIDC provider doesn't support the requested prompt (e.g. prompt=create)
+                        // Fall back to password-based registration if password login is available
+                        if (isAccountCreation && matrixHomeServerDetails.supportsPasswordLogin) {
+                            LoginMode.PasswordLogin(isAccountCreation = true)
+                        } else {
+                            throw e
+                        }
+                    }
                 } else if (isAccountCreation) {
                     val url = webClientUrlForAuthenticationRetriever.retrieve(homeserverUrl)
                     LoginMode.AccountCreation(url)
                 } else if (matrixHomeServerDetails.supportsPasswordLogin) {
-                    LoginMode.PasswordLogin
+                    LoginMode.PasswordLogin(isAccountCreation = false)
                 } else {
                     error("Unsupported login flow")
                 }

@@ -34,7 +34,7 @@ class LoginWithClassicNode(
     LoginWithClassicNavigator {
     interface Callback : Plugin {
         fun navigateToOtherOptions()
-        fun navigateToLoginPassword()
+        fun navigateToLoginPassword(isAccountCreation: Boolean)
         fun navigateToOAuth(oAuthDetails: OAuthDetails)
         fun navigateToCreateAccount(url: String)
         fun navigateToMissingKeyBackup()

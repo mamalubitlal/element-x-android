@@ -71,7 +71,7 @@ fun OnBoardingView(
     onSignIn: (mustChooseAccountProvider: Boolean) -> Unit,
     onCreateAccount: () -> Unit,
     onOAuthDetails: (OAuthDetails) -> Unit,
-    onNeedLoginPassword: () -> Unit,
+    onNeedLoginPassword: (Boolean) -> Unit,
     onLearnMoreClick: () -> Unit,
     onCreateAccountContinue: (url: String) -> Unit,
     onReportProblem: () -> Unit,

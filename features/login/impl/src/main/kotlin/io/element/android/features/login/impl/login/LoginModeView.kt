@@ -33,7 +33,7 @@ fun LoginModeView(
     onClearError: () -> Unit,
     onLearnMoreClick: () -> Unit,
     onOAuthDetails: (OAuthDetails) -> Unit,
-    onNeedLoginPassword: () -> Unit,
+    onNeedLoginPassword: (Boolean) -> Unit,
     onCreateAccountContinue: (url: String) -> Unit
 ) {
     val context = LocalContext.current
@@ -119,7 +119,7 @@ fun LoginModeView(
         is AsyncData.Success -> {
             when (val loginModeData = loginMode.data) {
                 is LoginMode.OAuth -> onOAuthDetails(loginModeData.oAuthDetails)
-                LoginMode.PasswordLogin -> onNeedLoginPassword()
+                is LoginMode.PasswordLogin -> onNeedLoginPassword(loginModeData.isAccountCreation)
                 is LoginMode.AccountCreation -> onCreateAccountContinue(loginModeData.url)
             }
             // Also clear the data, to let the next screen be able to go back

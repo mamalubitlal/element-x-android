@@ -30,7 +30,7 @@ class ChooseAccountProviderNode(
     private val presenter: ChooseAccountProviderPresenter,
 ) : Node(buildContext, plugins = plugins) {
     interface Callback : Plugin {
-        fun navigateToLoginPassword()
+        fun navigateToLoginPassword(isAccountCreation: Boolean)
         fun navigateToOAuth(oAuthDetails: OAuthDetails)
         fun navigateToCreateAccount(url: String)
     }

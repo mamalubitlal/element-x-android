@@ -39,7 +39,7 @@ class OnBoardingNode(
         fun navigateToSignInFlow(mustChooseAccountProvider: Boolean)
         fun navigateToQrCode()
         fun navigateToBugReport()
-        fun navigateToLoginPassword()
+        fun navigateToLoginPassword(isAccountCreation: Boolean)
         fun navigateToOAuth(oAuthDetails: OAuthDetails)
         fun navigateToCreateAccount(url: String)
         fun navigateToDeveloperSettings()

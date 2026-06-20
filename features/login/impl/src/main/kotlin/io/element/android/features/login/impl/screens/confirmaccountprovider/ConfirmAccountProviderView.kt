@@ -39,7 +39,7 @@ import io.element.android.libraries.ui.strings.CommonStrings
 fun ConfirmAccountProviderView(
     state: ConfirmAccountProviderState,
     onOAuthDetails: (OAuthDetails) -> Unit,
-    onNeedLoginPassword: () -> Unit,
+    onNeedLoginPassword: (Boolean) -> Unit,
     onLearnMoreClick: () -> Unit,
     onCreateAccountContinue: (url: String) -> Unit,
     onChange: () -> Unit,

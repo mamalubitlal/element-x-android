@@ -43,7 +43,7 @@ class ConfirmAccountProviderNode(
     )
 
     interface Callback : Plugin {
-        fun navigateToLoginPassword()
+        fun navigateToLoginPassword(isAccountCreation: Boolean)
         fun navigateToOAuth(oAuthDetails: OAuthDetails)
         fun navigateToCreateAccount(url: String)
         fun navigateToChangeAccountProvider()

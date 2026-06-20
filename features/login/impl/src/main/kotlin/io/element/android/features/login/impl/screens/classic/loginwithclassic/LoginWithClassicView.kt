@@ -60,7 +60,7 @@ fun LoginWithClassicView(
     state: LoginWithClassicState,
     onOtherOptionsClick: () -> Unit,
     onOAuthDetails: (OAuthDetails) -> Unit,
-    onNeedLoginPassword: () -> Unit,
+    onNeedLoginPassword: (Boolean) -> Unit,
     onLearnMoreClick: () -> Unit,
     onCreateAccountContinue: (url: String) -> Unit,
     modifier: Modifier = Modifier,

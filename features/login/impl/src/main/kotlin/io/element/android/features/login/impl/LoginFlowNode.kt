@@ -139,6 +139,7 @@ class LoginFlowNode(
         @Parcelize
         data class LoginPassword(
             val initialLogin: String = "",
+            val isAccountCreation: Boolean = false,
         ) : NavTarget
 
         @Parcelize
@@ -157,8 +158,8 @@ class LoginFlowNode(
                         }
                     }
 
-                    override fun navigateToLoginPassword() {
-                        backstack.push(NavTarget.LoginPassword())
+                    override fun navigateToLoginPassword(isAccountCreation: Boolean) {
+                        backstack.push(NavTarget.LoginPassword(isAccountCreation = isAccountCreation))
                     }
 
                     override fun navigateToOAuth(oAuthDetails: OAuthDetails) {
@@ -209,8 +210,8 @@ class LoginFlowNode(
                         backstack.push(NavTarget.AppDeveloperSettings)
                     }
 
-                    override fun navigateToLoginPassword() {
-                        backstack.push(NavTarget.LoginPassword())
+                    override fun navigateToLoginPassword(isAccountCreation: Boolean) {
+                        backstack.push(NavTarget.LoginPassword(isAccountCreation = isAccountCreation))
                     }
 
                     override fun onDone() {
@@ -251,8 +252,8 @@ class LoginFlowNode(
                         backstack.push(NavTarget.CreateAccount(url))
                     }
 
-                    override fun navigateToLoginPassword() {
-                        backstack.push(NavTarget.LoginPassword())
+                    override fun navigateToLoginPassword(isAccountCreation: Boolean) {
+                        backstack.push(NavTarget.LoginPassword(isAccountCreation = isAccountCreation))
                     }
                 }
                 createNode<ChooseAccountProviderNode>(buildContext, listOf(callback))
@@ -278,8 +279,8 @@ class LoginFlowNode(
                         backstack.push(NavTarget.CreateAccount(url))
                     }
 
-                    override fun navigateToLoginPassword() {
-                        backstack.push(NavTarget.LoginPassword())
+                    override fun navigateToLoginPassword(isAccountCreation: Boolean) {
+                        backstack.push(NavTarget.LoginPassword(isAccountCreation = isAccountCreation))
                     }
 
                     override fun navigateToChangeAccountProvider() {
@@ -321,6 +322,7 @@ class LoginFlowNode(
             is NavTarget.LoginPassword -> {
                 val inputs = LoginPasswordNode.Inputs(
                     initialLogin = navTarget.initialLogin,
+                    isAccountCreation = navTarget.isAccountCreation,
                 )
                 createNode<LoginPasswordNode>(buildContext, plugins = listOf(inputs))
             }
