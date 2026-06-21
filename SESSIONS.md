@@ -1,3 +1,46 @@
+## 2026-06-20 — In-app account registration via password screen
+
+**Goal:** Allow users to create new accounts directly in-app when the server doesn't support OIDC/OAuth registration or the OIDC prompt=create fails.
+
+**Context:** Server supports password login but not OIDC account creation. The OIDC provider doesn't support `prompt=create`, so the registration flow in `LoginHelper` fell through to a web-based account creation URL, which also throws `AccountCreationNotSupported` for servers without a web registration page.
+
+**Approach:**
+- `RegistrationApi.kt` — new HTTP client that POSTs to `/_matrix/client/v3/register` with `m.login.dummy` auth, handles session-based multi-step registration per Matrix spec.
+- `LoginMode.PasswordLogin` changed from object to data class with `isAccountCreation: Boolean` flag.
+- Callback chain: `LoginFlowNode` → `LoginPasswordNode.Inputs` → `LoginPasswordPresenter` — all updated to pass `isAccountCreation`.
+- `LoginPasswordPresenter.submit()` branches: when `isAccountCreation=true`, calls `RegistrationApi.register()` first, then `authenticationService.login()` with the same creds.
+- `LoginPasswordState` exposes `isAccountCreation` for future UI differentiation.
+- `LoginHelper.submit()` catches `AuthenticationException.OAuth` from OIDC `prompt=create` failure and falls back to `PasswordLogin(isAccountCreation=true)` when password login is available.
+- `ClassicFlowNode` callback updated for `isAccountCreation` passthrough.
+
+**Files created/modified:**
+- `features/login/impl/.../loginpassword/RegistrationApi.kt` (new)
+- `features/login/impl/.../login/LoginMode.kt`
+- `features/login/impl/.../login/LoginHelper.kt`
+- `features/login/impl/.../login/LoginModeView.kt`
+- `features/login/impl/.../loginpassword/LoginPasswordPresenter.kt`
+- `features/login/impl/.../loginpassword/LoginPasswordState.kt`
+- `features/login/impl/.../loginpassword/LoginPasswordNode.kt`
+- `features/login/impl/.../loginpassword/LoginPasswordStateProvider.kt`
+- `features/login/impl/.../LoginFlowNode.kt`
+- `features/login/impl/.../classic/ClassicFlowNode.kt`
+- `features/login/impl/.../classic/loginwithclassic/LoginWithClassicNode.kt`
+- `features/login/impl/.../classic/loginwithclassic/LoginWithClassicView.kt`
+- `features/login/impl/.../chooseaccountprovider/ChooseAccountProviderNode.kt`
+- `features/login/impl/.../chooseaccountprovider/ChooseAccountProviderView.kt`
+- `features/login/impl/.../confirmaccountprovider/ConfirmAccountProviderNode.kt`
+- `features/login/impl/.../confirmaccountprovider/ConfirmAccountProviderView.kt`
+- `features/login/impl/.../onboarding/OnBoardingNode.kt`
+- `features/login/impl/.../onboarding/OnBoardingView.kt`
+
+**Key decisions:**
+- `RegistrationApi` uses raw `HttpURLConnection` (no OkHttp dependency needed) + `kotlinx.serialization.json` (already a dep in the module).
+- Registration succeeds → login again with same creds to get a session via the SDK (since `RegistrationApi` gets raw Matrix tokens, not SDK session objects).
+- Two-step registration: first request with `m.login.dummy`, if server returns a `session`, retry with the session in auth.
+- `AuthenticationException.OAuth` caught specifically for OIDC prompt failures (not all exceptions) to avoid masking real errors.
+
+**Status:** Done — builds & APK assembled via GH Actions. Needs real-device test.
+
 ## 2026-06-20 — Fix login failure: `setHomeserver()` never called in FOSS flow
 
 **Goal:** Fix the "generic error" when user taps "Continue" → enters credentials on password login screen.

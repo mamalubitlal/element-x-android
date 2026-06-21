@@ -1,0 +1,75 @@
+name: Record Paparazzi golden screenshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to record screenshots on'
+        required: true
+        default: 'develop'
+
+permissions:
+  contents: write
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx8g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8 -XX:+HeapDumpOnOutOfMemoryError -XX:+UseG1GC -Dkotlin.daemon.jvm.options=-Xmx4g
+  CI_GRADLE_ARG_PROPERTIES: --stacktrace --no-configuration-cache
+
+jobs:
+  record:
+    name: Record Paparazzi screenshots
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
+      - name: 💽 Increase swapfile size
+        run: |
+          sudo swapoff -a
+          sudo fallocate -l 8G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          sudo swapon --show
+
+      - name: ⏬ Checkout with LFS
+        uses: nschloe/action-cached-lfs-checkout@v1
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: ☕ Use JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Configure gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      - name: 🗑 Remove old Paparazzi snapshots
+        run: ./gradlew removeOldSnapshots $CI_GRADLE_ARG_PROPERTIES || true
+
+      - name: 📸 Record Paparazzi golden screenshots
+        run: ./gradlew :tests:uitests:recordPaparazziDebug $CI_GRADLE_ARG_PROPERTIES
+
+      - name: Commit and push golden images
+        run: |
+          git config user.name "chator-bot"
+          git config user.email "bot@chator.im"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update Paparazzi golden screenshots"
+            git push
+          fi
