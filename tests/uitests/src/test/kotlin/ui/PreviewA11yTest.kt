@@ -32,12 +32,12 @@ class PreviewA11yTest(
     @get:Rule
     val paparazziRule = PaparazziPreviewRule.createFor(
         preview = preview,
-        locale = "en",
+        locale = "ru",
         renderExtensions = setOf(AccessibilityRenderExtension()),
     )
 
     @Test
     fun snapshot() {
-        ScreenshotTest.runTest(paparazzi = paparazziRule, preview = preview, localeStr = "en")
+        ScreenshotTest.runTest(paparazzi = paparazziRule, preview = preview, localeStr = "ru")
     }
 }

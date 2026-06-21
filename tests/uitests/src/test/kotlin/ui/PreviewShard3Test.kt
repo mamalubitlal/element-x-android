@@ -29,10 +29,10 @@ class PreviewShard3Test(
     val preview: ComposablePreview<AndroidPreviewInfo>,
 ) {
     @get:Rule
-    val paparazziRule = PaparazziPreviewRule.createFor(preview, locale = "en")
+    val paparazziRule = PaparazziPreviewRule.createFor(preview, locale = "ru")
 
     @Test
     fun snapshot() {
-        ScreenshotTest.runTest(paparazzi = paparazziRule, preview = preview, localeStr = "en")
+        ScreenshotTest.runTest(paparazzi = paparazziRule, preview = preview, localeStr = "ru")
     }
 }
