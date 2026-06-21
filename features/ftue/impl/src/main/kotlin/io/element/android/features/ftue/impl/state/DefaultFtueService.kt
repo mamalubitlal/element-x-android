@@ -93,7 +93,8 @@ class DefaultFtueService(
             } else {
                 getNextStep(FtueStep.SessionVerification)
             }
-            FtueStep.SessionVerification -> if (shouldAskNotificationPermissions()) {
+            FtueStep.SessionVerification -> FtueStep.RecoveryKeySetup
+            FtueStep.RecoveryKeySetup -> if (shouldAskNotificationPermissions()) {
                 FtueStep.NotificationsOptIn
             } else {
                 getNextStep(FtueStep.NotificationsOptIn)
@@ -150,6 +151,7 @@ class DefaultFtueService(
 sealed interface FtueStep {
     data object WaitingForInitialState : FtueStep
     data object SessionVerification : FtueStep
+    data object RecoveryKeySetup : FtueStep
     data object NotificationsOptIn : FtueStep
     data object AnalyticsOptIn : FtueStep
     data object LockscreenSetup : FtueStep

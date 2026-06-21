@@ -100,7 +100,16 @@ class SecureBackupFlowNode(
                 val inputs = SecureBackupSetupNode.Inputs(
                     isChangeRecoveryKeyUserStory = false,
                 )
-                createNode<SecureBackupSetupNode>(buildContext, listOf(inputs))
+                val setupCallback = object : SecureBackupSetupNode.Callback {
+                    override fun onBackupSetupDone() {
+                        if (backstack.canPop()) {
+                            backstack.pop()
+                        } else {
+                            callback.onDone()
+                        }
+                    }
+                }
+                createNode<SecureBackupSetupNode>(buildContext, listOf(inputs, setupCallback))
             }
             NavTarget.Change -> {
                 val inputs = SecureBackupSetupNode.Inputs(

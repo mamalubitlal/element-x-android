@@ -31,11 +31,16 @@ class SecureBackupSetupNode(
     presenterFactory: SecureBackupSetupPresenter.Factory,
     private val snackbarDispatcher: SnackbarDispatcher,
 ) : Node(buildContext, plugins = plugins) {
+    interface Callback : Plugin {
+        fun onBackupSetupDone()
+    }
+
     data class Inputs(
         val isChangeRecoveryKeyUserStory: Boolean,
     ) : NodeInputs
 
     private val inputs = inputs<Inputs>()
+    private val callback = plugins.filterIsInstance<Callback>().firstOrNull()
 
     private val presenter = presenterFactory.create(inputs.isChangeRecoveryKeyUserStory)
 
@@ -46,6 +51,7 @@ class SecureBackupSetupNode(
             state = state,
             onSuccess = {
                 postSuccessSnackbar()
+                callback?.onBackupSetupDone()
                 navigateUp()
             },
             onBackClick = ::navigateUp,
