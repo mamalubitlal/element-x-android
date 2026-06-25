@@ -1,3 +1,27 @@
+## 2026-06-25 — Navigation-flow screenshot hierarchy
+
+**Goal:** Create a user-journey-based screenshot tree (organized by Appyx navigation flow) instead of the package-path tree.
+
+**Approach:**
+- Wrote `generate-flow-hierarchy.py` (1156 lines) — Parses 3023 Paparazzi + 22 Compound goldens, matches each to a hardcoded Appyx navigation flow tree, outputs `flow-hierarchy/` with collapsible dark-themed HTML + `hierarchy.json`
+- Flow tree defined as Python dicts with 6 root flows: Onboarding, FTUE, Home, Settings, Room Navigation, Signed Out
+- Matching: longest-package-prefix wins; disambiguation rules for analytics screens
+- All 3045 screenshots mapped (0 unmatched) across 50 flow tree nodes
+- Updated `screenshots-hierarchy.yml` to run script after golden generation, merge into `screen-hierarchy/` for gh-pages deployment
+
+**Files created/modified:**
+- `.github/workflows/scripts/generate-flow-hierarchy.py` (new, 1156 lines)
+- `.github/workflows/screenshots-hierarchy.yml` (modified — added Python flow hierarchy step)
+
+**Key decisions:**
+- Flow tree hardcoded (navigation flows don't change often) not extracted from Appyx runtime
+- Compound screenshots → `Components/Compound/`
+- Libraries → grouped by package under `Libraries/`
+- Longest prefix match ensures deepest flow node wins
+- Dark theme HTML matches existing hierarchy style
+
+**Status:** done — committed to develop, CI will deploy to `https://mamalubitlal.github.io/element-x-android/screenshots/flow-hierarchy/`
+
 ## 2026-06-20 — In-app account registration via password screen
 
 **Goal:** Allow users to create new accounts directly in-app when the server doesn't support OIDC/OAuth registration or the OIDC prompt=create fails.
