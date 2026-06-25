@@ -151,131 +151,197 @@ echo "📝 Building screen hierarchy..."
 # Create a Python script to generate the markdown
 cat > /tmp/generate_docs.py << 'PYTHON_SCRIPT'
 #!/usr/bin/env python3
-import os
-import json
-import glob
+"""Generate hierarchical screen documentation from Paparazzi + Roborazzi screenshots."""
+
+import os, re, json, shutil
+from datetime import datetime, timezone
 from pathlib import Path
 from collections import defaultdict
 
 OUTPUT_DIR = Path("screen-hierarchy")
-OUTPUT_DIR.mkdir(exist_ok=True)
 
-# Scan for screenshots
-screenshot_dirs = [
-    "tests/uitests/src/test/snapshots",
-    "libraries/compound/screenshots",
-]
+# ── Paparazzi filename parser ──────────────────────────────────────────
 
-screenshots = defaultdict(list)
-for dir_path in screenshot_dirs:
-    if os.path.exists(dir_path):
-        for root, dirs, files in os.walk(dir_path):
-            for f in files:
-                if f.endswith(".png"):
-                    rel_path = os.path.relpath(os.path.join(root, f), dir_path)
-                    screenshots[dir_path].append(rel_path)
+def parse_paparazzi(filename):
+    """Parse a Paparazzi PNG filename into (rel_dir, out_name).
 
-print(f"Found screenshots: {sum(len(v) for v in screenshots.values())} total")
+    Input:  "features.ftue.impl.notifications_NotificationsOptInView_Day_0_ru.png"
+    Output: ("features/ftue/impl/notifications", "NotificationsOptInView_Day_0_ru.png")
+    """
+    name = filename
+    if name.endswith(".png"):
+        name = name[:-4]
 
-# Generate markdown
-with open(OUTPUT_DIR / "index.md", "a") as f:
-    f.write("\n## All Screens\n\n")
-    
-    # Group by package/feature
-    by_package = defaultdict(list)
-    
-    for dir_path, shots in screenshots.items():
-        for shot in sorted(shots):
-            # Extract meaningful name from path
-            parts = shot.split(os.sep)
-            if "ui" in parts:
-                # Paparazzi format: ui/<package>.<class>/<method>_<locale>_<config>.png
-                pkg_class = parts[1] if len(parts) > 1 else "unknown"
-                method_file = parts[2] if len(parts) > 2 else shot
-            else:
-                # Roborazzi format
-                pkg_class = parts[0] if parts else "unknown"
-                method_file = shot
-            
-            by_package[pkg_class].append((dir_path, shot, method_file))
-    
-    for pkg in sorted(by_package.keys()):
-        f.write(f"### {pkg}\n\n")
-        for dir_path, shot, method_file in sorted(by_package[pkg], key=lambda x: x[2]):
-            # Copy screenshot to output
-            src = os.path.join(dir_path, shot)
-            dst_name = f"{pkg}.{shot.replace('/', '.').replace(os.sep, '.')}"
-            dst = OUTPUT_DIR / dst_name
-            
-            try:
-                import shutil
-                shutil.copy2(src, dst)
-                f.write(f"#### {method_file}\n\n")
-                f.write(f"![{method_file}]({dst_name})\n\n")
-            except Exception as e:
-                f.write(f"#### {method_file} *(screenshot not found)*\n\n")
-        
-        f.write("---\n\n")
+    # Strip locale suffix (_ru / _en)
+    locale = ""
+    for loc in ("_ru", "_en"):
+        if name.endswith(loc):
+            locale = loc[1:]
+            name = name[: -len(loc)]
+            break
 
-# Generate JSON index for programmatic access
-index_data = {
-    "generated": "2026-06-20T00:00:00Z",
-    "commit": os.popen("git rev-parse --short HEAD").read().strip(),
-    "branch": os.popen("git rev-parse --abbrev-ref HEAD").read().strip(),
-    "packages": {}
-}
+    # Strip _Day_<n> or _Night_<n>
+    mode = ""
+    idx  = ""
+    m = re.search(r"_(Day|Night)_(\d+)$", name)
+    if m:
+        mode, idx = m.group(1), m.group(2)
+        name = name[: m.start()]
 
-for pkg, shots in by_package.items():
-    index_data["packages"][pkg] = [
-        {"name": method_file, "screenshot": f"{pkg}.{shot.replace('/', '.').replace(os.sep, '.')}"}
-        for dir_path, shot, method_file in shots
-    ]
+    # Split package from class at lowercase→Uppercase boundary
+    # "features.ftue.impl.notifications_NotificationsOptInView"
+    #  → "features.ftue.impl.notifications" + "NotificationsOptInView"
+    parts = re.split(r"(?<=[a-z])_(?=[A-Z])", name, maxsplit=1)
+    pkg   = parts[0].replace(".", "/")
+    klass = parts[1] if len(parts) > 1 else parts[0]
 
-with open(OUTPUT_DIR / "hierarchy.json", "w") as f:
-    json.dump(index_data, f, indent=2)
+    # Rebuild filename
+    out_name = klass
+    if mode:   out_name += f"_{mode}"
+    if idx:    out_name += f"_{idx}"
+    if locale: out_name += f"_{locale}"
+    out_name += ".png"
 
-# Generate simple HTML for viewing
+    return pkg, out_name
+
+
+# ── Scan & copy ────────────────────────────────────────────────────────
+
+screenshots = []  # (rel_path_in_output, src_abs_path, display_name)
+
+# 1) Paparazzi ─ flat images/ folder, names encode package path
+paparazzi_dir = "tests/uitests/src/test/snapshots/images"
+if os.path.isdir(paparazzi_dir):
+    for f in sorted(os.listdir(paparazzi_dir)):
+        if not f.endswith(".png"):
+            continue
+        pkg, out_name = parse_paparazzi(f)
+        dst = OUTPUT_DIR / pkg / out_name
+        screenshots.append((dst, os.path.join(paparazzi_dir, f), out_name))
+
+# 2) Roborazzi (Compound) ─ already organised
+compound_dir = "libraries/compound/screenshots"
+if os.path.isdir(compound_dir):
+    for f in sorted(os.listdir(compound_dir)):
+        if not f.endswith(".png"):
+            continue
+        dst = OUTPUT_DIR / "compound" / f
+        screenshots.append((dst, os.path.join(compound_dir, f), f))
+
+print(f"Found {len(screenshots)} screenshots total")
+
+# Copy files into hierarchy
+for dst, src, _ in screenshots:
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+
+# ── Group by top-level directory for index ─────────────────────────────
+
+by_top = defaultdict(list)  # top_dir → list of (dst_rel, src, display_name)
+for dst, src, display_name in screenshots:
+    top = dst.relative_to(OUTPUT_DIR).parts[0]
+    by_top[top].append((dst.relative_to(OUTPUT_DIR), src, display_name))
+
+# ── Markdown index ────────────────────────────────────────────────────
+
+with open(OUTPUT_DIR / "index.md", "w") as md:
+    md.write("# Чатор Android — Screen Hierarchy\n\n")
+    md.write("Auto-generated visual documentation of all app screens.\n\n")
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    md.write(f"**Generated:** {now}\n\n")
+    md.write("---\n\n")
+    md.write("## By Package\n\n")
+
+    for top in sorted(by_top):
+        md.write(f"- [{top}](#{top.lower()})\n")
+    md.write("\n---\n\n")
+
+    for top in sorted(by_top):
+        md.write(f"## {top}\n\n")
+        for dst_rel, _, display_name in sorted(by_top[top], key=lambda x: x[2]):
+            md.write(f"### {display_name}\n\n")
+            md.write(f"![{display_name}]({dst_rel.as_posix()})\n\n")
+        md.write("---\n\n")
+
+# ── HTML index ────────────────────────────────────────────────────────
+
+def build_tree(screenshots_list):
+    """Convert (dst_rel, ...) list into nested dict tree."""
+    root = {}
+    for dst_rel, _, display_name in screenshots_list:
+        parts = dst_rel.as_posix().split("/")
+        node  = root
+        for p in parts[:-1]:
+            node = node.setdefault("_dirs", {}).setdefault(p, {})
+        leaf = node.setdefault("_files", [])
+        leaf.append((parts[-1], display_name))
+    return root
+
+def render_html(node, prefix="", level=1):
+    """Recursively render tree to HTML, prefix tracks directory path for img src."""
+    html = ""
+    tag = f"h{min(level + 1, 6)}"
+    for d in sorted(node.get("_dirs", {})):
+        html += f'<{tag}>{d}</{tag}>\n'
+        html += '<div style="margin-left:1em">\n'
+        html += render_html(node["_dirs"][d], f"{prefix}{d}/", level + 1)
+        html += "</div>\n"
+    for fname, display_name in sorted(node.get("_files", []), key=lambda x: x[0]):
+        html += f'<div class="screen">\n'
+        html += f'  <h4>{display_name}</h4>\n'
+        html += f'  <img src="{prefix}{fname}" alt="{display_name}" loading="lazy">\n'
+        html += f'</div>\n'
+    return html
+
+now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 html = f"""<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Чатор Android — Screen Hierarchy</title>
     <style>
         body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }}
-        .screen {{ margin-bottom: 40px; border: 1px solid #eee; border-radius: 8px; padding: 16px; }}
-        .screen h3 {{ margin-top: 0; color: #333; }}
+        .screen {{ margin-bottom: 24px; border: 1px solid #eee; border-radius: 8px; padding: 12px; }}
+        .screen h4 {{ margin: 0 0 8px; color: #333; }}
         .screen img {{ max-width: 100%; height: auto; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }}
-        .package {{ margin-top: 40px; }}
         .stats {{ background: #f5f5f5; padding: 16px; border-radius: 8px; margin-bottom: 20px; }}
     </style>
 </head>
 <body>
     <h1>Чатор Android — Screen Hierarchy</h1>
     <div class="stats">
-        <strong>Generated:</strong> $(date -u +"%Y-%m-%d %H:%M UTC")<br>
-        <strong>Commit:</strong> $(git rev-parse --short HEAD)<br>
-        <strong>Branch:</strong> $(git rev-parse --abbrev-ref HEAD)<br>
-        <strong>Total Screens:</strong> {sum(len(v) for v in screenshots.values())}
+        <strong>Generated:</strong> {now_str}<br>
+        <strong>Total Screens:</strong> {len(screenshots)}
     </div>
 """
 
-for pkg in sorted(by_package.keys()):
-    html += f'<div class="package"><h2>{pkg}</h2>'
-    for dir_path, shot, method_file in sorted(by_package[pkg], key=lambda x: x[2]):
-        dst_name = f"{pkg}.{shot.replace('/', '.').replace(os.sep, '.')}"
-        html += f'''
-        <div class="screen">
-            <h3>{method_file}</h3>
-            <img src="{dst_name}" alt="{method_file}" loading="lazy">
-        </div>
-        '''
-    html += '</div>'
+for top in sorted(by_top):
+    html += f"<h2>{top}</h2>\n"
+    html += render_html(build_tree(by_top[top]))
 
 html += "</body></html>"
 
 with open(OUTPUT_DIR / "index.html", "w") as f:
     f.write(html)
 
-print(f"Documentation generated in {OUTPUT_DIR}/")
+# ── JSON index ─────────────────────────────────────────────────────────
+
+index_data = {
+    "generated": now_str,
+    "total": len(screenshots),
+    "packages": {},
+}
+
+for top in sorted(by_top):
+    index_data["packages"][top] = [
+        {"name": display_name, "path": dst_rel.as_posix()}
+        for dst_rel, _, display_name in sorted(by_top[top], key=lambda x: x[2])
+    ]
+
+with open(OUTPUT_DIR / "hierarchy.json", "w") as f:
+    json.dump(index_data, f, indent=2)
+
+print(f"✅ Hierarchy generated in {OUTPUT_DIR}/")
 PYTHON_SCRIPT
 
 python3 /tmp/generate_docs.py
