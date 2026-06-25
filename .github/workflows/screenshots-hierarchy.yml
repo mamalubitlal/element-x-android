@@ -67,6 +67,7 @@ jobs:
         run: |
           python .github/workflows/scripts/generate-flow-hierarchy.py
           # Merge into screen-hierarchy for deployment
+          mkdir -p screen-hierarchy/flow-hierarchy/
           cp -r flow-hierarchy/* screen-hierarchy/flow-hierarchy/
 
       - name: Upload hierarchy documentation as artifact
