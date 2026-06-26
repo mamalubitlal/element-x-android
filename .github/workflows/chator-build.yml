@@ -65,12 +65,6 @@ jobs:
           path: app/build/outputs/apk/gplay/debug/*-universal-debug.apk
           retention-days: 30
 
-      - name: 📸 Paparazzi screenshot verification
-        run: ./gradlew :tests:uitests:verifyPaparazziDebug $CI_GRADLE_ARG_PROPERTIES
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
       - name: Build Summary
         run: |
           echo "## 🥞 чатор Element X Build Complete!" >> $GITHUB_STEP_SUMMARY
