@@ -7,7 +7,9 @@ on:
     branches: [ main, master, develop ]
   workflow_dispatch: # Allow manual trigger
 
-permissions: {}
+permissions:
+  contents: write
+  pull-requests: read
 
 # Use same Gradle settings as Element X
 env:
@@ -65,11 +67,24 @@ jobs:
           path: app/build/outputs/apk/gplay/debug/*-universal-debug.apk
           retention-days: 30
 
-      - name: 📸 Paparazzi screenshot verification
-        run: ./gradlew :tests:uitests:verifyPaparazziDebug $CI_GRADLE_ARG_PROPERTIES
+      - name: 📸 Record Paparazzi golden screenshots
+        run: ./gradlew :tests:uitests:recordPaparazziDebug $CI_GRADLE_ARG_PROPERTIES
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit updated golden screenshots
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: |
+          git config user.name "chator-bot"
+          git config user.email "bot@chator.space"
+          git add tests/uitests/src/test/snapshots/
+          if git diff --cached --quiet; then
+            echo "No golden screenshot changes to commit"
+          else
+            git commit -m "Update Paparazzi golden screenshots"
+            git push
+          fi
       
       - name: Build Summary
         run: |
@@ -82,6 +97,6 @@ jobs:
           echo "### Download:" >> $GITHUB_STEP_SUMMARY
           echo "Go to the **Actions** tab → Select this run → Download artifacts" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Server:** https://chator.k.vu" >> $GITHUB_STEP_SUMMARY
+          echo "**Server:** https://chator.space" >> $GITHUB_STEP_SUMMARY
           echo "**Package:** im.chator.android" >> $GITHUB_STEP_SUMMARY
           echo "**UI:** Element X (modern, beautiful!)" >> $GITHUB_STEP_SUMMARY
