@@ -2,7 +2,7 @@
 
 Auto-generated visual documentation of all app screens.
 
-**Generated:** 2026-06-25 16:57 UTC
+**Generated:** 2026-06-26 18:07 UTC
 
 ---
 
