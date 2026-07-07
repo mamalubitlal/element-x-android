@@ -19,7 +19,7 @@ import io.element.android.libraries.preferences.api.store.AppPreferencesStore
 import io.element.android.services.appnavstate.api.ActiveRoomsHolder
 import kotlinx.coroutines.flow.firstOrNull
 
-private const val EMBEDDED_CALL_WIDGET_BASE_URL = "https://chator.crabdance.com/call/"
+private const val EMBEDDED_CALL_WIDGET_BASE_URL = "https://chator.space/call/"
 
 @ContributesBinding(AppScope::class)
 class DefaultCallWidgetProvider(
